@@ -41,4 +41,3 @@ commands/                           # Invoked via /command-name
 Some skills are adapted from open-source projects:
 
 - [obra/superpowers](https://github.com/obra/superpowers) — systematic-debugging, test-driven-development, verification-before-completion, dispatching-parallel-agents, writing-plans
-- [chacha95/claude-code-harness](https://github.com/chacha95/claude-code-harness) — mermaid, fastapi-guidelines (generalized)
