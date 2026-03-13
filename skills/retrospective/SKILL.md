@@ -12,35 +12,6 @@ Smooth work is NOT a target — only unexpected findings and post-failure discov
 
 ---
 
-## Auto-Trigger Rules
-
-**IMPORTANT: This skill should be proactively self-initiated. Do NOT wait for the user to ask.**
-
-At task completion, if ANY of the following signals were present, announce
-"이번 작업을 회고해 스킬로 자산화합니다." and invoke /retrospective immediately.
-
-### Difficulty Signals (Primary Triggers)
-
-- First approach was wrong and had to be changed
-- Root cause was more complex than it appeared (surface ≠ actual problem)
-- Official docs or prior knowledge turned out to be incorrect — had to verify empirically
-- Found a non-obvious solution after multiple failures
-- Spent significant time on "why doesn't this work?"
-
-### Discovery Signals (Valuable Insights)
-
-- Found a better pattern or methodology
-- Discovered an important missing case in existing skills/rules
-- Found unexpected behavior in a framework/tool
-
-### What Does NOT Qualify
-
-- Task completed smoothly as initially planned
-- Simple Q&A (no difficulty)
-- Applied existing knowledge as-is
-
----
-
 ## Step 1: Review Conversation Flow
 
 Look back at what was attempted in this conversation:
