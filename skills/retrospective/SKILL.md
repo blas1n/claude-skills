@@ -54,7 +54,7 @@ Criteria for deciding asset value:
 
 | Type | Target | Location |
 |------|--------|----------|
-| New skill | Reproducible pattern/methodology | `~/.claude/claude-skills/main/skills/<name>/SKILL.md` |
+| New skill | Reproducible pattern/methodology | `~/.claude/claude-skills/skills/<name>/SKILL.md` |
 | Skill update | Missing case/exception | Add section to existing skill file |
 | Project knowledge | Project-specific matters | `.claude/CLAUDE.md` or project memory |
 
@@ -64,7 +64,7 @@ Criteria for deciding asset value:
 
 Write new skill file based on skill-template.md:
 
-1. Write to `~/.claude/claude-skills/main/skills/<slug>/SKILL.md`
+1. Write to `~/.claude/claude-skills/skills/<slug>/SKILL.md`
 2. **Do NOT commit** — host auto-commit poller handles this
 3. After writing, briefly report to the user what insights were captured
 

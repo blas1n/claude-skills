@@ -153,6 +153,21 @@ props_path.write_text(json.dumps(props, ensure_ascii=False), encoding="utf-8")
 cmd += ["--props", str(props_path)]
 ```
 
+### Pitfall: Relative Paths Break When cwd Differs
+
+Remotion CLI runs with `cwd=<remotion_project>/`. If props or output paths are relative to a different directory (e.g. the Python process cwd), they won't resolve correctly.
+
+```python
+# WRONG - relative path breaks because CLI cwd ≠ Python cwd
+props_path = output_dir / "remotion_props.json"  # e.g. "outputs/videos/xxx/props.json"
+cmd += ["--props", str(props_path)]  # Remotion looks for "remotion/outputs/videos/..."
+
+# CORRECT - always resolve to absolute paths
+props_path = (output_dir / "remotion_props.json").resolve()
+output_mp4 = output_path.with_suffix(".mp4").resolve()
+cmd += ["--props", str(props_path)]
+```
+
 ---
 
 ## Key Lessons
@@ -163,5 +178,6 @@ cmd += ["--props", str(props_path)]
 | `--public-dir` flag exists | Not available in Remotion v4 |
 | Symlinks work for asset staging | Webpack bundler does not follow symlinks |
 | Chromium works out of the box in Docker | Shared libraries must be manually installed |
+| Relative paths work with `--props` | CLI resolves paths from its own cwd, not caller's |
 
 **Verification order**: Check CLI flags (`--help`) → Small standalone render test → Python integration test

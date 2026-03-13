@@ -2,7 +2,7 @@
 # 폴링 기반 자동 커밋: claude-skills의 skills/, rules/ 변경을 감지해 커밋
 # macOS LaunchAgent에서 주기적으로 호출됨
 
-SKILLS_DIR="$HOME/.claude/claude-skills/main"
+SKILLS_DIR="$HOME/.claude/claude-skills"
 cd "$SKILLS_DIR" || exit 0
 
 # skills/, rules/ 변경 확인
