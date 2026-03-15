@@ -1,7 +1,6 @@
 ---
 name: asyncpg-transaction-mocking
-description: How to mock nested asyncpg pool.acquire() + conn.transaction() async context managers in pytest
-trigger: When mocking asyncpg connection pool and transactions in tests, especially when code uses `async with pool.acquire() as conn: async with conn.transaction():`
+description: How to mock nested asyncpg pool.acquire() + conn.transaction() async context managers in pytest. Use when mocking asyncpg connection pool and transactions in tests, especially when code uses `async with pool.acquire() as conn: async with conn.transaction():`
 ---
 
 # asyncpg Transaction Mocking
