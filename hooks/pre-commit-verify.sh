@@ -17,7 +17,9 @@ FAILED=0
 # Python 프로젝트: uv + pytest
 if [ -f "pyproject.toml" ] && command -v uv &>/dev/null; then
   echo "[pre-commit] Running pytest..."
-  if ! uv run pytest tests/ --tb=short -q 2>&1; then
+  TEST_DIR="tests/"
+  [ -d "bsage/tests" ] && TEST_DIR="bsage/tests/"
+  if ! uv run pytest "$TEST_DIR" --tb=short -q 2>&1; then
     echo "BLOCKED: Unit tests failed. Fix before committing." >&2
     FAILED=1
   fi
