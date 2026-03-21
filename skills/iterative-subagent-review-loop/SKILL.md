@@ -150,18 +150,40 @@ This applies especially to:
 - Previous session's "no issues" was relative to its severity threshold and prompt framing
 - New session starts fresh with no knowledge of what was already reviewed
 
-**Mitigation:**
-1. **Anchor reviews to a checklist**, not open-ended "find bugs" prompts. Specific categories:
-   - Resource lifecycle (open/close pairs)
-   - ORM session boundaries (detach, lazy load)
-   - Error handling asymmetry (catch A but not B in sibling methods)
-   - Input validation at boundaries
-   - Mutable state sharing
+**Mitigation — Attention Angle Rotation:**
+
+Each session should use a DIFFERENT review angle. Proven angles that each find unique bugs:
+
+| Session | Angle | What it uniquely finds |
+|---------|-------|----------------------|
+| 1 | Security + robustness | Injection, crash paths, missing validation |
+| 2 | Data integrity + async | Race conditions, TOCTOU, lock correctness |
+| 3 | Integration seams | Mock drift, API type mismatch, fixture accuracy |
+| 4 | Error handling symmetry | Sibling methods catching different exceptions |
+| 5 | Operational correctness | Pagination direction, timeout values, idempotency |
+| 6 | Logic bugs in plain sight | Wrong comparison operators, inverted conditions, off-by-one |
+
+**Additional mitigations:**
+1. **Anchor reviews to a checklist**, not open-ended "find bugs" prompts. The angle table above provides the checklist.
 2. **Record what was verified** in commit messages or PR descriptions — so the next reviewer knows what's been checked
 3. **Accept diminishing returns** — after 3 clean rounds with strict criteria, additional reviews find style issues, not bugs
+
+### False Positive Escalation in Late Sessions
+
+**Problem observed (2026-03-21):** As real bugs decrease across sessions, agents feel pressure to "find something" and report increasingly theoretical concerns. False positive rate: ~30% in early sessions → ~70%+ in late sessions.
+
+**Symptoms:**
+- Agent reports issues in files NOT on the branch
+- Agent flags patterns that are "not ideal" but can't produce a reproduction scenario
+- Agent re-reports fixed issues with slightly different framing
+- Agent discovers the same thing is "already safe" after extended analysis
+
+**Rule:** In sessions 4+, explicitly tell the agent: "If you find NO real issues, that is the CORRECT answer. Do not manufacture concerns." Trust the exit condition.
 
 ## Origin
 
 Developed during BSage v2.2 branch review (2026-03-17). 5 rounds were needed for a 53-file branch. Each round discovered 1 critical bug that previous rounds missed, demonstrating that single-pass review is insufficient for large integration branches.
 
 Updated 2026-03-21 after feature/resource branch review (10+ rounds). Key addition: fix validation rule (never apply algorithmic fixes without concrete trace) and cross-session inconsistency mitigation.
+
+Updated 2026-03-21 after feature/agent branch review (6 sessions, 20 sub-agents, 15 fixes). Key additions: wrong-diagnosis-right-area pattern, attention angle rotation table, false positive escalation in late sessions.
