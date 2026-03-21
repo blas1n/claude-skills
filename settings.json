@@ -1,0 +1,62 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__pencil"
+    ]
+  },
+  "env": {
+    "GOOGLE_APPLICATION_CREDENTIALS": "/home/vscode/.claude/credentials/gcloud-adc.json",
+    "GOOGLE_CLOUD_PROJECT": "bsvibe"
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/session-start-stitch.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/stop-notify.sh"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/pre-commit-verify.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/post-commit-retrospective.sh"
+          },
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/post-test-debug-reminder.sh"
+          }
+        ]
+      }
+    ]
+  },
+  "effortLevel": "max"
+}
