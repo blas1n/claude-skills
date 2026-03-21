@@ -131,6 +131,15 @@ This applies especially to:
 - Off-by-one in range/slice
 - Inclusive vs exclusive bounds
 - Coordinate system conversions
+- API parameter semantics (e.g., `latest` vs `oldest` in pagination APIs)
+
+### Wrong Diagnosis, Right Area
+
+**Problem observed (2026-03-21):** Agent diagnosed Slack `latest_ts` loop as tracking the wrong value (oldest instead of newest). Code tracing proved the diagnosis WRONG — the loop correctly ends at newest after reversing. But investigating the area revealed the REAL bug: `params["latest"]` should be `params["oldest"]` (Slack API semantics — `latest` = upper bound, `oldest` = lower bound for forward polling).
+
+**Lesson:** When an agent flags a specific area but the diagnosis doesn't hold up under tracing, **don't dismiss the area**. The agent's attention was drawn there for a reason. Investigate the surrounding code for a different bug in the same region.
+
+**Pattern:** Wrong diagnosis → trace and disprove → keep investigating the flagged area → find real bug nearby.
 
 ## Cross-Session Review Inconsistency
 
