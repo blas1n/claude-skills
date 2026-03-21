@@ -62,9 +62,26 @@ After fixes, launch 1 agent with:
 - Instruction to verify fixes AND find new issues
 - Increasingly strict severity filter each round
 
-## Escalation Pattern
+## Severity Strategy
 
-Narrow the scope and raise the bar each round:
+### Default: All-Severity with Reproduction Requirement
+
+The user's goal is to fix ALL issues including minor ones. The escalation pattern (raising severity bar each round) is wrong for this — it hides minor issues that the user wants fixed.
+
+Instead, use **category rotation** with a constant reproduction requirement:
+
+| Round | Agent count | Category | Instruction |
+|-------|------------|----------|-------------|
+| 1 | 2-3 parallel | Full branch (split by domain) | "All severities. Each issue MUST include a concrete reproduction scenario" |
+| 2 | 1-2 | Files modified in Round 1 + dependents | "Verify fixes + find new issues. Reproduction scenario required" |
+| 3 | 1 | Full branch | "Only issues NOT caught in Rounds 1-2. Reproduction scenario required" |
+| 4+ | 1 | Full branch | "Target: ZERO ISSUES. Report if found, otherwise 'No issues found'" |
+
+**Key difference from escalation:** Severity filter stays at ALL. The reproduction scenario requirement naturally filters out false positives — style suggestions and theoretical concerns cannot produce a concrete "step 1, step 2, crash" scenario, so they self-eliminate.
+
+### Alternative: Escalation (when fast merge is the priority)
+
+Use when the user wants to merge quickly and only cares about critical bugs:
 
 | Round | Agent count | Scope | Severity filter |
 |-------|------------|-------|-----------------|
