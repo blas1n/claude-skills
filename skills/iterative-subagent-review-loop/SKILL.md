@@ -94,7 +94,48 @@ When the agent says "NO ISSUES FOUND" after being told to be strict, trust it. D
 - **Not listing prior fixes** — Agent re-reports same issues, wasting a round
 - **Too-broad review scope in late rounds** — Agent invents style concerns when no real bugs exist
 - **Fixing during review** — Fix and review are separate phases; mixing them causes confusion
+- **Trusting agent diagnosis without verification** — See "Fix Validation" below
+
+## Fix Validation: Never Trust Diagnosis Blindly
+
+**Problem observed (2026-03-21):** Agent reported `bisect_right` as a bug and suggested `bisect_left`. The fix was applied, but `bisect_left` was actually WRONG — it introduced a range inversion bug. A subsequent sub-agent review caught this.
+
+**Root cause:** The reviewing agent's reasoning about boundary semantics was backwards. The fixer (me) accepted the diagnosis without independently verifying the logic.
+
+**Rule: Before applying any fix involving algorithmic logic (bisect, sort, index math, boundary conditions):**
+
+1. **Construct a concrete example** with exact numbers (don't reason abstractly)
+2. **Trace both the current AND proposed code** through that example
+3. **Include a boundary-exact test case** (value == boundary) in the verification
+4. If the fix "obviously makes sense" but you haven't traced an example, STOP — that's when mistakes happen
+
+This applies especially to:
+- bisect_left vs bisect_right
+- Off-by-one in range/slice
+- Inclusive vs exclusive bounds
+- Coordinate system conversions
+
+## Cross-Session Review Inconsistency
+
+**Problem observed (2026-03-21):** After a session declared "zero issues found" with 2 sub-agents, a NEW session found 11 more issues on the same code.
+
+**Why this happens:**
+- Each session's sub-agents have different "attention patterns" — they notice different things
+- Previous session's "no issues" was relative to its severity threshold and prompt framing
+- New session starts fresh with no knowledge of what was already reviewed
+
+**Mitigation:**
+1. **Anchor reviews to a checklist**, not open-ended "find bugs" prompts. Specific categories:
+   - Resource lifecycle (open/close pairs)
+   - ORM session boundaries (detach, lazy load)
+   - Error handling asymmetry (catch A but not B in sibling methods)
+   - Input validation at boundaries
+   - Mutable state sharing
+2. **Record what was verified** in commit messages or PR descriptions — so the next reviewer knows what's been checked
+3. **Accept diminishing returns** — after 3 clean rounds with strict criteria, additional reviews find style issues, not bugs
 
 ## Origin
 
 Developed during BSage v2.2 branch review (2026-03-17). 5 rounds were needed for a 53-file branch. Each round discovered 1 critical bug that previous rounds missed, demonstrating that single-pass review is insufficient for large integration branches.
+
+Updated 2026-03-21 after feature/resource branch review (10+ rounds). Key addition: fix validation rule (never apply algorithmic fixes without concrete trace) and cross-session inconsistency mitigation.
