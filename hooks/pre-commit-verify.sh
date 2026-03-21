@@ -19,6 +19,7 @@ if [ -f "pyproject.toml" ] && command -v uv &>/dev/null; then
   echo "[pre-commit] Running pytest..."
   TEST_DIR="tests/"
   [ -d "bsage/tests" ] && TEST_DIR="bsage/tests/"
+  [ -d "app/core/tests" ] && TEST_DIR="app/"
   if ! uv run pytest "$TEST_DIR" --tb=short -q 2>&1; then
     echo "BLOCKED: Unit tests failed. Fix before committing." >&2
     FAILED=1
