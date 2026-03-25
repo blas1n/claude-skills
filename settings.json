@@ -1,12 +1,12 @@
 {
+  "env": {
+    "GOOGLE_APPLICATION_CREDENTIALS": "/home/vscode/.claude/credentials/gcloud-adc.json",
+    "GOOGLE_CLOUD_PROJECT": "bsvibe"
+  },
   "permissions": {
     "allow": [
       "mcp__pencil"
     ]
-  },
-  "env": {
-    "GOOGLE_APPLICATION_CREDENTIALS": "/home/vscode/.claude/credentials/gcloud-adc.json",
-    "GOOGLE_CLOUD_PROJECT": "bsvibe"
   },
   "hooks": {
     "SessionStart": [
@@ -58,5 +58,6 @@
       }
     ]
   },
+  "skipDangerousModePermissionPrompt": true,
   "effortLevel": "max"
 }
