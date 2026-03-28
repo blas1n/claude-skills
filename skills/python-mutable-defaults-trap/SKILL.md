@@ -1,3 +1,9 @@
+---
+name: python-mutable-defaults-trap
+description: "Python Mutable Defaults Trap — mutable default arguments shared across calls"
+version: 1.0.0
+---
+
 # Python Mutable Defaults Trap
 
 ## When to apply

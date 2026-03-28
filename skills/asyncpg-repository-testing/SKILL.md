@@ -1,3 +1,9 @@
+---
+name: asyncpg-repository-testing
+description: "asyncpg Repository Testing with AsyncMock — mocking pool.acquire() chain for unit tests"
+version: 1.0.0
+---
+
 # asyncpg Repository Testing with AsyncMock
 
 ## Problem

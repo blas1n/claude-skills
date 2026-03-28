@@ -1,3 +1,9 @@
+---
+name: python-async-concurrent-modification-trap
+description: "Python Async Concurrent Modification Trap — mutable collection modified during iteration in coroutines"
+version: 1.0.0
+---
+
 # Python Async: Concurrent Modification Trap
 
 **Problem**: In async code, when a mutable list/dict is iterated in one coroutine while another coroutine modifies it, you get `ValueError` during iteration or silent data loss.

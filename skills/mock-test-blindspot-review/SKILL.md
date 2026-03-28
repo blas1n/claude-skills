@@ -1,6 +1,7 @@
 ---
 name: mock-test-blindspot-review
 description: "When reviewing code with high mock-test coverage (80%+), systematically check for integration-level bugs that mocked tests hide: wrong method calls with correct signatures, missing dependency wiring, and asymmetric error handling across sibling methods."
+version: 1.0.0
 ---
 
 # Mock Test Blindspot Review

@@ -1,3 +1,9 @@
+---
+name: playwright-selector-pitfalls
+description: "Playwright Selector Pitfalls & Strict Mode Fixes for React SPA E2E testing"
+version: 1.0.0
+---
+
 # Playwright Selector Pitfalls & Strict Mode Fixes
 
 ## Metadata

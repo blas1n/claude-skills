@@ -1,6 +1,7 @@
 ---
 name: oauth-callback-token-relay
 description: OAuth callback에서 토큰을 SPA에 안전하게 전달할 때 — redirect/hash fragment 방식이 실패하는 이유와 HTML relay 패턴
+version: 1.0.0
 ---
 
 # OAuth Callback Token Relay for SPAs

@@ -1,3 +1,9 @@
+---
+name: mock-context-setup-gotchas
+description: "Mock Context Setup Gotchas — forgetting to mock new methods causes AttributeError or MagicMock coroutines"
+version: 1.0.0
+---
+
 # Mock Context Setup Gotchas
 
 **Problem**: When adding new methods to a class, mocking the object but forgetting to mock the new methods causes tests to fail with `AttributeError` or return MagicMock coroutines instead of values.

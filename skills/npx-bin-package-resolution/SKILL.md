@@ -1,6 +1,7 @@
 ---
 name: npx-bin-package-resolution
 description: npx resolves package names, not binary names — binaries defined inside a package require -p flag or the package name itself
+version: 1.0.0
 ---
 
 # npx Binary vs Package Name Resolution

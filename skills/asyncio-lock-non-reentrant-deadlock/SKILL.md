@@ -1,6 +1,7 @@
 ---
 name: asyncio-lock-non-reentrant-deadlock
 description: Python asyncio.Lock is NOT reentrant — adding locks to fix race conditions can introduce deadlocks when a locked method calls another locked method
+version: 1.0.0
 ---
 
 # asyncio.Lock Non-Reentrant Deadlock

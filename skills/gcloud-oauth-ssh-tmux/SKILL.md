@@ -1,6 +1,7 @@
 ---
 name: gcloud-oauth-ssh-tmux
 description: gcloud OAuth authentication in SSH/headless environments — use tmux to handle interactive browser flow when no local browser is available
+version: 1.0.0
 ---
 
 # gcloud OAuth in SSH/Headless Environments

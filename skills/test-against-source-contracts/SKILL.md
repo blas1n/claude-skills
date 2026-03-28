@@ -1,3 +1,9 @@
+---
+name: test-against-source-contracts
+description: "Test Against Source Contracts — verify tests match actual API/interface contracts"
+version: 1.0.0
+---
+
 # Test Against Source Contracts
 
 ## When to Use

@@ -1,6 +1,7 @@
 ---
 name: feature-workflow
 description: TDD+E2E 전체 워크플로우. 기능 작업 시작 전 테스트/체크리스트 작성, 구현, 검증, 커밋까지 안내.
+version: 1.0.0
 ---
 
 # Feature Workflow: TDD + E2E

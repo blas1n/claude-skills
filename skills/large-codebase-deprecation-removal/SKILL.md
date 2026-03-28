@@ -1,3 +1,9 @@
+---
+name: large-codebase-deprecation-removal
+description: "Large Codebase: Graceful Deprecation & Removal Strategy for distributed system patterns"
+version: 1.0.0
+---
+
 # Large Codebase: Graceful Deprecation & Removal Strategy
 
 **Problem**: Removing distributed system patterns (e.g., worker nodes) from large Python codebases causes hundreds of test failures across multiple layers.

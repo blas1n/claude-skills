@@ -1,6 +1,7 @@
 ---
 name: uv-git-dependency-cache-trap
 description: uv aggressively caches git dependencies — uv sync/pip install won't fetch latest commits without explicit cache clean + lock upgrade
+version: 1.0.0
 ---
 
 # uv Git Dependency Cache Trap
