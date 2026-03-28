@@ -1,6 +1,7 @@
 ---
 name: orchestrate-worktree
 description: Multi-project worktree orchestration with Ralph Loop — create worktrees, run tasks via claude -p in devcontainers, review until 0 issues, push & PR
+version: 1.0.0
 ---
 
 # Orchestrate Worktree

@@ -1,6 +1,7 @@
 ---
 name: nextjs-middleware-origin-trap
 description: Next.js middleware request.nextUrl.origin returns internal server address (localhost:3000), not the external URL the browser uses — breaks OAuth redirect_uri when behind proxy or port mapping
+version: 1.0.0
 ---
 
 # Next.js Middleware Origin Trap

@@ -1,3 +1,9 @@
+---
+name: python-dict-reference-detach-trap
+description: "Python Dict Reference Detach Trap — filtering list value then removing key detaches the reference"
+version: 1.0.0
+---
+
 # Python Dict Reference Detach Trap
 
 ## Trigger

@@ -1,3 +1,9 @@
+---
+name: sqlalchemy-model-refactoring-patterns
+description: "SQLAlchemy Model Refactoring: Field Removal & Migration Patterns for cascading failures"
+version: 1.0.0
+---
+
 # SQLAlchemy Model Refactoring: Field Removal & Migration Patterns
 
 **Problem**: Removing mapped fields from SQLAlchemy models causes cascading failures in test fixtures, ORM instantiation, and API schemas.

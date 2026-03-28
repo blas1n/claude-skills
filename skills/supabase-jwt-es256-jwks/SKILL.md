@@ -1,6 +1,7 @@
 ---
 name: supabase-jwt-es256-jwks
 description: Supabase JWT가 HS256이 아닌 ES256(ECDSA)을 사용할 때 — jwt_secret으로 검증 실패하며, JWKS endpoint에서 공개키를 가져와야 한다
+version: 1.0.0
 ---
 
 # Supabase JWT ES256 JWKS Auto-Detection

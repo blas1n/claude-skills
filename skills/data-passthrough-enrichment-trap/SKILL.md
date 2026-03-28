@@ -1,6 +1,7 @@
 ---
 name: data-passthrough-enrichment-trap
 description: Adding metadata to a data passthrough layer (gateway, middleware, router) by wrapping the original payload breaks all downstream consumers — use flat merge instead
+version: 1.0.0
 ---
 
 # Data Passthrough Enrichment Trap

@@ -1,3 +1,9 @@
+---
+name: playwright-devcontainer-e2e
+description: "Playwright E2E Testing in Devcontainer: Browser vs API Tradeoffs when GUI libraries unavailable"
+version: 1.0.0
+---
+
 # Playwright E2E Testing in Devcontainer: Browser vs API Tradeoffs
 
 **Problem**: Setting up Playwright E2E tests in a devcontainer environment without X11/GUI libraries. Browser tests fail with missing system dependencies. Attempting to install dependencies requires sudo password (unavailable in automated environments).

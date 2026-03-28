@@ -1,6 +1,7 @@
 ---
 name: e2e-mock-shape-drift
 description: E2E test mock fixtures using wrong API response shape — passes silently because frontend handles malformed data gracefully
+version: 1.0.0
 ---
 
 # E2E Mock Shape Drift

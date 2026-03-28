@@ -1,3 +1,9 @@
+---
+name: pytest-coverage-gotchas
+description: "pytest-cov Coverage Gotchas — diagnosing false coverage failures and async 0% coverage"
+version: 1.0.0
+---
+
 # pytest-cov Coverage Gotchas
 
 **When to use**: Diagnosing why `--cov-fail-under=80` fails even when the report shows "80%", or why certain async code shows 0% despite tests running.

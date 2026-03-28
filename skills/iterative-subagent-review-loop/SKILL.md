@@ -1,6 +1,7 @@
 ---
 name: iterative-subagent-review-loop
 description: "Use when reviewing and hardening a branch before merge. Runs a fix→verify→sub-agent-review loop until zero issues remain. Effective for large branches (10+ files) where single-pass review misses integration bugs."
+version: 1.0.0
 ---
 
 # Iterative Sub-Agent Review Loop

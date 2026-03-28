@@ -1,6 +1,11 @@
 ---
 name: dispatching-parallel-agents
 description: Use when facing 2+ independent tasks that can be worked on without shared state or sequential dependencies
+version: 1.0.0
+task_types: [workflow]
+required_tools: [Agent, Bash]
+triggers:
+  - pattern: "facing 2+ independent tasks that can be worked on without shared state"
 ---
 
 # Dispatching Parallel Agents

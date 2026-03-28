@@ -1,3 +1,9 @@
+---
+name: alembic-postgres-enum-migration
+description: "Alembic + PostgreSQL Enum Migration — avoid ALTER TYPE ADD VALUE in migrations, use DROP/RECREATE pattern instead"
+version: 1.0.0
+---
+
 # Alembic + PostgreSQL Enum Migration
 
 ## When to Use

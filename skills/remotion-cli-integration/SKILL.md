@@ -1,3 +1,9 @@
+---
+name: remotion-cli-integration
+description: "Remotion CLI Integration (Python Subprocess) — patterns and pitfalls for video rendering"
+version: 1.0.0
+---
+
 # Remotion CLI Integration (Python Subprocess)
 
 Patterns and pitfalls when calling Remotion CLI from Python via subprocess for video rendering.

@@ -1,3 +1,9 @@
+---
+name: plugin-unit-testing-patterns
+description: "Plugin Unit Testing Patterns — mocking external APIs and complex context objects without brittle tests"
+version: 1.0.0
+---
+
 # Plugin Unit Testing Patterns
 
 **Context**: BSage plugins are entry points that execute user-defined logic. They interact with external APIs (Slack, Discord, WhatsApp) and complex context objects (SkillContext with garden, llm, chat, logger, config).

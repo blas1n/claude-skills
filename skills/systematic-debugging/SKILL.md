@@ -1,6 +1,11 @@
 ---
 name: systematic-debugging
 description: Use when encountering any bug, test failure, or unexpected behavior, before proposing fixes
+version: 1.0.0
+task_types: [debugging, bugfix]
+required_tools: [Read, Grep, Bash]
+triggers:
+  - pattern: "encountering any bug, test failure, or unexpected behavior"
 ---
 
 # Systematic Debugging

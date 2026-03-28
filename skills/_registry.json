@@ -1,0 +1,369 @@
+[
+  {
+    "name": "alembic-postgres-enum-migration",
+    "path": "skills/alembic-postgres-enum-migration",
+    "description": "Alembic + PostgreSQL Enum Migration — avoid ALTER TYPE ADD VALUE in migrations, use DROP/RECREATE pattern instead",
+    "version": "1.0.0",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "analysis-cost-report",
+    "path": "skills/analysis-cost-report",
+    "description": "BSGateway cost analysis skill for generating usage and cost reports",
+    "version": "1.0.0",
+    "task_types": [
+      "analysis",
+      "reporting"
+    ],
+    "executor": "claude_code"
+  },
+  {
+    "name": "asyncio-lock-non-reentrant-deadlock",
+    "path": "skills/asyncio-lock-non-reentrant-deadlock",
+    "description": "Python asyncio.Lock is NOT reentrant — adding locks to fix race conditions can introduce deadlocks when a locked method calls another locked method",
+    "version": "1.0.0",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "asyncpg-repository-testing",
+    "path": "skills/asyncpg-repository-testing",
+    "description": "asyncpg Repository Testing with AsyncMock — mocking pool.acquire() chain for unit tests",
+    "version": "1.0.0",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "asyncpg-transaction-mocking",
+    "path": "skills/asyncpg-transaction-mocking",
+    "description": "How to mock nested asyncpg pool.acquire() + conn.transaction() async context managers in pytest. Use when mocking asyncpg connection pool and transactions in tests, especially when code uses `async with pool.acquire() as conn: async with conn.transaction():`",
+    "version": "1.0.0",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "bisect-boundary-direction-trap",
+    "path": "skills/bisect-boundary-direction-trap",
+    "description": "bisect_left vs bisect_right confusion when clamping values to interval boundaries — choosing wrong direction silently inverts ranges",
+    "version": "1.0.0",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "coding-general",
+    "path": "skills/coding-general",
+    "description": "Generic coding skill for implementation, refactoring, and bugfix tasks",
+    "version": "1.0.0",
+    "task_types": [
+      "coding",
+      "refactor",
+      "bugfix"
+    ],
+    "executor": "claude_code"
+  },
+  {
+    "name": "content-blog-post",
+    "path": "skills/content-blog-post",
+    "description": "Blog post writing skill for bsvibe.dev/blog style technical content",
+    "version": "1.0.0",
+    "task_types": [
+      "content_writing",
+      "blog"
+    ],
+    "executor": "claude_code"
+  },
+  {
+    "name": "data-passthrough-enrichment-trap",
+    "path": "skills/data-passthrough-enrichment-trap",
+    "description": "Adding metadata to a data passthrough layer (gateway, middleware, router) by wrapping the original payload breaks all downstream consumers — use flat merge instead",
+    "version": "1.0.0",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "dispatching-parallel-agents",
+    "path": "skills/dispatching-parallel-agents",
+    "description": "Use when facing 2+ independent tasks that can be worked on without shared state or sequential dependencies",
+    "version": "1.0.0",
+    "task_types": [
+      "workflow"
+    ],
+    "executor": "claude_code"
+  },
+  {
+    "name": "e2e-mock-shape-drift",
+    "path": "skills/e2e-mock-shape-drift",
+    "description": "E2E test mock fixtures using wrong API response shape — passes silently because frontend handles malformed data gracefully",
+    "version": "1.0.0",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "fastapi-app-state-fallback-trap",
+    "path": "skills/fastapi-app-state-fallback-trap",
+    "description": "FastAPI app.state getattr fallback creates detached default — mutations lost to garbage collection",
+    "version": "1.0.0",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "fastapi-guidelines",
+    "path": "skills/fastapi-guidelines",
+    "description": "FastAPI backend development guidelines. Domain-Driven Design with Router→Service→Repository layering, SQLModel/SQLAlchemy ORM, async patterns, Pydantic validation, error handling, and TestClient testing.",
+    "version": "1.0.0",
+    "task_types": [
+      "coding",
+      "refactor"
+    ],
+    "executor": "claude_code"
+  },
+  {
+    "name": "feature-workflow",
+    "path": "skills/feature-workflow",
+    "description": "TDD+E2E 전체 워크플로우. 기능 작업 시작 전 테스트/체크리스트 작성, 구현, 검증, 커밋까지 안내.",
+    "version": "1.0.0",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "gcloud-oauth-ssh-tmux",
+    "path": "skills/gcloud-oauth-ssh-tmux",
+    "description": "gcloud OAuth authentication in SSH/headless environments — use tmux to handle interactive browser flow when no local browser is available",
+    "version": "1.0.0",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "iterative-subagent-review-loop",
+    "path": "skills/iterative-subagent-review-loop",
+    "description": "Use when reviewing and hardening a branch before merge. Runs a fix→verify→sub-agent-review loop until zero issues remain. Effective for large branches (10+ files) where single-pass review misses integration bugs.",
+    "version": "1.0.0",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "large-codebase-deprecation-removal",
+    "path": "skills/large-codebase-deprecation-removal",
+    "description": "Large Codebase: Graceful Deprecation & Removal Strategy for distributed system patterns",
+    "version": "1.0.0",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "mermaid",
+    "path": "skills/mermaid",
+    "description": "Generate Mermaid diagrams from user requirements. Supports flowcharts, sequence diagrams, class diagrams, ER diagrams, Gantt charts, and 18 more diagram types.",
+    "version": "1.0.0",
+    "task_types": [
+      "design"
+    ],
+    "executor": "claude_code"
+  },
+  {
+    "name": "mock-context-setup-gotchas",
+    "path": "skills/mock-context-setup-gotchas",
+    "description": "Mock Context Setup Gotchas — forgetting to mock new methods causes AttributeError or MagicMock coroutines",
+    "version": "1.0.0",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "mock-test-blindspot-review",
+    "path": "skills/mock-test-blindspot-review",
+    "description": "When reviewing code with high mock-test coverage (80%+), systematically check for integration-level bugs that mocked tests hide: wrong method calls with correct signatures, missing dependency wiring, and asymmetric error handling across sibling methods.",
+    "version": "1.0.0",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "nextjs-middleware-origin-trap",
+    "path": "skills/nextjs-middleware-origin-trap",
+    "description": "Next.js middleware request.nextUrl.origin returns internal server address (localhost:3000), not the external URL the browser uses — breaks OAuth redirect_uri when behind proxy or port mapping",
+    "version": "1.0.0",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "npx-bin-package-resolution",
+    "path": "skills/npx-bin-package-resolution",
+    "description": "npx resolves package names, not binary names — binaries defined inside a package require -p flag or the package name itself",
+    "version": "1.0.0",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "oauth-callback-token-relay",
+    "path": "skills/oauth-callback-token-relay",
+    "description": "OAuth callback에서 토큰을 SPA에 안전하게 전달할 때 — redirect/hash fragment 방식이 실패하는 이유와 HTML relay 패턴",
+    "version": "1.0.0",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "orchestrate-worktree",
+    "path": "skills/orchestrate-worktree",
+    "description": "Multi-project worktree orchestration with Ralph Loop — create worktrees, run tasks via claude -p in devcontainers, review until 0 issues, push & PR",
+    "version": "1.0.0",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "playwright-devcontainer-e2e",
+    "path": "skills/playwright-devcontainer-e2e",
+    "description": "Playwright E2E Testing in Devcontainer: Browser vs API Tradeoffs when GUI libraries unavailable",
+    "version": "1.0.0",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "playwright-selector-pitfalls",
+    "path": "skills/playwright-selector-pitfalls",
+    "description": "Playwright Selector Pitfalls & Strict Mode Fixes for React SPA E2E testing",
+    "version": "1.0.0",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "plugin-unit-testing-patterns",
+    "path": "skills/plugin-unit-testing-patterns",
+    "description": "Plugin Unit Testing Patterns — mocking external APIs and complex context objects without brittle tests",
+    "version": "1.0.0",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "pytest-asyncmock-unawaited-coroutine",
+    "path": "skills/pytest-asyncmock-unawaited-coroutine",
+    "description": "Patching async stdlib functions (asyncio.sleep, asyncio.create_subprocess_exec) with AsyncMock causes RuntimeWarning about unawaited coroutines during test teardown",
+    "version": "1.0.0",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "pytest-coverage-gotchas",
+    "path": "skills/pytest-coverage-gotchas",
+    "description": "pytest-cov Coverage Gotchas — diagnosing false coverage failures and async 0% coverage",
+    "version": "1.0.0",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "python-async-concurrent-modification-trap",
+    "path": "skills/python-async-concurrent-modification-trap",
+    "description": "Python Async Concurrent Modification Trap — mutable collection modified during iteration in coroutines",
+    "version": "1.0.0",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "python-dict-reference-detach-trap",
+    "path": "skills/python-dict-reference-detach-trap",
+    "description": "Python Dict Reference Detach Trap — filtering list value then removing key detaches the reference",
+    "version": "1.0.0",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "python-mutable-defaults-trap",
+    "path": "skills/python-mutable-defaults-trap",
+    "description": "Python Mutable Defaults Trap — mutable default arguments shared across calls",
+    "version": "1.0.0",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "remotion-cli-integration",
+    "path": "skills/remotion-cli-integration",
+    "description": "Remotion CLI Integration (Python Subprocess) — patterns and pitfalls for video rendering",
+    "version": "1.0.0",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "retrospective",
+    "path": "skills/retrospective",
+    "description": "AUTO-TRIGGER at task completion when difficulty signals detected (wrong first approach, multiple failures, undocumented behavior). Extract insights from difficult work into reusable skills. Do NOT wait for user — execute immediately.",
+    "version": "1.0.0",
+    "task_types": [
+      "review",
+      "workflow"
+    ],
+    "executor": "claude_code"
+  },
+  {
+    "name": "sql-join-or-count-trap",
+    "path": "skills/sql-join-or-count-trap",
+    "description": "SQL JOIN with OR clause causes double-counting in COUNT(*) — use COUNT(DISTINCT id) instead",
+    "version": "1.0.0",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "sqlalchemy-model-refactoring-patterns",
+    "path": "skills/sqlalchemy-model-refactoring-patterns",
+    "description": "SQLAlchemy Model Refactoring: Field Removal & Migration Patterns for cascading failures",
+    "version": "1.0.0",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "supabase-jwt-es256-jwks",
+    "path": "skills/supabase-jwt-es256-jwks",
+    "description": "Supabase JWT가 HS256이 아닌 ES256(ECDSA)을 사용할 때 — jwt_secret으로 검증 실패하며, JWKS endpoint에서 공개키를 가져와야 한다",
+    "version": "1.0.0",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "systematic-debugging",
+    "path": "skills/systematic-debugging",
+    "description": "Use when encountering any bug, test failure, or unexpected behavior, before proposing fixes",
+    "version": "1.0.0",
+    "task_types": [
+      "debugging",
+      "bugfix"
+    ],
+    "executor": "claude_code"
+  },
+  {
+    "name": "test-against-source-contracts",
+    "path": "skills/test-against-source-contracts",
+    "description": "Test Against Source Contracts — verify tests match actual API/interface contracts",
+    "version": "1.0.0",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "test-driven-development",
+    "path": "skills/test-driven-development",
+    "description": "Use when implementing any feature or bugfix, before writing implementation code",
+    "version": "1.0.0",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "uv-git-dependency-cache-trap",
+    "path": "skills/uv-git-dependency-cache-trap",
+    "description": "uv aggressively caches git dependencies — uv sync/pip install won't fetch latest commits without explicit cache clean + lock upgrade",
+    "version": "1.0.0",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "verification-before-completion",
+    "path": "skills/verification-before-completion",
+    "description": "Use when about to claim work is complete, fixed, or passing, before committing or creating PRs - requires running verification commands and confirming output before making any success claims; evidence before assertions always",
+    "version": "1.0.0",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "writing-plans",
+    "path": "skills/writing-plans",
+    "description": "Use when you have a spec or requirements for a multi-step task, before touching code",
+    "version": "1.0.0",
+    "task_types": [],
+    "executor": "claude_code"
+  }
+]

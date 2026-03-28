@@ -1,3 +1,9 @@
+---
+name: fastapi-app-state-fallback-trap
+description: "FastAPI app.state getattr fallback creates detached default — mutations lost to garbage collection"
+version: 1.0.0
+---
+
 # FastAPI app.state getattr Fallback Trap
 
 **Problem**: Using `getattr(request.app.state, "attr", default_mutable)` to defensively access optional app state creates a **detached default** — the fallback value is never stored back on `app.state`, so any mutations to it (like adding tasks to a set) are lost to garbage collection.

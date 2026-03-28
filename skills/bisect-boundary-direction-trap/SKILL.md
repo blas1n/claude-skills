@@ -5,6 +5,7 @@ triggers:
   - Using bisect_left or bisect_right for boundary clamping
   - Clamping segment/interval end times to partition boundaries
   - Binary search on sorted boundary arrays
+version: 1.0.0
 ---
 
 # bisect_left vs bisect_right: Boundary Clamping Direction Trap

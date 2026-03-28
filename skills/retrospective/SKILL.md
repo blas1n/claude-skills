@@ -1,6 +1,11 @@
 ---
 name: retrospective
 description: "AUTO-TRIGGER at task completion when difficulty signals detected (wrong first approach, multiple failures, undocumented behavior). Extract insights from difficult work into reusable skills. Do NOT wait for user — execute immediately."
+version: 1.0.0
+task_types: [review, workflow]
+required_tools: [Read, Write, Grep, Glob]
+triggers:
+  - pattern: "task completion when difficulty signals detected (wrong first approach, multiple failures, undocumented behavior)"
 ---
 
 # Retrospective: Self-Evolution

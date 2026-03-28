@@ -1,6 +1,7 @@
 ---
 name: sql-join-or-count-trap
 description: SQL JOIN with OR clause causes double-counting in COUNT(*) — use COUNT(DISTINCT id) instead
+version: 1.0.0
 ---
 
 # SQL JOIN OR Count Trap
