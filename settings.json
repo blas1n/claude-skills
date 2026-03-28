@@ -58,6 +58,5 @@
       }
     ]
   },
-  "skipDangerousModePermissionPrompt": true,
-  "effortLevel": "max"
+  "skipDangerousModePermissionPrompt": true
 }

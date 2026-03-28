@@ -18,7 +18,7 @@ MetaSummarizer: 테스트 80%+ 달성
 BSage: WebSocket auth 수정 + CORS 설정 가능화
 ```
 
-## Workflow (6 Phases)
+## Workflow (7 Phases)
 
 ### Phase 1: Plan
 
@@ -143,9 +143,24 @@ gh pr create --title "<title>" --body "<english PR body with summary + test plan
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
 ```
 
-### Phase 6: Retrospective
+### Phase 6: Cleanup
 
-After all projects are shipped:
+After PR is merged (check with `gh pr view`), remove worktree and devcontainer:
+
+```bash
+# Use _infra remove-worktree script — handles containers, volumes, slot, branch cleanup
+~/Works/_infra/scripts/remove-worktree.sh <project> <branch-sanitized>
+```
+
+**Rules:**
+- Always wait for PR merge before cleanup
+- NEVER use `docker rm -f` directly — use `remove-worktree.sh` which handles slot/volume/branch cleanup
+- If worktree was already removed but containers remain: `docker-compose -p <compose-name> down --volumes --remove-orphans`
+- Verify with `~/Works/_infra/scripts/status.sh` — no leftover containers or worktrees
+
+### Phase 7: Retrospective
+
+After all projects are shipped and cleaned up:
 1. Run `/retrospective` to capture learnings as reusable skills
 2. Generate a final report:
 
