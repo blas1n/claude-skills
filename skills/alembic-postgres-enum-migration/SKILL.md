@@ -74,3 +74,34 @@ def upgrade() -> None:
 `alembic upgrade head` wraps all pending migrations in a single transaction by default.
 Even if `ADD VALUE` and `UPDATE` are in separate migration files, they share the same transaction.
 The DROP/RECREATE pattern avoids this entirely because it never uses `ADD VALUE`.
+
+## Additional Trap: SQLAlchemy Model Enum DDL Listener
+
+When `env.py` imports models with `Enum(PythonEnum)` columns, SQLAlchemy registers a metadata-level `before_create` DDL listener. Even if the migration uses `create_type=False` on its own Enum instance, `op.create_table()` triggers the model's listener which fires a bare `CREATE TYPE` without idempotency.
+
+**Symptoms:** `DuplicateObjectError: type "enumname" already exists` on fresh DB or after partial migration.
+
+**Fix:** Use raw SQL for enum creation in migrations:
+```python
+def upgrade() -> None:
+    op.execute("""
+        DO $$ BEGIN
+            CREATE TYPE suggestionstatus AS ENUM ('pending', 'approved', 'rejected', 'modified');
+        EXCEPTION WHEN duplicate_object THEN NULL;
+        END $$;
+    """)
+    op.execute("""
+        CREATE TABLE IF NOT EXISTS task_suggestions (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            status suggestionstatus NOT NULL DEFAULT 'pending',
+            ...
+        )
+    """)
+```
+
+Also add `create_type=False` on the model column as defense:
+```python
+status: Mapped[SuggestionStatus] = mapped_column(
+    Enum(SuggestionStatus, create_type=False), default=SuggestionStatus.pending
+)
+```
