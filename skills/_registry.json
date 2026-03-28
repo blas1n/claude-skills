@@ -8,6 +8,17 @@
     "executor": "claude_code"
   },
   {
+    "name": "analysis-cost-report",
+    "path": "skills/analysis-cost-report",
+    "description": "BSGateway cost analysis skill for generating usage and cost reports",
+    "version": "1.0.0",
+    "task_types": [
+      "analysis",
+      "reporting"
+    ],
+    "executor": "claude_code"
+  },
+  {
     "name": "asyncio-lock-non-reentrant-deadlock",
     "path": "skills/asyncio-lock-non-reentrant-deadlock",
     "description": "Python asyncio.Lock is NOT reentrant — adding locks to fix race conditions can introduce deadlocks when a locked method calls another locked method",
@@ -37,6 +48,29 @@
     "description": "bisect_left vs bisect_right confusion when clamping values to interval boundaries — choosing wrong direction silently inverts ranges",
     "version": "1.0.0",
     "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "coding-general",
+    "path": "skills/coding-general",
+    "description": "Generic coding skill for implementation, refactoring, and bugfix tasks",
+    "version": "1.0.0",
+    "task_types": [
+      "coding",
+      "refactor",
+      "bugfix"
+    ],
+    "executor": "claude_code"
+  },
+  {
+    "name": "content-blog-post",
+    "path": "skills/content-blog-post",
+    "description": "Blog post writing skill for bsvibe.dev/blog style technical content",
+    "version": "1.0.0",
+    "task_types": [
+      "content_writing",
+      "blog"
+    ],
     "executor": "claude_code"
   },
   {
