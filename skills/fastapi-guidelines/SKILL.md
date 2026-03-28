@@ -1,6 +1,11 @@
 ---
 name: fastapi-guidelines
 description: FastAPI backend development guidelines. Domain-Driven Design with Router→Service→Repository layering, SQLModel/SQLAlchemy ORM, async patterns, Pydantic validation, error handling, and TestClient testing.
+version: 1.0.0
+task_types: [coding, refactor]
+required_tools: [Read, Edit, Write, Bash]
+triggers:
+  - pattern: "code imports fastapi or user asks about FastAPI development"
 ---
 
 # FastAPI Backend Development Guidelines
