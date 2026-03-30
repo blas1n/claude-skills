@@ -45,6 +45,19 @@ sudo: a terminal is required to read the password
 
 ---
 
+## UPDATE: Browser Tests ARE Possible (2026-03-30)
+
+Browser-based E2E tests CAN work in devcontainers without root access:
+1. Use **micromamba** to install system libraries (glib, nss, xorg, etc.) as user
+2. Create **stub .so files** for libs not in conda-forge (libgbm, libcups)
+3. Install **fonts** (DejaVu Sans) — without fonts, ALL text renders invisible
+4. Set `LD_LIBRARY_PATH` and `FONTCONFIG_*` env vars
+
+See skill: `playwright-headless-missing-fonts` for the font-specific issue.
+See the project's `playwright.config.ts` for the full working configuration.
+
+---
+
 ## Solution: API-Based E2E Testing (Preferred)
 
 ### Why API-Based Is Better for Devcontainers
