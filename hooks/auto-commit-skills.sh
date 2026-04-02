@@ -29,3 +29,4 @@ fi
 
 git add skills/ rules/
 git commit -m "$MSG"
+git push 2>/dev/null || true
