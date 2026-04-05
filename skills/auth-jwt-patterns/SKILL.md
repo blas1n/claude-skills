@@ -106,7 +106,44 @@ async def auth_callback(request: Request) -> HTMLResponse:
 
 ---
 
+## 4. React StrictMode + SSO Redirect Infinite Loop
+
+Silent SSO check via `window.location.href` redirect breaks in React StrictMode.
+
+**Symptom**: Landing page endlessly reloads (white flash loop).
+
+**Root cause**:
+1. `checkSession()` → no local session → redirect to `auth.bsvibe.dev/api/silent-check`
+2. Auth server returns with `?sso_error=1` (no active session)
+3. `checkSession()` detects `sso_error` → removes from URL via `history.replaceState` → returns `null`
+4. **StrictMode calls `initialize()` a second time**
+5. Second call: no local session, no `sso_error` in URL (already removed) → redirects again → **infinite loop**
+
+**Fix**: Use `sessionStorage` flag to survive URL rewrites within the same browser session:
+```typescript
+// session.ts
+const SSO_CHECKED_KEY = 'bsvibe_sso_checked';
+export function markSSOChecked(): void { sessionStorage.setItem(SSO_CHECKED_KEY, '1'); }
+export function wasSSOChecked(): boolean { return sessionStorage.getItem(SSO_CHECKED_KEY) === '1'; }
+export function clearSSOChecked(): void { sessionStorage.removeItem(SSO_CHECKED_KEY); }
+
+// client.ts checkSession()
+if (searchParams.get('sso_error')) {
+  markSSOChecked();  // ← persist before URL cleanup
+  // ... remove sso_error, return null
+}
+if (wasSSOChecked()) return null;  // ← guard before redirect
+
+// On successful login:
+clearSSOChecked();  // ← reset for next session
+```
+
+**Key insight**: Any SSO flow that modifies URL state + relies on `useEffect` is vulnerable to StrictMode double-invocation. The URL mutation (replaceState) is NOT rolled back by StrictMode cleanup, but the effect IS re-run.
+
+---
+
 ## Red Flags
 - "alg value not allowed" → JWT header의 `alg` 확인 (ES256 vs HS256)
 - 로그인 성공 후 즉시 로그인 화면 → 401 interceptor + JWKS 장애
 - callback 후 세션 없음 → hash fragment 유실, relay page 필요
+- 랜딩 페이지 무한 리로딩 → StrictMode + SSO redirect loop (sessionStorage 플래그 필요)
