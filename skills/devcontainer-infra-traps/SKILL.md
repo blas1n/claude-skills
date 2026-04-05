@@ -73,3 +73,24 @@ docker-compose -p bsnexus -f deploy/docker-compose.yml up -d
 # Or via env var
 COMPOSE_PROJECT_NAME=bsnexus docker-compose -f deploy/docker-compose.yml up -d
 ```
+
+---
+
+## 4. Vite HMR Stale Cache in Devcontainer
+
+Vite dev server inside a devcontainer may serve **stale code** even after host files change.
+
+**Symptom**: `curl localhost:3000/src/Component.tsx` shows old variable names. UI elements don't respond to clicks because the wrong state variable is referenced. `btn.click()` does nothing — React handler references a dead variable.
+
+**Root cause**: Vite pre-bundles deps and caches transforms in `node_modules/.vite/`. Volume-mounted source changes trigger HMR, but if the module graph is stale from a previous `pnpm install`, HMR re-serves the cached transform instead of the live file.
+
+**Fix**:
+```bash
+docker exec <container> bash -c 'rm -rf /workspace/frontend/node_modules/.vite && pkill -f vite'
+# Then restart dev server
+```
+
+**Prevention**: After significant frontend changes in a running devcontainer, always verify:
+```bash
+curl -s http://localhost:3000/src/pages/MyPage.tsx | grep "expectedVariable"
+```
