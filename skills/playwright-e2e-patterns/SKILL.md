@@ -46,6 +46,56 @@ Chromium needs `libnss3`, `libgbm`, etc. For libs not in conda-forge, create min
 
 ---
 
+## 1b. Auth Mock with Custom Auth SDKs
+
+### Problem: `addInitScript` sets wrong localStorage key
+
+Custom auth SDKs (e.g., BSVibeAuth) use their own localStorage keys — NOT the ones you'd guess.
+
+**Symptom**: Page redirects to external auth server (e.g., `auth.bsvibe.dev/api/silent-check`) despite mock setup. Screenshot shows auth error JSON instead of app UI.
+
+**Root cause**: `injectAuth` stored tokens under app-specific keys (`bsnexus_access_token`), but the auth SDK reads from its own key (`bsvibe_user`).
+
+**Fix**: Read the SDK source to find the exact key and expected shape.
+```typescript
+// ❌ Wrong — guessing the key name
+localStorage.setItem('myapp_access_token', 'mock-token')
+
+// ✅ Right — match the SDK's actual storage key + full object shape
+const bsvibeUser = {
+  id: 'user-001', email: 'dev@test.dev', tenantId: 'tenant-001',
+  role: 'authenticated', accessToken: 'mock-token',
+  refreshToken: 'mock-refresh', expiresAt: Math.floor(Date.now() / 1000) + 3600,
+}
+localStorage.setItem('bsvibe_user', JSON.stringify(bsvibeUser))
+```
+
+**Diagnosis**: Add `page.on('pageerror')` and `page.on('console')` to a debug test. If the page is blank, check for auth redirects in the call log (`navigated to "https://auth..."` in Playwright output).
+
+---
+
+## 1c. `page.route` Glob vs Query Parameters
+
+### Problem: Mock route doesn't match requests with query params
+
+`page.route('**/api/v1/agents', ...)` does **NOT** match `/api/v1/agents?active_only=true`.
+
+**Symptom**: Catch-all route returns `{}` (empty object) → `response.filter is not a function` → React error boundary → blank page.
+
+**Fix**: Register both with-query and without-query variants:
+```typescript
+// ❌ Only matches bare path
+await page.route('**/api/v1/agents', handler)
+
+// ✅ Also matches with query params
+await page.route('**/api/v1/agents?*', handler)  // with query
+await page.route('**/api/v1/agents', handler)     // without query
+```
+
+**Key rule**: Always check if your API client adds query params (e.g., `axios.get(url, { params })`) and register both route variants.
+
+---
+
 ## 2. Selector Pitfalls
 
 ### Substring matching (default!)

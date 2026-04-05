@@ -40,6 +40,35 @@ mock_db.commit = AsyncMock()    # async
 
 **Rule**: `MagicMock()` as base for mixed sync/async objects.
 
+### MagicMock auto-creates any attribute (incl. private ones)
+`getattr(mock_task, "_bound_agent", None)` returns a MagicMock (truthy!), not None.
+
+```python
+# ❌ getattr fallback is useless against MagicMock
+agent = getattr(task, "_bound_agent", None)  # Always truthy for MagicMock task
+
+# ✅ Duck-type check: verify the attribute has the expected type
+agent = getattr(task, "_bound_agent", None)
+if agent and isinstance(getattr(agent, "executor_type", None), str):
+    # Real agent, not auto-generated MagicMock attr
+```
+
+### SQLAlchemy models can't use `__new__` for test stand-ins
+`Agent.__new__(Agent)` skips `__init__` → no `_sa_instance_state` → attribute assignment crashes.
+
+```python
+# ❌ Crashes: AttributeError: 'Agent' object has no attribute '_sa_instance_state'
+agent = Agent.__new__(Agent)
+agent.executor_type = "bsgateway"
+
+# ✅ Use a dataclass stand-in for unit tests
+@dataclass
+class FakeAgent:
+    executor_type: str = "claude_api"
+    executor_config: dict | None = None
+    system_prompt: str | None = None
+```
+
 ### Patching locally-imported symbols
 `from x import Y` inside a function body: patch at source, not caller:
 
