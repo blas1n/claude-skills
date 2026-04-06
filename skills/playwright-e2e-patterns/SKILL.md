@@ -167,9 +167,62 @@ export class APIClient {
 
 ---
 
+## 4. Live E2E: Mock Auth Token + Real Backend Auth Cascade
+
+### Problem: Mock token triggers signOut cascade
+
+When live E2E tests inject a mock auth token into localStorage but let API calls hit the real backend, **any authenticated endpoint returns 401** → axios response interceptor calls `signOut()` → ProtectedRoute sees `accessToken = null` → redirects to Landing.
+
+**Symptom**: Page shows Landing page or "Sign in to continue" instead of the expected protected page. Confusing because auth injection appears to work (user profile shows in sidebar on first render, then vanishes).
+
+**Root cause chain**:
+```
+Mock token in localStorage
+  → App mounts, reads token, sets accessToken in store ✓
+  → App fetches /api/v1/settings (auth-guarded endpoint)
+  → Real backend rejects mock token → 401
+  → Axios interceptor: if (401) { signOut() }
+  → signOut() clears accessToken from store
+  → ProtectedRoute: if (!accessToken) redirect to "/"
+```
+
+**Fix**: Mock ALL globally-fetched authenticated endpoints, not just `auth/me`:
+```typescript
+// ❌ Only mocking auth/me — other auth-guarded endpoints still hit real backend
+await page.route('**/api/v1/auth/me', handler)
+
+// ✅ Mock every endpoint the app calls on mount that requires auth
+await page.route('**/api/v1/auth/me', handler)
+await page.route('**/api/v1/settings', handler)        // auth guard: admin_settings
+await page.route('**/api/v1/dashboard/**', handler)     // may have auth
+await page.route('**/api/v1/projects', handler)         // GET list on dashboard
+```
+
+**How to find which endpoints need mocking**: 
+1. Check which API calls fire on page mount (React useEffect, useQuery)
+2. For each: `curl -s http://localhost:8000/api/v1/<endpoint>` — if 401, must mock
+3. Check for `Depends(get_current_user)` or `Depends(require_permission(...))` in FastAPI router
+
+**Key insight**: `page.route()` only intercepts browser requests. `page.request.get()` (Playwright API client) bypasses route interception — don't use it for auth-guarded endpoints in live tests.
+
+**Live E2E helper pattern** (proven working):
+```typescript
+export async function setupLiveAuth(page: Page) {
+  await injectAuth(page)  // localStorage tokens
+  await page.route('**/api/v1/auth/me', mockHandler)
+  await page.route('**/api/v1/settings', mockHandler)
+  await page.route('**/api/v1/dashboard/**', mockHandler)
+  await page.route('**/api/v1/projects', mockHandler)
+  // Budget, agents, workers — no auth guard → hit real backend ✓
+}
+```
+
+---
+
 ## Pre-Flight Checklist
 - [ ] Could text appear as substring of another element? → `exact: true`
 - [ ] Does text start with `/`? → use `getByText()` or `code:has-text()`
 - [ ] Does button change text on click? → structural locator
 - [ ] Is text conditionally rendered? → verify in source
 - [ ] `fc-list` empty? → install fonts before testing
+- [ ] Live E2E: does the app fetch auth-guarded APIs on mount? → mock those too
