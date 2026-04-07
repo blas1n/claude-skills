@@ -69,6 +69,26 @@ class FakeAgent:
     system_prompt: str | None = None
 ```
 
+### MagicMock breaks comparison operators (silent TypeError → infinite loop)
+`getattr(mock, "int_field", default)` returns MagicMock (truthy), so `or default` never fires.
+Then comparison operators (`>=`, `<=`, `==`) with int raise `TypeError` in Python 3:
+
+```python
+# ❌ Hang: getattr returns MagicMock, "or 1" doesn't fire, then >= raises TypeError
+#    If caught by broad except → infinite retry loop
+mock_project = MagicMock()
+max_c = getattr(mock_project, "max_concurrent_tasks", 1) or 1  # MagicMock!
+if active_count >= max_c:  # TypeError: '>=' not supported
+
+# ✅ Always set numeric/string attributes explicitly on MagicMock
+mock_project = MagicMock()
+mock_project.max_concurrent_tasks = 1
+mock_project.workspace_dir = None
+```
+
+**Rule**: When mocking objects with numeric attributes used in comparisons,
+always set them explicitly. MagicMock auto-attributes are truthy and non-comparable.
+
 ### Patching locally-imported symbols
 `from x import Y` inside a function body: patch at source, not caller:
 
