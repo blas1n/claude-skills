@@ -54,11 +54,34 @@ def upgrade() -> None:
 ## Checklist
 
 - [ ] Find ALL tables/columns using the target enum (not just the primary table)
+- [ ] **`ALTER TABLE ... ALTER COLUMN ... DROP DEFAULT` BEFORE `ALTER COLUMN TYPE VARCHAR`** if any column has a default value of the enum type — see "DROP DEFAULT trap" below
 - [ ] Convert ALL of them to VARCHAR before DROP TYPE
 - [ ] Do data migration while columns are VARCHAR
 - [ ] Recreate enum with the desired values
 - [ ] Convert ALL columns back to enum with `USING column::enumtype`
+- [ ] Re-`SET DEFAULT` after the type is back to the enum
 - [ ] Write matching downgrade that reverses the process
+- [ ] **Run the fresh-PG smoke test** (see `alembic-fresh-pg-smoke-test` skill) — SQLite tests cannot catch any of these traps
+
+## DROP DEFAULT trap
+
+If a column has a default value (`DEFAULT 'something'`) and that default is typed as the enum, `ALTER COLUMN TYPE VARCHAR` succeeds but the **default expression keeps the old enum type**. Then `DROP TYPE oldenum` fails with:
+
+```
+DependentObjectsStillExistError: cannot drop type oldenum because other objects depend on it
+DETAIL: default value for column foo of table bar depends on type oldenum
+```
+
+**Fix**: drop the default *first*, do the type juggling, then re-set the default:
+
+```python
+op.execute("ALTER TABLE tasks ALTER COLUMN source DROP DEFAULT")
+op.execute("ALTER TABLE tasks ALTER COLUMN source TYPE VARCHAR(20)")
+# ... data migration, DROP TYPE, CREATE TYPE, ALTER COLUMN TYPE back to enum ...
+op.execute("ALTER TABLE tasks ALTER COLUMN source SET DEFAULT 'llm'")
+```
+
+This trap is invisible in SQLite tests because SQLite has no enum types and no per-column type-bound defaults.
 
 ## Why Not `ADD VALUE`?
 
