@@ -96,6 +96,77 @@ await page.route('**/api/v1/agents', handler)     // without query
 
 ---
 
+## 1d. `page.route` Ordering — Specific Before Generic
+
+### Problem: Nested RESTful routes shadow each other
+
+`/api/incidents/:id` (GET detail) and `/api/incidents/:id/resolve` (POST action) share the same base pattern. Registering in the wrong order makes the more specific route unreachable:
+
+```typescript
+// ❌ Wrong order — /resolve matches /api/incidents/* first, returns detail JSON for POST
+await page.route('**/api/incidents/*', handler)        // catches everything
+await page.route('**/api/incidents/*/resolve', handler) // never fires
+```
+
+**Fix**: Register more specific routes FIRST. For the generic catch, use `route.fallback()` when the URL doesn't apply:
+
+```typescript
+// ✅ Specific first
+await page.route('**/api/incidents/*/resolve', (route) =>
+  route.fulfill({ json: { id: 'inc-1', status: 'resolved' } })
+)
+await page.route('**/api/incidents/*', (route) => {
+  // Defensive: if a /resolve URL somehow reaches here, let it fall through
+  if (route.request().url().includes('/resolve')) return route.fallback()
+  return route.fulfill({ json: mockIncidentDetail })
+})
+```
+
+### waitForResponse with method/URL filter
+
+When the same URL pattern is hit with different methods (GET detail + POST resolve), use a callback filter instead of glob:
+
+```typescript
+// ❌ Ambiguous — matches both GET and POST
+await page.waitForResponse('**/api/incidents/*')
+
+// ✅ Filter by method
+await page.waitForResponse((resp) =>
+  resp.url().includes('/api/incidents/') && resp.request().method() === 'GET'
+)
+```
+
+---
+
+## 1e. Layout Page Title Strict Mode Violation
+
+### Problem: Page title text appears in both Layout header and page content
+
+Common SPA pattern: Layout component renders the page title in its header (h2), and the page component also shows the same title as a heading (h3). Playwright strict mode fails:
+
+```
+strict mode violation: getByText('Incident Timeline') resolved to 2 elements:
+  1) <h2 class="...">Incident Timeline</h2>  (Layout)
+  2) <h3 class="...">Incident Timeline</h3>  (Page content)
+```
+
+**Fix options**:
+
+```typescript
+// Option 1: .first() if any visible element proves the assertion
+await expect(page.getByText('Incident Timeline').first()).toBeVisible()
+
+// Option 2: getByRole with level for specificity
+await expect(
+  page.getByRole('heading', { name: 'Incident Timeline', level: 3 })
+).toBeVisible()
+
+// Option 3: scope to the content area
+await expect(page.locator('main').getByText('Incident Timeline')).toBeVisible()
+```
+
+---
+
 ## 2. Selector Pitfalls
 
 ### Substring matching (default!)
