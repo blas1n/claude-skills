@@ -88,6 +88,65 @@ if (lastAtQueryRef.current !== atQuery) {
 }
 ```
 
+## `react-hooks/refs` — reading a ref during render
+
+**What it catches:** any access to `ref.current` that happens
+synchronously inside the component body or `useMemo` callback.
+React 19's compiler treats refs as effect-scope state — they can be
+read in `useEffect`, event handlers, and other handlers, but not as
+inputs to render.
+
+**Common legacy pattern (a "stable per-id object pool" optimization):**
+
+```tsx
+// ❌ Lint flags every line that touches poolRef.current
+const poolRef = useRef<Map<string, MyNode>>(new Map())
+
+const filteredData = useMemo(() => {
+  const pool = poolRef.current             // ← refs in render
+  for (const n of data.nodes) {
+    const existing = pool.get(n.id)         // ← refs in render
+    if (existing) Object.assign(existing, n)
+    else pool.set(n.id, { ...n })           // ← refs in render
+  }
+  return data.nodes.map((n) => pool.get(n.id)).filter(Boolean)
+}, [data])
+```
+
+Errors look like: `Cannot access refs during render` (multiple
+identical lines).
+
+**Canonical fix — drop the pool optimization:**
+
+When the pool exists purely to preserve simulation state across
+re-renders (typical for force-graph, chart libs, virtualized lists),
+the simplest legal fix is to **stop preserving identity**. Re-create
+the array each render and accept the cost:
+
+```tsx
+const filteredData = useMemo(() => {
+  const nodes = data.nodes.filter(...)
+  const links = data.links.filter(...)
+  return {
+    nodes: nodes.map((n) => ({ ...n })),
+    links: links.map((l) => ({ ...l })),
+  }
+}, [data, /* deps */])
+```
+
+Most libraries (react-force-graph, recharts) re-init their internal
+state when input identity changes — annoying but not broken. If you
+genuinely need stable identity:
+
+- Move the pool maintenance into `useEffect` (mutates ref in an
+  effect-scope, then `setState` to publish) — verbose but legal.
+- Or use `useSyncExternalStore` with a module-level Map.
+
+**Anti-pattern:** disabling the rule per-line. The rule is correct;
+the optimization wasn't pulling its weight (the original code in
+this trap had been re-creating objects every render anyway, just
+implicitly).
+
 ## `react-hooks/purity` — `Date.now()` / `Math.random()` in render
 
 **What it catches:** impure function calls anywhere in the component
