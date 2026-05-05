@@ -6,6 +6,7 @@ task_types: [review, workflow]
 required_tools: [Read, Write, Grep, Glob]
 triggers:
   - pattern: "task completion when difficulty signals detected (wrong first approach, multiple failures, undocumented behavior)"
+category: reflect
 ---
 
 # Retrospective: Self-Evolution

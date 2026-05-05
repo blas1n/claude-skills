@@ -6,6 +6,7 @@ task_types: [design]
 allowed-tools: Read Write Edit
 metadata:
   argument-hint: "[diagram description or requirements]"
+category: think
 ---
 
 # Mermaid Diagram Generator

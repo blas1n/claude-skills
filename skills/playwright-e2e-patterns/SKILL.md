@@ -4,6 +4,7 @@ description: "Playwright E2E patterns — devcontainer setup (fonts, system libs
 version: 1.0.0
 triggers:
   - pattern: "writing Playwright E2E tests, elements report hidden in Docker, or strict mode selector violations"
+category: test
 ---
 
 # Playwright E2E Patterns

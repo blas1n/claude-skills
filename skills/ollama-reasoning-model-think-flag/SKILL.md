@@ -2,6 +2,7 @@
 name: ollama-reasoning-model-think-flag
 description: "Ollama reasoning models (glm-4.7-flash, qwen3-thinking, etc.) emit hundreds of CoT tokens before the actual response unless `think: false` is sent. litellm does NOT forward this kwarg to ollama — visible in extra_kwargs but dropped on the wire. 600s+ timeouts on otherwise-fast prompts."
 version: 1.0.0
+category: trap
 ---
 
 # Ollama Reasoning Model `think=False` Trap

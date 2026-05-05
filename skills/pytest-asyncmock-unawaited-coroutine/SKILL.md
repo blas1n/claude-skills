@@ -2,6 +2,7 @@
 name: pytest-asyncmock-unawaited-coroutine
 description: Patching async stdlib functions (asyncio.sleep, asyncio.create_subprocess_exec) with AsyncMock causes RuntimeWarning about unawaited coroutines during test teardown
 version: 1.0.0
+category: test
 ---
 
 # pytest AsyncMock Unawaited Coroutine Warning

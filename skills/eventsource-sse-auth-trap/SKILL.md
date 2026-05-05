@@ -2,6 +2,7 @@
 name: eventsource-sse-auth-trap
 description: "Browser EventSource API cannot send Authorization headers. SSE endpoints protected by JWT auth silently 401 in production — passes in tests because mock-mode e2e skips the real endpoint entirely, and dev-mode often runs without auth. Fix: accept ?token= query param as fallback."
 version: 1.0.0
+category: trap
 ---
 
 # EventSource SSE Auth Trap

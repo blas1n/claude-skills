@@ -5,6 +5,7 @@ version: 1.0.0
 task_types: [debugging, design]
 triggers:
   - pattern: "agent creates tasks but never executes them, or agent only plans without producing artifacts"
+category: trap
 ---
 
 # Active/Passive Dual Dispatch Trap

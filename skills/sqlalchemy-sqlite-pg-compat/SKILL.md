@@ -1,6 +1,7 @@
 ---
 name: sqlalchemy-sqlite-pg-compat
 description: SQLAlchemy에서 PostgreSQL 전용 기능(partial index, timezone-aware datetime)을 SQLite 테스트 환경과 호환시키는 패턴
+category: trap
 ---
 
 # SQLAlchemy SQLite-PostgreSQL 테스트 호환성

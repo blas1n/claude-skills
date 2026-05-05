@@ -1,6 +1,7 @@
 ---
 name: llm-context-listing-noise-filter
 description: When directory listings feed an LLM prompt with a truncation cap, filter package-manager and build dirs FIRST or the cap silently buries the actual signal under noise. Recurring AI-engineering trap.
+category: trap
 ---
 
 # LLM Context Listing Noise Filter

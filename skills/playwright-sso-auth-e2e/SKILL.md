@@ -2,6 +2,7 @@
 name: playwright-sso-auth-e2e
 description: Playwright e2e tests for SPAs with redirect-based SSO (BSVibe Auth, Auth0, Okta etc.) — page.route() cannot intercept window.location.href cross-origin navigation. Use app-side test hooks instead.
 when_to_use: SPA uses external auth server (auth.bsvibe.dev, auth0.com, etc.) with redirect-based silent SSO check and Playwright e2e tests fail with "Invalid redirect_uri" or auth server JSON shown
+category: trap
 ---
 
 # Playwright + SSO Redirect Auth E2E

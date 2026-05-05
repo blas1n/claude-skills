@@ -4,6 +4,7 @@ description: "Mock testing patterns — context setup gotchas, blindspot review 
 version: 1.0.0
 triggers:
   - pattern: "writing mocks for complex objects, reviewing high mock-coverage code, or testing plugin systems"
+category: test
 ---
 
 # Mock Testing Patterns

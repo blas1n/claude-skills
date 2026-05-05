@@ -3,6 +3,7 @@ name: react-19-compiler-lint-migration
 description: Fix React 19's strict compiler lint rules in legacy React 18 code — set-state-in-effect, react-hooks/purity, Date.now in render. Idiomatic rewrites without useEffect.
 version: 1.0.0
 task_types: [bugfix, refactor]
+category: trap
 ---
 
 # React 19 compiler lint migration

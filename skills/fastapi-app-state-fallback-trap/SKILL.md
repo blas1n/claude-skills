@@ -2,6 +2,7 @@
 name: fastapi-app-state-fallback-trap
 description: "FastAPI app.state getattr fallback creates detached default — mutations lost to garbage collection"
 version: 1.0.0
+category: trap
 ---
 
 # FastAPI app.state getattr Fallback Trap

@@ -4,6 +4,7 @@ description: "Python data mutation traps — mutable defaults, dict reference de
 version: 1.0.0
 triggers:
   - pattern: "code uses module-level mutable defaults, dict filtering with pop, or async iteration over shared collections"
+category: trap
 ---
 
 # Python Data Mutation Traps

@@ -2,6 +2,7 @@
 name: sqlalchemy-model-refactoring-patterns
 description: "SQLAlchemy Model Refactoring: Field Removal & Migration Patterns for cascading failures"
 version: 1.0.0
+category: trap
 ---
 
 # SQLAlchemy Model Refactoring: Field Removal & Migration Patterns

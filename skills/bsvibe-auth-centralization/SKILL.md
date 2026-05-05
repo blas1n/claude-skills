@@ -2,6 +2,7 @@
 name: bsvibe-auth-centralization
 description: Centralizing auth through auth.bsvibe.dev — products need only BSVIBE_AUTH_URL, not Supabase credentials. JWKS proxy + refresh/logout API on Vercel.
 trigger: when adding authentication to a BSVibe product or debugging auth flow across BSVibe ecosystem
+category: utils
 ---
 
 # BSVibe Auth Centralization Pattern

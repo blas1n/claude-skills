@@ -3,6 +3,7 @@ name: litellm-tool-call-provider-probe
 description: Before writing LiteLLM tool-calling code, run a 10-line probe that asserts tool_calls actually populate for your model+provider combo — some prefixes silently drop the tools parameter.
 version: 1.0.0
 task_types: [coding, debugging]
+category: trap
 ---
 
 # LiteLLM tool-calling: probe the provider before you trust it

@@ -2,6 +2,7 @@
 name: mock-fixtures-hide-wiring-bugs
 description: "FastAPI dependency_overrides + pre-seeded test fixtures silently hide whether production glue (auth wrapper, middleware upsert, lifespan-time hooks) is wired into the request flow at all. 100% green unit tests can ship dead code that 500s on the first real request. Defense: real-backend integration tests with no overrides + no pre-seeding."
 version: 1.0.0
+category: trap
 ---
 
 # Mock Fixtures Hide Wiring Bugs

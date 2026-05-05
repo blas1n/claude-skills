@@ -7,6 +7,7 @@ triggers:
   - pattern: "claim that a tool / feature / behavior isn't being used / fires zero times"
   - pattern: "longrun / E2E experiment showing 0 count of some event"
   - pattern: "prompt engineering attempt judged 'failed' because LLM didn't do X"
+category: trap
 ---
 
 # Absence Measurement Validity Check

@@ -5,6 +5,7 @@ version: 1.0.0
 task_types: [analysis, reporting]
 executor: claude_code
 required_tools: [Read, Bash, Grep]
+category: utils
 ---
 
 # Cost Report Analysis Skill

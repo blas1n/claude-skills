@@ -4,6 +4,7 @@ description: "Devcontainer & Docker traps — dotfiles destroying worktree histo
 version: 1.0.0
 triggers:
   - pattern: "git history lost in devcontainer, native bindings fail in container, or docker-compose projects overwriting each other"
+category: trap
 ---
 
 # Devcontainer & Docker Infrastructure Traps

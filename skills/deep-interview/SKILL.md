@@ -4,6 +4,7 @@ description: "Requirements clarification through Socratic questioning with mathe
 version: 1.0.0
 triggers:
   - pattern: "user provides vague requirements, ambiguous feature request, or complex task with multiple possible interpretations"
+category: think
 ---
 
 # Deep Interview — Requirements Crystallization

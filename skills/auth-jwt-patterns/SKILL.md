@@ -4,6 +4,7 @@ description: "Auth/JWT patterns — ES256 JWKS auto-detection, 401 cascading log
 version: 1.0.0
 triggers:
   - pattern: "JWT verification fails with alg mismatch, user gets logged out on every page load, or OAuth callback loses tokens"
+category: trap
 ---
 
 # Auth & JWT Patterns

@@ -50,6 +50,25 @@ FRONTMATTER_RE = re.compile(r'^---\s*\n(.+?)\n---', re.DOTALL)
 
 SKILLS_DIR = Path(__file__).resolve().parent.parent / "skills"
 REGISTRY_PATH = SKILLS_DIR / "_registry.json"
+INDEX_PATH = SKILLS_DIR / "_index.md"
+
+CATEGORY_ORDER = [
+    "think", "build", "debug", "review", "test",
+    "ship", "reflect", "ops", "utils", "trap", "uncategorized",
+]
+CATEGORY_TITLES = {
+    "think": "Think & Plan",
+    "build": "Build & Code",
+    "debug": "Debug & Investigate",
+    "review": "Review & Quality",
+    "test": "Test",
+    "ship": "Ship & Deploy",
+    "reflect": "Reflect & Learn",
+    "ops": "Ops & Workflow",
+    "utils": "Utilities",
+    "trap": "Traps & Patterns (retrospective memory)",
+    "uncategorized": "Uncategorized",
+}
 
 
 def extract_frontmatter(filepath: Path) -> dict | None:
@@ -79,6 +98,7 @@ def build_entry(skill_dir: Path, frontmatter: dict) -> dict:
         "path": f"skills/{rel_path}",
         "description": frontmatter.get("description", ""),
         "version": frontmatter.get("version", "0.0.0"),
+        "category": frontmatter.get("category", "uncategorized"),
         "task_types": frontmatter.get("task_types", []),
         "executor": frontmatter.get("executor", "claude_code"),
     }
@@ -139,6 +159,47 @@ def generate_registry() -> list[dict]:
     return entries
 
 
+def render_index(entries: list[dict]) -> str:
+    """Group entries by category and render a markdown index."""
+    by_cat: dict[str, list[dict]] = {}
+    for e in entries:
+        by_cat.setdefault(e["category"], []).append(e)
+
+    # Stable sort within each category by name
+    for cat_entries in by_cat.values():
+        cat_entries.sort(key=lambda x: x["name"])
+
+    lines: list[str] = ["# Skills Index", "",
+                        f"Auto-generated from `SKILL.md` frontmatter — do not edit by hand.",
+                        f"Total: {len(entries)} skills.", ""]
+
+    seen: set[str] = set()
+    for cat in CATEGORY_ORDER:
+        if cat not in by_cat:
+            continue
+        title = CATEGORY_TITLES.get(cat, cat.capitalize())
+        items = by_cat[cat]
+        lines.append(f"## {title} ({len(items)})")
+        lines.append("")
+        for e in items:
+            desc = (e["description"] or "").splitlines()[0].strip()
+            lines.append(f"- **`/{e['name']}`** — {desc}")
+        lines.append("")
+        seen.add(cat)
+
+    leftover = sorted(set(by_cat.keys()) - seen)
+    for cat in leftover:
+        items = by_cat[cat]
+        lines.append(f"## {cat} ({len(items)})")
+        lines.append("")
+        for e in items:
+            desc = (e["description"] or "").splitlines()[0].strip()
+            lines.append(f"- **`/{e['name']}`** — {desc}")
+        lines.append("")
+
+    return "\n".join(lines)
+
+
 def main() -> None:
     print(f"Scanning {SKILLS_DIR} ...")
     entries = generate_registry()
@@ -147,8 +208,10 @@ def main() -> None:
         json.dumps(entries, indent=2, ensure_ascii=False) + "\n",
         encoding="utf-8",
     )
+    INDEX_PATH.write_text(render_index(entries), encoding="utf-8")
 
     print(f"Generated {REGISTRY_PATH} with {len(entries)} skills.")
+    print(f"Generated {INDEX_PATH} (categorized markdown index).")
 
 
 if __name__ == "__main__":

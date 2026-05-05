@@ -2,6 +2,7 @@
 name: pytest-coverage-gotchas
 description: "pytest-cov Coverage Gotchas — diagnosing false coverage failures and async 0% coverage"
 version: 1.0.0
+category: test
 ---
 
 # pytest-cov Coverage Gotchas

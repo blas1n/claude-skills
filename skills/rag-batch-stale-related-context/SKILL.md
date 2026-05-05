@@ -2,6 +2,7 @@
 name: rag-batch-stale-related-context
 description: "Batched RAG compile pipelines that compute related-notes context ONCE outside the chunk loop and reuse it across chunks silently break the update path. Symptom: classification works, but no existing notes ever get updated — because chunks N+ see context that's irrelevant to their content. Fix: compute related context per chunk, with that chunk's seeds as the query."
 version: 1.0.0
+category: trap
 ---
 
 # RAG Batch: Stale Related Context Across Chunks

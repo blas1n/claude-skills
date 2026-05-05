@@ -2,6 +2,7 @@
 name: large-codebase-deprecation-removal
 description: "Large Codebase: Graceful Deprecation & Removal Strategy for distributed system patterns"
 version: 1.0.0
+category: trap
 ---
 
 # Large Codebase: Graceful Deprecation & Removal Strategy

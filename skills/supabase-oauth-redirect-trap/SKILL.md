@@ -1,3 +1,10 @@
+---
+name: supabase-oauth-redirect-trap
+description: Supabase /auth/v1/authorize silently ignores redirect_to values not in uri_allow_list — falls back to site_url with no error. Add the redirect URL to allow list before use.
+version: 1.0.0
+category: trap
+---
+
 # Supabase OAuth Redirect Trap
 
 ## When to Apply

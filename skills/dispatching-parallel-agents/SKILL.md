@@ -6,6 +6,7 @@ task_types: [workflow]
 required_tools: [Agent, Bash]
 triggers:
   - pattern: "facing 2+ independent tasks that can be worked on without shared state"
+category: ops
 ---
 
 # Dispatching Parallel Agents

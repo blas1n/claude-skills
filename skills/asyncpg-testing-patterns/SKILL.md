@@ -4,6 +4,7 @@ description: "asyncpg testing — mock at repository level (preferred) or use @a
 version: 1.0.0
 triggers:
   - pattern: "testing asyncpg pool.acquire() or conn.transaction() patterns"
+category: test
 ---
 
 # asyncpg Testing Patterns

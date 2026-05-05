@@ -3,6 +3,7 @@ name: internal-module-shadows-pypi-package-in-container
 description: A project's src/<name>/ folder named the same as a PyPI package (mcp, jwt, click, …) silently shadows the PyPI install in production container layouts where local dev resolves correctly. Symptom — works on `pytest` and `uvicorn` locally, fails on first import in prod with `cannot import name X from <pkg>`.
 version: 1.0.0
 task_types: [debugging, devops]
+category: trap
 ---
 
 # Internal module shadows a same-named PyPI package in containers

@@ -6,6 +6,7 @@ task_types: [debugging, devops]
 triggers:
   - pattern: "alembic upgrade head fails with `Can't locate revision identified by '<hex>'` and the revision file is missing from the repo"
   - pattern: "container restart loop after a deploy where the only error is alembic missing a revision id"
+category: trap
 ---
 
 # Alembic Phantom Revision from Unpushed Branch

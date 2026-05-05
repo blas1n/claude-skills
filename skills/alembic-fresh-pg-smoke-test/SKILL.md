@@ -2,6 +2,7 @@
 name: alembic-fresh-pg-smoke-test
 description: "SQLite-only unit tests cannot catch PostgreSQL-only migration bugs. Add a fresh-PG smoke test that runs `alembic upgrade head` against an empty container so DROP DEFAULT, enum DDL listener collisions, and dependent-object errors fail at PR time instead of on the next dev's first bootstrap."
 version: 1.0.0
+category: trap
 ---
 
 # Alembic Fresh-PG Smoke Test

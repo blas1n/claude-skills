@@ -3,6 +3,7 @@ name: json-column-write-tolerant-read-strict
 description: SQLAlchemy JSON / JSONB columns accept any JSON-serializable value on write. The Pydantic response_model on the GET endpoint is strict. A row written as a bare string sits in the DB happily until a fetch hits ResponseValidationError → 500. Producer tests + response-schema tests that don't round-trip via the API miss this.
 version: 1.0.0
 task_types: [debugging, testing]
+category: trap
 ---
 
 # JSON column write-tolerant, response_model read-strict

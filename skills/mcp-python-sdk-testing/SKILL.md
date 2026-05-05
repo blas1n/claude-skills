@@ -4,6 +4,7 @@ description: "Test mcp Python SDK servers without spawning subprocesses — extr
 version: 1.0.0
 triggers:
   - pattern: "writing tests for an mcp.server.Server, asking how to assert tools/list or tools/call output without stdio plumbing"
+category: test
 ---
 
 # Testing mcp Python SDK servers

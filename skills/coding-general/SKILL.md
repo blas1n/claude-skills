@@ -5,6 +5,7 @@ version: 1.0.0
 task_types: [coding, refactor, bugfix]
 executor: claude_code
 required_tools: [Read, Edit, Write, Bash, Grep, Glob]
+category: build
 ---
 
 # General Coding Skill

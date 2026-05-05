@@ -1,6 +1,7 @@
 ---
 name: bulk-batch-partial-write-discard
 description: Batch processing functions that wrap the WHOLE chunks loop in try/except discard their on-disk partial work in the returned result when any single chunk fails. Symptom — caller logs "0 written" while filesystem actually has N notes. Detection requires real-data e2e + intentional mid-batch failure; single-chunk unit tests miss it.
+category: trap
 ---
 
 # Bulk-batch try/except scope buries partial work

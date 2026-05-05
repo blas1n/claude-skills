@@ -2,6 +2,7 @@
 name: static-ontology-knowledge-graph-trap
 description: "Hard-coded note_type / category enums in a knowledge system create filing cabinets, not knowledge graphs. The trap: classification looks like success (notes neatly distributed across folders) while the actual graph value (emergent connections, surprising links) stays at zero. Static ontology + LLM classifier = sophisticated tagger, not graph thinking."
 version: 1.0.0
+category: trap
 ---
 
 # Static Ontology Trap in LLM-Backed Knowledge Systems

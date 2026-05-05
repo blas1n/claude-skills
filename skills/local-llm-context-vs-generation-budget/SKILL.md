@@ -2,6 +2,7 @@
 name: local-llm-context-vs-generation-budget
 description: "Local LLMs (ollama, llama.cpp) declare huge context windows (200k+ tokens) but generation time scales with input length. On consumer GPUs, glm-4.7-flash with 16k char input times out at 300s; same model with 5k chars finishes in 50-100s. Cap derived budget for local models — declared context ≠ practical generation budget."
 version: 1.0.0
+category: trap
 ---
 
 # Local LLM: Declared Context ≠ Practical Generation Budget

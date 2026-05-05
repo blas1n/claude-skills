@@ -5,6 +5,7 @@ version: 1.0.0
 task_types: [design, coding]
 triggers:
   - pattern: "building multi-agent chat, agent routing, or converting synchronous chat to async"
+category: trap
 ---
 
 # Multi-Agent Chat Architecture

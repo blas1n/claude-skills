@@ -6,6 +6,7 @@ task_types: [coding, refactor]
 required_tools: [Read, Edit, Write, Bash]
 triggers:
   - pattern: "code imports fastapi or user asks about FastAPI development"
+category: build
 ---
 
 # FastAPI Backend Development Guidelines

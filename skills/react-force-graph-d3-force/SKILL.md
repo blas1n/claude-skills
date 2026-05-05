@@ -4,6 +4,7 @@ description: "react-force-graph d3Force semantics — modify built-in 'link'/'ch
 version: 1.0.0
 triggers:
   - pattern: "tuning react-force-graph forces (forceLink, forceManyBody, forceCollide), graph stops rendering after d3Force change, or 'No nodes to graph' / blank canvas after physics tuning"
+category: trap
 ---
 
 # react-force-graph: d3Force is for modify, not replace

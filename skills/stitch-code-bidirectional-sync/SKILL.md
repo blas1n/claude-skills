@@ -2,6 +2,7 @@
 name: stitch-code-bidirectional-sync
 description: Stitch generates screens independently — sidebars/tabs differ per screen. Code must unify, then Stitch must be regenerated to match. One-way sync breaks.
 trigger: when applying Stitch designs to a multi-page app, or when user reports "stitch and code don't match"
+category: trap
 ---
 
 # Stitch-Code Bidirectional Sync

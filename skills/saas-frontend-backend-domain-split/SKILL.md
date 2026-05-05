@@ -5,6 +5,7 @@ version: 1.0.0
 task_types: [devops, design]
 triggers:
   - pattern: "deploying SaaS with frontend and backend on same domain, or getting 404 on product URLs"
+category: trap
 ---
 
 # SaaS Frontend/Backend Domain Split

@@ -2,6 +2,7 @@
 name: test-against-source-contracts
 description: "Test Against Source Contracts — verify tests match actual API/interface contracts"
 version: 1.0.0
+category: test
 ---
 
 # Test Against Source Contracts

@@ -1,6 +1,7 @@
 ---
 name: local-llm-agent-safety-nets
 description: When building multi-turn agent systems on local/smaller LLMs (Qwen3, gpt-oss, Llama family), never rely on prompt compliance for safety-critical operations. Add backend safety nets for bootstrap/invariants. Triggers — agent system uses local Ollama model, scenario stalls on turn 1, "MAY do X" prompt directives fire only sometimes.
+category: trap
 ---
 
 # Local LLM Agent Safety Nets

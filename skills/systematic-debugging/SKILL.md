@@ -6,6 +6,7 @@ task_types: [debugging, bugfix]
 required_tools: [Read, Grep, Bash]
 triggers:
   - pattern: "encountering any bug, test failure, or unexpected behavior"
+category: debug
 ---
 
 # Systematic Debugging

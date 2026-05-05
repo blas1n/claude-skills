@@ -3,6 +3,7 @@ name: docker-tailscale-magicdns-no-extrahosts
 description: Docker containers on a Tailscale-enabled host already reach tailnet hostnames + 100.x.x.x IPs — do NOT propose docker-compose extra_hosts patches before testing.
 version: 1.0.0
 task_types: [devops, debugging]
+category: trap
 ---
 
 # Docker → Host service via Tailscale (no extra_hosts needed)

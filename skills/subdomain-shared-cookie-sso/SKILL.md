@@ -1,3 +1,10 @@
+---
+name: subdomain-shared-cookie-sso
+description: Subdomain Shared Cookie SSO — set Domain=.parent.dev on the auth-server session cookie so every product subdomain automatically authenticates. Avoids per-product callback pages.
+version: 1.0.0
+category: trap
+---
+
 # Subdomain Shared Cookie SSO
 
 ## When to Apply

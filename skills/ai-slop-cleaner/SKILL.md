@@ -4,6 +4,7 @@ description: "AI-generated code cleanup — deletion-first approach, regression-
 version: 1.0.0
 triggers:
   - pattern: "user asks to clean up AI-generated code, remove slop, simplify over-engineered code, or audit for unnecessary abstractions"
+category: review
 ---
 
 # AI Slop Cleaner

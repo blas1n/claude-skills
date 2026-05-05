@@ -5,6 +5,7 @@ version: 1.0.0
 task_types: [content_writing, blog]
 executor: claude_code
 required_tools: [Read, Write]
+category: utils
 ---
 
 # Blog Post Writing Skill

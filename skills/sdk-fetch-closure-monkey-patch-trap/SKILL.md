@@ -4,6 +4,7 @@ description: "API SDKs that capture window.fetch at module-init time can't be in
 version: 1.0.0
 triggers:
   - pattern: "Playwright/Cypress browser_evaluate fetch monkey-patch lands but app SDK calls still hit the real network, or visual tests show empty state when mocks were 'installed'"
+category: trap
 ---
 
 # SDK fetch-closure monkey-patch trap

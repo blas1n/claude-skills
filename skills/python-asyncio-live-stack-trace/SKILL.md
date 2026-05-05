@@ -1,6 +1,7 @@
 ---
 name: python-asyncio-live-stack-trace
 description: Drop-in py-spy alternative for macOS — in-process SIGUSR signal handlers that dump thread tracebacks and asyncio task stacks to a file when the service is hung but you can't restart it.
+category: trap
 ---
 
 # Python Asyncio Live Stack Trace (no py-spy / no root)
