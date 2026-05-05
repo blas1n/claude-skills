@@ -58,6 +58,7 @@
       }
     ]
   },
+  "effortLevel": "high",
   "skipDangerousModePermissionPrompt": true,
-  "effortLevel": "max"
+  "agentPushNotifEnabled": true
 }
