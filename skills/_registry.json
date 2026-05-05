@@ -726,32 +726,11 @@
     "executor": "claude_code"
   },
   {
-    "name": "systematic-debugging",
-    "path": "skills/systematic-debugging",
-    "description": "Use when encountering any bug, test failure, or unexpected behavior, before proposing fixes",
-    "version": "1.0.0",
-    "category": "debug",
-    "task_types": [
-      "debugging",
-      "bugfix"
-    ],
-    "executor": "claude_code"
-  },
-  {
     "name": "test-against-source-contracts",
     "path": "skills/test-against-source-contracts",
     "description": "Test Against Source Contracts — verify tests match actual API/interface contracts",
     "version": "1.0.0",
     "category": "test",
-    "task_types": [],
-    "executor": "claude_code"
-  },
-  {
-    "name": "test-driven-development",
-    "path": "skills/test-driven-development",
-    "description": "Use when implementing any feature or bugfix, before writing implementation code",
-    "version": "1.0.0",
-    "category": "build",
     "task_types": [],
     "executor": "claude_code"
   },

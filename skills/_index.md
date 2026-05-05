@@ -1,7 +1,7 @@
 # Skills Index
 
 Auto-generated from `SKILL.md` frontmatter — do not edit by hand.
-Total: 81 skills.
+Total: 79 skills.
 
 ## Think & Plan (7)
 
@@ -13,17 +13,15 @@ Total: 81 skills.
 - **`/plan-eng-review`** — Eng manager-mode plan review. Lock in the execution plan — architecture,
 - **`/writing-plans`** — Use when you have a spec or requirements for a multi-step task, before touching code
 
-## Build & Code (4)
+## Build & Code (3)
 
 - **`/coding-general`** — Generic coding skill for implementation, refactoring, and bugfix tasks
 - **`/fastapi-guidelines`** — FastAPI backend development guidelines. Domain-Driven Design with Router→Service→Repository layering, SQLModel/SQLAlchemy ORM, async patterns, Pydantic validation, error handling, and TestClient testing.
 - **`/feature-workflow`** — TDD+E2E 전체 워크플로우. 기능 작업 시작 전 테스트/체크리스트 작성, 구현, 검증, 커밋까지 안내.
-- **`/test-driven-development`** — Use when implementing any feature or bugfix, before writing implementation code
 
-## Debug & Investigate (2)
+## Debug & Investigate (1)
 
 - **`/investigate`** — Systematic debugging with root cause investigation. Four phases: investigate,
-- **`/systematic-debugging`** — Use when encountering any bug, test failure, or unexpected behavior, before proposing fixes
 
 ## Review & Quality (6)
 

@@ -34,7 +34,7 @@ hooks/                              # Shell hooks for tool events
   session-start-stitch.sh
   stop-notify.sh
 
-skills/                             # Invoked via /skill-name (81 skills)
+skills/                             # Invoked via /skill-name (79 skills)
   _registry.json                    # Auto-generated registry (machine-readable)
   _index.md                         # Auto-generated categorized index
   SKILL-FORMAT.md                   # YAML frontmatter schema standard
@@ -56,8 +56,8 @@ This updates both `_registry.json` (machine-readable) and `_index.md` (human-rea
 Each `SKILL.md` declares one of:
 
 - **think** — plan/ideate before code (deep-interview, office-hours, writing-plans, plan-{eng,design}-review, autoplan, mermaid)
-- **build** — implementation (coding-general, feature-workflow, test-driven-development, fastapi-guidelines)
-- **debug** — debugging workflow (investigate, systematic-debugging)
+- **build** — implementation (coding-general, feature-workflow, fastapi-guidelines). `/feature-workflow` is the canonical TDD+E2E entrypoint that the global `tdd-enforcement.md` rule invokes
+- **debug** — debugging workflow (investigate). `/investigate` is the gstack 4-phase Iron Law debugger with freeze-hook integration
 - **review** — PR / code review (review, design-review, cso, ai-slop-cleaner, verification-before-completion, iterative-subagent-review-loop)
 - **test** — testing patterns (qa, benchmark, mock-testing-patterns, asyncpg-testing-patterns, playwright-e2e-patterns, pytest-* gotchas, test-against-source-contracts, mcp-python-sdk-testing)
 - **ship** — release flow (ship, land-and-deploy, canary)
@@ -72,6 +72,6 @@ Each `SKILL.md` declares one of:
 
 ## Credits
 
-- [obra/superpowers](https://github.com/obra/superpowers) — systematic-debugging, test-driven-development, verification-before-completion, dispatching-parallel-agents, writing-plans
+- [obra/superpowers](https://github.com/obra/superpowers) — verification-before-completion, dispatching-parallel-agents, writing-plans (note: `test-driven-development` and `systematic-debugging` were merged into `feature-workflow` and `investigate` respectively)
 - [garrytan/gstack](https://github.com/garrytan/gstack) — cso, careful, freeze, office-hours, investigate, review, ship, land-and-deploy, qa, benchmark, canary, retro, checkpoint, learn, plan-eng-review, plan-design-review, autoplan, design-review
 - [Yeachan-Heo/oh-my-claudecode](https://github.com/Yeachan-Heo/oh-my-claudecode) — deep-interview, ai-slop-cleaner
