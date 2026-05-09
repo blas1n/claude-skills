@@ -1,6 +1,6 @@
 ---
 name: local-llm-agent-safety-nets
-description: When building multi-turn agent systems on local/smaller LLMs (Qwen3, gpt-oss, Llama family), never rely on prompt compliance for safety-critical operations. Add backend safety nets for bootstrap/invariants. Triggers — agent system uses local Ollama model, scenario stalls on turn 1, "MAY do X" prompt directives fire only sometimes.
+description: When building multi-turn agent / tool-calling systems on local/smaller LLMs (Qwen3, gpt-oss, Llama family), never rely on prompt compliance for safety-critical operations. Add backend safety nets — auto-bootstrap missing state, recover misnamed tool calls from arg shape, derive verification from workspace state. Triggers — local Ollama agent stalls on turn 1, hits round-cap with no deliverable, "MAY do X" directives fire only sometimes, model emits one tool name for everything.
 category: trap
 ---
 
@@ -87,6 +87,49 @@ Pair with a negative test: when a phase already exists, auto-bootstrap must NOT 
 - **Prompt fix attempt**: add subordinate-only rule `"if no phase exists, you MAY emit [CREATE_PHASE ...]"`. Qwen3-coder:30b ignored it.
 - **Backend safety net**: `phase_auto_bootstrapped` — if task markers arrive and phase_count == 0, auto-create "기획" phase. Scenario ran to completion (CHAIN_COMPLETE, 35.6 min, 22 tasks done).
 
+## Real Example — BSNexus PR11 (qwen3-coder tool-name collapse)
+
+Different shape of weak compliance: the model called the right tool **content** under the wrong **name**.
+
+- **Symptom**: easy scenario (`add(a,b)` + pytest) hit the round-cap with no deliverable. Smoke + medium passed; only easy stuck.
+- **Initial diagnosis**: "model skips `file_write`." Wrong.
+- **Activity-log inspection (per-round)**: model emitted `shell_exec` for *every* call, including ones with `{path, content}` args (clearly file_write payloads). Local dispatch ran the JSON as a shell command, failed, the model retried, looped to round-cap.
+- **Backend safety net**: `recover_misnamed_local_tool(name, args) → (name, note)` — when args are *unambiguously* shaped for another known local tool, rewrite the name before dispatch:
+
+  ```python
+  # tools.py
+  def recover_misnamed_local_tool(name, args):
+      has_command = isinstance(args.get("command"), str) and args["command"].strip()
+      has_path = isinstance(args.get("path"), str) and args["path"].strip()
+      has_content = isinstance(args.get("content"), str)  # empty string legal
+      if name == "shell_exec" and not has_command:
+          if has_path and has_content:
+              return "file_write", "shell_exec→file_write (path+content, no command)"
+          if has_path:
+              return "file_read", "shell_exec→file_read (path only, no command)"
+      if name == "file_write" and has_command and not (has_path and has_content):
+          return "shell_exec", "file_write→shell_exec (command, no path+content)"
+      return name, None
+  ```
+
+  Applied at both the dispatch-routing layer (so local-vs-MCP routing is honest) and inside `execute_tool_call` (defence-in-depth). Logged as `tool_name_recovered` with original/recovered/note for observability.
+
+- **Result**: easy went 0/N → ✅ 24.5s end-to-end (Direction → file_write → shell_exec pytest → derived verification → SubprocessVerifier → `proof_state=verified`).
+
+### Companion finding — round-cap output guard ignored nested storage
+
+Same PR, separate failure mode: the round-cap path transitioned the run to `blocked` but `publish_run_output` bailed because its empty-output guard checked only `summary / inline / files` — none of which see the *nested* `local_tool_log.written_files` where the dispatcher folds tool history. Fix: widen the guard to count `local_tool_log` as publishable. Pattern: **when the dispatcher writes work into a nested key, every downstream gate must know about that key** — easy to miss when the gate predates the nested storage.
+
+## Pattern Family — recover, don't re-prompt
+
+The meta-rule: if the model's *intent* is recoverable from observable evidence (DB state, tool args, written files), do the recovery server-side. Don't add another sentence to the prompt — local 30B coders won't read it. The trio so far:
+
+1. **State-bootstrap** — DB count is 0 + LLM gave dependent action → auto-create the missing parent (BSNexus session 9).
+2. **Action-shape recovery** — tool name wrong but args unambiguous → rewrite name (BSNexus PR11).
+3. **Workspace derivation** — LLM didn't run the verifier but wrote test files → synthesize `pytest <files>` (BSNexus PR11, third-tier verification derive).
+
+All three replace "convince the model harder" with "infer from what actually happened." See also `local-llm-runtime-nudge-ceiling`.
+
 ## Heuristic
 
 When reviewing a multi-turn agent design, ask:
@@ -94,4 +137,13 @@ When reviewing a multi-turn agent design, ask:
 
 If it deadlocks → safety net required.
 
+Second pass — also ask:
+> *"If the LLM does the right action under the wrong name (or the wrong action under the right name), does the system recover, or loop?"*
+
+If it loops → arg-shape recovery required.
+
 Safety nets cost ~20 lines of code per invariant. Debugging a stall in a 30-minute E2E costs much more.
+
+## Debugging hygiene — inspect per-round activity log before re-prompting
+
+PR11 iter 3 wasted a 10-minute dogfood iteration because the assumed diagnosis ("model skips `file_write`") was almost-but-not-quite right. The real issue ("model misnames `file_write` as `shell_exec`") only showed up after dumping the per-round `tool_call_start` entries with full args. **Before iterating on the prompt, dump the raw tool-call sequence — name + args excerpt + round_idx — and look for misnaming, repetition, and arg-shape mismatch.** The prompt is rarely the leverage point; the dispatcher is.
