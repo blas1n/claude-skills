@@ -45,6 +45,21 @@ subprocess 호출이나 HTTP 클라이언트로 감싼 wrapper를 만든다. 시
 5. 테스트에 **real-CLI smoke test 한 개**를 추가하거나, 최소한 wrapper 작성 시 계약을
    캡처한 출처(버전 번호 + 날짜)를 주석/PR에 박아라. mock 단위 테스트는 그대로 두되
    그것만 믿지 마라.
+6. **CLI의 실행 전제(precondition)도 계약의 일부다.** 인자/출력만이 아니라 "어디서
+   실행되는가"도 확인하라. wrapper가 만드는 *실행 환경*(cwd, env, 권한)에서 실제로
+   돌려라 — unit test의 fixture(절대경로 tmp_path, git repo)와 prod의 환경(빈 임시
+   디렉터리)이 다르면 그 차이가 곧 버그다.
+
+## Cases seen
+
+- **codex `exec`는 빈/비-git/untrusted 디렉터리에서 `--skip-git-repo-check` 없이는
+  거부한다** ("Not inside a trusted directory and --skip-git-repo-check was not
+  specified."). BSVibe executor 워커는 각 태스크를 `tempfile.mkdtemp()`의 빈 임시
+  디렉터리에서 실행 → codex가 산출물 0개로 silent fail. `opencode run`은 동일 환경에서
+  정상. unit test는 `_build_cmd` 인자만 assert하고 subprocess를 mock해서 절대 못 잡음 —
+  실제 빈 디렉터리에서 한 번 돌려보고서야 발견. 교훈: CLI 첫 도그푸드 전에 wrapper가
+  만드는 *바로 그 cwd/env*에서 trivial 프롬프트로 직접 실행해 산출물이 실제로 나오는지
+  확인하라(executor마다 따로).
 
 ```python
 # 검증 예 — wrapper가 만드는 그 플래그 그대로, 실제 CLI에 (auth 우회로) 실행
