@@ -52,6 +52,23 @@ with the SAME flags and env, run by hand in your terminal, succeeds.
 4. Reload the daemon (`launchctl bootout`/`bootstrap`, not just `kickstart -k`,
    to re-read plist env) and re-verify from the daemon context.
 
+### Durable fix (don't pin a static token)
+
+A static token in the plist expires in hours. For a stable daemon, make it
+**self-manage the OAuth lifecycle**: keep its OWN credential file (separate from
+the CLI's, so an interactive re-login can't clobber it), refresh the access
+token when it nears expiry, and inject the fresh token via the passed-through env
+var per invocation. Key points proven in production:
+
+- Refresh tokens are **single-use** — persist the rotated pair atomically and
+  serialise refresh across processes with an `flock` (else a concurrent refresher
+  gets `invalid_grant`).
+- Refresh only when within a buffer of expiry (cheap per-call check; network only
+  every ~token-lifetime). Soft-fail to None so the CLI's own auth is the fallback.
+- Force-verify the refresh path live (temporarily set `expires_at` near now) —
+  don't wait to discover at real expiry that the refresh endpoint/UA is blocked
+  from the daemon's network context.
+
 ```bash
 # launchd reload that actually re-reads EnvironmentVariables:
 launchctl bootout gui/$(id -u)/com.x.worker
