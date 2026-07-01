@@ -34,7 +34,15 @@ even though you committed it last turn.
 
 ## Diagnosis
 
-  ls src/my_new_file.py tests/test_my_new_file.py   # are files present right now?
+**ALWAYS start a new turn with this before writing any code:**
+
+  git log --oneline -5        # what is on main right now?
+  ls src/ && ls tests/        # which files actually exist?
+
+Do NOT rely on conversation history to know what files exist. The filesystem
+is the ground truth. Check it first, then decide what to write.
+
+  ls src/my_new_file.py tests/test_my_new_file.py   # do the target files exist?
   git log --oneline HEAD~3..HEAD                     # commits this turn?
   git status                                         # working tree changes?
 
@@ -44,12 +52,19 @@ If files do not exist -- you are in a fresh turn and must re-create them.
 
 Every turn is a fresh start. Do ALL of this within the SAME turn:
 
-  1. Write files (Edit/Write tool)
+  0. Check filesystem first: git log --oneline -5 && ls src/ && ls tests/
+  1. Write files (Edit/Write tool -- actually CALL the tool, do not narrate it)
   2. Verify locally: uv run ruff check + uv run pytest -v
   3. Fix any errors (pre-commit hook failures, test failures, lint)
   4. git add <files> && git commit -m ...
-  5. git show --stat HEAD   # confirm files are in git
+  5. git show --stat HEAD   # confirm BOTH src/ AND tests/ files appear
   6. THEN declare the verification contract
+
+Step 5 is critical: if only tests/... appears in git show --stat but not src/...,
+the implementation was described but never actually written. Re-write and re-commit.
+
+BSVibe also captures uncommitted working-tree changes (git status), but committing
+makes verification explicit and avoids ambiguity.
 
 ## Pre-Commit Hook Side-Trap
 
