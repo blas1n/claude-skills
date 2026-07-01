@@ -1,0 +1,72 @@
+---
+name: bsvibe-per-run-sandbox-isolation
+description: BSVibe verification runs in a fresh /work clone of main for EVERY turn — files from failed prior turns are gone. Commit within the CURRENT turn or they vanish.
+version: 1.0.0
+task_types: [devops, debugging]
+triggers:
+  - pattern: working in a BSVibe task and verification keeps failing with missing module or file not found
+  - pattern: verification sandbox cannot find files that were created in a previous turn
+---
+
+# BSVibe Per-Run Sandbox Isolation Trap
+
+## The Trap
+
+BSVibes verification sandbox at /work is a fresh clone of main for every verification attempt.
+If verification fails, BSVibe abandons the per-run branch -- it is never merged.
+The next turn starts again from main with zero trace of your previous work.
+
+This creates a deceptive failure loop:
+1. Turn 1: Write files, commit, declare contract -> verification fails (unrelated reason)
+2. Turn 2: BSVibe re-invokes from clean main -- your files are GONE
+3. You assume files from Turn 1 are present and only fix the unrelated reason
+4. Verification fails again because the files still do not exist
+
+Error looks like: ModuleNotFoundError: No module named src.my_module
+even though you committed it last turn.
+
+## Key Facts
+
+- BSVibe captures: files in git status (working tree) OR commits on top of FETCH_HEAD within the CURRENT session/turn only
+- Successful verification -> per-run branch is merged to main
+- Failed verification -> branch is abandoned; next turn starts from main
+- HEAD is always detached at FETCH_HEAD (last main commit)
+
+## Diagnosis
+
+  ls src/my_new_file.py tests/test_my_new_file.py   # are files present right now?
+  git log --oneline HEAD~3..HEAD                     # commits this turn?
+  git status                                         # working tree changes?
+
+If files do not exist -- you are in a fresh turn and must re-create them.
+
+## Fix Protocol
+
+Every turn is a fresh start. Do ALL of this within the SAME turn:
+
+  1. Write files (Edit/Write tool)
+  2. Verify locally: uv run ruff check + uv run pytest -v
+  3. Fix any errors (pre-commit hook failures, test failures, lint)
+  4. git add <files> && git commit -m ...
+  5. git show --stat HEAD   # confirm files are in git
+  6. THEN declare the verification contract
+
+## Pre-Commit Hook Side-Trap
+
+This project has a pre-commit hook that runs the FULL test suite before every commit.
+Pre-existing environment failures (missing packages not installed locally) will block
+your commit even though your code is correct.
+
+Diagnosis:
+  uv run pytest tests/ --tb=short -q 2>&1 | grep ModuleNotFoundError
+
+Fix:
+  uv pip install <missing-package>   # explicit install; uv sync may use stale lock
+  uv run pytest tests/ 2>&1 | tail -3   # confirm all pass before committing
+
+## The Key Invariant
+
+Every declared verification contract assumes its checked files exist in /work (BSVibes sandbox).
+The only way they get there is if they were captured in THIS turns git diff or commits.
+Never assume files from a prior failed turn are present.
+Always write, verify locally, commit, and THEN declare.
