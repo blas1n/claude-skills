@@ -64,6 +64,35 @@ Fix:
   uv pip install <missing-package>   # explicit install; uv sync may use stale lock
   uv run pytest tests/ 2>&1 | tail -3   # confirm all pass before committing
 
+## Diagnostic Signal: Shifting Import Error Line Number
+
+When the same verification failure repeats across turns but the error line number changes:
+
+  # Turn 1: tests/test_event_bus_bsvibe.py:6  in <module>
+  # Turn 2: tests/test_event_bus_bsvibe.py:3  in <module>
+  # Turn 3: tests/test_event_bus_bsvibe.py:7  in <module>
+
+This means the TEST FILE was committed each turn (pytest collected it, then failed on
+import), but the IMPLEMENTATION FILE was never committed (src/ module missing from /work).
+The AI re-created the test file with slightly different header structure each turn,
+shifting the import line number, while the src file was described as written but
+never actually captured in git.
+
+Immediate fix:
+  git show --stat HEAD   # check which files are actually in the commit
+
+If only tests/... appears but not src/..., the implementation was never staged.
+Re-write, stage explicitly, and commit again.
+
+## Error Message Variant: "No module named 'src'"
+
+BSVibe may report the truncated form:
+  ModuleNotFoundError: No module named 'src'
+
+even when src/__init__.py exists and other src.* imports work. This still means
+the specific file (src/my_new_module.py) is absent from the clone -- the src
+package itself is not broken, just the new file is missing.
+
 ## The Key Invariant
 
 Every declared verification contract assumes its checked files exist in /work (BSVibes sandbox).
