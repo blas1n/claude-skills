@@ -114,3 +114,41 @@ Every declared verification contract assumes its checked files exist in /work (B
 The only way they get there is if they were captured in THIS turns git diff or commits.
 Never assume files from a prior failed turn are present.
 Always write, verify locally, commit, and THEN declare.
+
+## Verification Contract: `--extra dev` Is Not Portable
+
+### The Trap
+
+Even when your local pyproject.toml defines:
+
+  [project.optional-dependencies]
+  dev = ["pytest>=8.2.0", "pytest-cov>=5.0.0", "ruff>=0.5.0"]
+
+The BSVibe verification sandbox rejects `uv run --extra dev` with:
+
+  error: Extra `dev` is not defined in the project's `optional-dependencies` table
+
+The sandbox resolves pyproject.toml from its own environment root — different uv
+version, workspace layout, or policy blocks extras. ruff still passes (PATH tool),
+but pytest-cov is unavailable.
+
+### Symptom
+
+Contract exits code 2 ("Extra `X` is not defined") while ruff exits 0.
+Files exist; only the test runner is broken.
+
+### Fix: Use `--with` Instead of `--extra`
+
+  # Fragile — extras may not be honoured in sandbox
+  uv run --extra dev pytest tests/test_foo.py --cov=src.foo --cov-fail-under=80
+
+  # Portable — installs inline, bypasses pyproject.toml extras entirely
+  uv run --with pytest --with pytest-cov pytest tests/test_foo.py --cov=src.foo --cov-fail-under=80 -q
+
+### Standard Portable Contract Template
+
+  {"checks": [{"kind": "command", "command":
+    "uv run ruff check src/my_module.py tests/test_my_module.py && uv run --with pytest --with pytest-cov pytest tests/test_my_module.py --cov=src.my_module --cov-fail-under=80 -q"
+  }]}
+
+Rule: Never use `--extra <name>` in BSVibe verification contracts. Always use `--with <pkg>`.
