@@ -152,3 +152,45 @@ Files exist; only the test runner is broken.
   }]}
 
 Rule: Never use `--extra <name>` in BSVibe verification contracts. Always use `--with <pkg>`.
+
+## Diagnostic Signal: `derived_gate PASSED` but `outcome_demonstration FAILED`
+
+### The Trap
+
+The verification JSON contains TWO distinct result sections run in DIFFERENT sandboxes:
+
+  "derived_gate": {"passed": true, ...}   <- contract command ran in AGENT's sandbox
+  "outcome_demonstration": {"verdict": "failed", ...}  <- probe ran in FRESH CLONE
+
+When `derived_gate.passed: true` but `outcome_demonstration.verdict: "failed"`:
+- The ruff/pytest contract commands ran in the agent's working directory (files exist there)
+- BSVibe's outcome probes ran in a SEPARATE fresh clone of main (files not there)
+- Root cause: files were created with Write/Edit tools but NOT committed to git
+
+### Why This Is Deceptive
+
+The contract command `uv run pytest tests/test_lists.py` passes because pytest runs
+against the agent's local files. Then BSVibe additionally runs outcome_demonstration
+probes (e.g. `cd /bsvibe-task-XXXXX && uv run python -c "from toolkit.lists import chunk"`).
+That cd path is a completely different directory -- a fresh clone where only committed
+changes appear.
+
+  Failure loop:
+  Turn 1: Write file, declare contract -> derived_gate PASSES, outcome_demo FAILS
+  Turn 2: Same files written (not committed) -> same failure
+  Turn 3: Write + git commit -> BOTH pass
+
+### Diagnostic Check
+
+Look at the `outcome_demonstration.probes[].command` in the failure JSON.
+The `cd /bsvibe-task-XXXXXX` path is a DIFFERENT directory from your working directory.
+If these differ -> your files must be in a git commit to appear there.
+
+  # My working dir:         /bsvibe-task-7a5daagc/
+  # Outcome probe ran in:   /bsvibe-task-g03pztyz/   <- DIFFERENT
+  # Fix: git add + git commit before declaring contract
+
+### Rule
+
+"Contract command passes locally" does NOT mean BSVibe outcome probes will find the files.
+Always commit before declaring the contract -- the commit is what bridges the two sandboxes.
