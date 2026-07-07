@@ -194,3 +194,45 @@ If these differ -> your files must be in a git commit to appear there.
 
 "Contract command passes locally" does NOT mean BSVibe outcome probes will find the files.
 Always commit before declaring the contract -- the commit is what bridges the two sandboxes.
+
+## Diagnostic Signal: ruff Passes But `No module named '<package>'` Persists
+
+### The Pattern
+
+Across consecutive turns, the output shows:
+```
+All checks passed!         <- ruff found and checked the files
+ModuleNotFoundError: No module named 'toolkit'  <- but pytest cannot import the package
+```
+
+`No module named 'toolkit'` (the package root, not a submodule) while ruff passes means:
+- ruff ran in the agent's local environment where files exist
+- pytest ran in BSVibe's sandbox where the package is not installed
+
+### Why This Is Deceptive
+
+ruff is a static checker that only reads files — it does not import the Python package.
+`uv run ruff check src/toolkit/timefmt.py` passes as long as the file exists locally.
+`uv run pytest` must actually IMPORT the package, which requires it to be installed.
+
+If the agent wrote files locally but did not commit them, ruff sees them but BSVibe's
+fresh-clone venv has no `toolkit` installed (or the editable install does not include
+the new file).
+
+### Reliable Diagnostic
+
+After writing files, run in sequence:
+  git status                 # 1. Are the files untracked/modified?
+  git add <files>
+  git status                 # 2. Are they staged?
+  git commit -m "..."
+  git show --stat HEAD       # 3. Do BOTH src/ AND tests/ appear in the commit?
+  uv run pytest tests/test_<module>.py -v  # 4. Does pytest pass locally?
+
+If step 3 shows only tests/... but not src/..., the implementation was described
+but not written. Re-write with Write/Edit tool and confirm with git status before staging.
+
+### Rule
+
+Never infer "file exists" from a successful ruff check.
+Always confirm with `git status` + `git show --stat HEAD` after committing.
