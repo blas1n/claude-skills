@@ -83,6 +83,29 @@ claude --print --model sonnet --disallowedTools "Bash Read Glob Grep Edit Write 
   이기고 (2) retriever 가 노트 **경로만** 주고("Related note — path", 검증 경로용 포인터)
   (3) 인라인 경로는 semantic 검색을 아예 안 붙임 — 3중 결함이 한 증상으로 보였다.
 
+## 배포 검증 함정 — "컨테이너 배포했는데 왜 그대로지?"
+
+이 아키텍처는 코드가 **두 군데**서 돈다. 고친 코드가 어느 프로세스에 속하는지 먼저 확인하라.
+
+| 코드 | 실행 위치 | 반영 방법 |
+|---|---|---|
+| 어댑터/디스패치/API | backend·worker **컨테이너** | 이미지 재빌드 + recreate |
+| **executor CLI 래퍼**(claude_code.py 등) | **호스트 launchd 워커** | **launchd 워커 재시작** (`launchctl kickstart -k`) |
+
+컨테이너만 재배포하고 "왜 아직 옛 동작이지?" 하며 코드를 다시 의심하기 쉽다. 호스트 워커는
+보통 repo 를 editable install 로 물고 있어서 **재시작해야** 새 코드를 빌드한다.
+
+## 라이브 로그가 유닛 테스트보다 정직하다
+
+grounding 파이프라인을 고친 뒤 라이브에서 확인했더니 `answer_grounding_note_unreadable`
+경고가 hit 마다 찍혔다 — **vault 는 절대경로를 요구하는데 retriever 가 상대경로 ref 를 그대로
+넘긴 것**. 유닛 테스트는 vault 를 dict 스텁으로 흉내내 **내가 넘긴 그 키를 그대로 받아줬기
+때문에** 초록이었다. 저장소/vault 처럼 **경로 경계 검증이 있는 컴포넌트는 진짜 객체로 테스트**하라
+([[test-against-source-contracts]], [[mock-fixtures-hide-wiring-bugs]]).
+
+그리고 `factory.vault_path()` — 프로퍼티를 메서드로 호출 — 는 **`mypy --strict` 가 잡았다**.
+CI 가 돌리는 게이트(ruff/format/lint-imports/mypy/pytest)를 **푸시 전에 그대로 로컬에서** 돌려라.
+
 ## Red Flags
 
 - chat 호출인데 응답이 **파일/디렉터리/git 상태**를 언급한다.
