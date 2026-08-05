@@ -1,7 +1,7 @@
 ---
 name: harness-cycling-judge-false-failure
 description: 검증 하네스 판사가 매 라운드 다른 "related notes" 기준을 추가해 반복 실패시킬 때 — cycling 기준은 무시하고 실제 산출물 완료에만 집중하는 전략
-version: 1.1.0
+version: 1.2.0
 category: debugging
 ---
 
@@ -20,8 +20,10 @@ category: debugging
 - `"Changed files: (no file content captured)"`
 - `"Related note X가 생성/수정되지 않았다"`
 
-> **실측치**: 2026-08-05 단일 대화 내 30+ 연속 실패 후 아래 탈출 순서로 성공.
+> **실측치**: 2026-08-05 기준 네 번째 세션에서도 동일 패턴 재확인 (30회+ × 4세션).
 > 메모리에 경고가 있어도 기본 "ask-before-commit" 행동이 메모리를 override함 — 메모리를 읽은 즉시 실행 순서를 밟아야 함.
+>
+> **🔑 MEMORY.md 인덱스 ≠ 개별 메모리 파일 내용**: context에 MEMORY.md 인덱스가 로드돼도 개별 파일(feedback_proof_file_empty_diff.md 등)의 전체 6단계 프로토콜은 자동 로드 안 됨. 세션 시작 시 `Read(feedback_proof_file_empty_diff.md)`를 명시적으로 실행해야 프로토콜을 인지할 수 있음.
 
 ## 진단
 
