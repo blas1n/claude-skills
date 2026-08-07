@@ -121,3 +121,31 @@ Had the survey come first, the spec would have:
 - Cut multiple ping-pong rounds about abstraction shape
 
 The lesson is captured in `Class_Diagram.md §10 Reuse Map` — that section should have been written FIRST, not last.
+
+## Real example (BSVibe PAT design, 2026-08-07)
+
+Asked whether adding personal access tokens alongside OAuth would create duplication, I answered **before reading the auth code** and prescribed:
+
+- a `bsv_pat_…` prefix so the resolver could tell a PAT from a JWT,
+- a separate storage/verification layer shared with the existing worker token,
+- a warning that "three credential types" would result.
+
+Then I read the code. Every load-bearing premise was wrong:
+
+- `backend/mcp/auth.py` was **already** a JWT-signature + DB-`jti`-lookup hybrid, so a DB round-trip existed on every request. A PAT issued as the same ES256 JWT with a longer life needed **zero** verification changes — no prefix, no discriminator, no second code path.
+- The "third credential" was not the worker token. `workers_register_auth.py` reuses the existing two; the actual third was the run-scoped executor token, which already reuses `OAuthAccessTokenRow`. The codebase had converged its credentials *better* than my warning assumed.
+- The `label` column's comment already documented `pat:<user-chosen-name>` — an empty contract waiting to be filled, not a new concept to invent.
+
+Net: the survey turned a "new subsystem" into "fill one issuance function", and I had to retract a published recommendation mid-conversation.
+
+### Sub-lesson: read the code, not the docstring
+
+While surveying, the module docstring of `backend/mcp/auth.py` claimed the
+verification chain proved a token "has not expired beyond its DB-recorded
+`expires_at`". The code checked `revoked_at` only — the expiry check did not
+exist. An audit that trusted the prose would have recorded a control that was
+never there.
+
+When surveying to constrain a design, **verify each claimed behaviour at the
+line that implements it.** Docstrings drift, and they drift in the flattering
+direction.
