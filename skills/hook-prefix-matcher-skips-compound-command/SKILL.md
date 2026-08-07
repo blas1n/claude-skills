@@ -88,6 +88,27 @@ grep -n 'COMMAND' ~/.claude/hooks/<hook>.sh
    if ! grep -qE '(^|[;&|]\s*)git\s+commit\b' <<<"$COMMAND"; then exit 0; fi
    ```
 
+## Sibling failure: the hook runs but its tooling isn't installed
+
+The inverse also bites. In a **fresh git worktree** the venv has no dev
+dependencies, so the hook's `uv run pytest tests/` cannot spawn `pytest`,
+exits non-zero, and reports:
+
+```
+BLOCKED: Unit tests failed. Fix before committing.
+```
+
+Nothing failed — nothing ran. Reproduce the hook's exact command before
+believing its verdict:
+
+```bash
+uv run pytest tests/ -q          # → "error: Failed to spawn: `pytest`"
+uv sync --extra dev              # then the hook's command works for real
+```
+
+Same lesson from the other direction: **a gate's verdict is only meaningful if
+you know the gate executed the thing it claims to have executed.**
+
 ## Generalisation
 
 Any guard keyed on surface form rather than effect has this hole — lint hooks
