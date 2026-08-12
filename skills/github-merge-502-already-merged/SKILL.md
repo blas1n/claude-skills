@@ -65,3 +65,26 @@ curl -s https://<api>/api/health          # git_sha 가 새 커밋인지
 - PR 은 열려 있는데 `git log origin/main` 에 그 PR 번호의 커밋이 있다
 - 머지 직후 `mergeStateStatus` 가 `BEHIND` 로 바뀌었다
 - 재시도하려는 충동 — 그 전에 ref 를 봐라
+
+## 같은 착시, 다른 원인 — `--delete-branch` 의 로컬 정리 단계 (2026-08-12, PR #742)
+
+```
+$ gh pr merge 742 --squash --delete-branch
+failed to run git: fatal: 'main' is already used by worktree at '/…/bsvibe-app/main'
+```
+
+머지 실패로 읽힌다. **머지는 됐다** (`gh pr view 742 → state=MERGED`).
+
+`--delete-branch` 는 원격 머지가 끝난 **뒤** 로컬 정리를 한다 — 로컬 브랜치를 지우려면
+먼저 다른 브랜치로 옮겨야 하므로 `git checkout main` 을 시도한다. bare + worktree
+레이아웃(`.bare` / `main` / `wt/*`)에서는 `main` 이 이미 다른 worktree 에 체크아웃돼 있어
+그 checkout 이 거부되고, gh 가 그 exit code 를 그대로 뱉는다.
+
+즉 **머지 명령의 비-0 종료가 머지 실패를 뜻하지 않는다** — 502 든 로컬 git 이든 같다.
+확인 순서는 동일하다: 재시도 전에 `gh pr view <N> --json state,mergeCommit` 과
+`git log origin/main` 을 먼저 본다. 정리는 손으로:
+
+```bash
+git -C <main-worktree> fetch -q origin && git merge --ff-only origin/main
+git worktree remove wt/<name> && git branch -D <name>
+```
