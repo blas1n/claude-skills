@@ -82,3 +82,43 @@ Only after those three layers check out is `X = 0` evidence of intentional absen
 - `systematic-debugging` — broader root-cause investigation; this skill is the "check absence first" corner of it.
 - `verification-before-completion` — the inverse problem (premature success claims); this one covers premature failure claims.
 - `test-against-source-contracts` — when API field semantics confuse you (e.g., `agent_name` returning creator vs assignee), this ties in.
+
+---
+
+## 사례 — **측정 명령 자체가 실패했을 때** (2026-08-17)
+
+이 스킬은 "0을 만들어내는 *생산자*가 도는가"를 묻는다. 그 한 겹 아래에 더 흔한 것이 있다:
+**측정 명령 자체가 돌기는 했는가.**
+
+BSVibe 실측. 레포 루트의 임시 파일 5개를 지우기 전에 참조를 확인하려고:
+
+```bash
+grep -rn "_patch_judge\|_patch_parse" --include=*.py backend/ tests/
+# → (zsh) no matches found: --include=*.py     ← 명령이 죽었다
+```
+
+zsh 가 `--include=*.py` 를 글롭으로 먹어 **명령이 실행되지 않았다.** 출력은 비어 있었고,
+나는 그 공백을 **"아무도 참조하지 않는다"** 로 읽고 파일을 지웠다.
+
+> **빈 출력은 "없음"이 아니다. 그 명령이 실행됐다는 증거가 먼저 필요하다.**
+
+제대로 다시 돌리니 13개 파일이 매칭됐다(전부 `monkeypatch_resolver` 같은 무관한 부분
+문자열이라 삭제는 결과적으로 안전했지만, **그건 운이었다**). 삭제·머지·배포처럼 **비가역**
+동작 앞에서는 이 확인이 필수다.
+
+**처방**
+
+- 부재를 근거로 행동하기 전에 **양성 대조**를 하나 끼워라 — 반드시 매칭될 문자열로 같은 명령을
+  돌려 **0이 아닌 결과**가 나오는지 본다. 안 나오면 명령이 죽은 것이다.
+- 종료 코드를 봐라. `grep` 의 "매칭 없음"은 1, **오류는 2**다. 셸이 죽였으면 그마저 안 나온다.
+- 셸 확장이 개입할 수 있는 인자(`*`, `?`, `[`)는 **따옴표로 감싸라**.
+
+```bash
+# 양성 대조를 같이 돌린다
+grep -rn "_patch_judge" backend tests; echo "exit=$?"
+grep -rn "def test_" tests | head -1        # ← 이게 비면 명령이 죽은 것이다
+```
+
+**Detection**: 빈 출력을 근거로 **삭제/정리/롤백**을 하려 한다 · 셸 오류 메시지가 출력에 섞여
+있는데 결과부만 읽었다 · `tail`/`head` 로 잘라 보느라 앞의 에러를 못 봤다(같은 세션에서
+`ruff` 의 F821 을 `tail` 로 놓쳐 85개 테스트를 깨뜨렸다).
