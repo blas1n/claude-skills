@@ -104,3 +104,44 @@ def test_the_observation_survives_the_transport():
 
 **Detection**: 플래그/관측 모드 PR 에서 새 값이 **인스턴스 속성에만** 있다 · 롤아웃 계획에
 "배포 후 잰다"가 있는데 **그 쿼리를 아무도 안 써봤다** · 그 값을 읽는 코드가 테스트뿐이다.
+
+---
+
+## 사례 — **"소비 표면은 이미 있다"** 는 문장을 그대로 믿었을 때
+
+앞의 두 사례는 *내가 만든* 신호였다. 이건 **문서가 소비자의 존재를 단언한** 경우다.
+
+BSVibe 감사 C(라우팅 glass-box) 문서 원문:
+
+> **#752 와 정확히 같은 형태다** — 소비 표면(활동 타임라인)은 있고 **생산자만** 신 경로에 없다.
+
+이 문장대로면 작업은 "resolver 에 생산자 한 곳 배선" — 작고 명확하다. 착수 전에 읽는 쪽을
+직접 밟아봤다:
+
+```python
+# backend/api/v1/runs/_helpers.py — _activity_label()
+if activity_type == "tool_call": ...
+if activity_type == "verify":    ...
+if activity_type == "settle":    ...
+if activity_type == "error":     ...
+return None          # ← 모르는 타입은 전부 여기로
+
+# _build_timeline()
+label = _activity_label(row.activity_type, payload)
+if label is None:
+    continue         # ← 조용히 버려진다
+```
+
+**타임라인이라는 *그릇*은 있지만, 이 신호를 위한 *읽는 쪽*은 없었다.** 생산자만 넣었으면
+행은 쌓이고 화면엔 아무것도 안 뜬다 — 정확히 **파운더가 그 전날 거절한 그 결함**을
+재현하는 것이다.
+
+> **"소비 표면이 있다"를 *그릇의 존재*로 확인하지 마라.** 그 신호가 실제로 화면까지 가는
+> 경로를 **끝까지 밟아라.** 그릇은 대개 있다 — 없는 건 늘 그 안의 분기 하나다.
+
+곁가지로 **범위도 틀렸었다**: 구 경로는 런당 1회 기록이었는데 신 경로의 `resolve_for` 는
+런당 여러 번 불린다(캐시 없음). 그대로 옮겼으면 스토리 타임라인이 같은 줄로 범람했을 것이다.
+
+**Detection**: 핸드오프·감사 문서가 *"X 만 없다 / 나머지는 준비돼 있다"* 로 범위를 좁혀준다 ·
+소비자가 **allowlist 분기**(`if type == …` / dict lookup / switch)로 되어 있고 default 가
+조용한 drop 이다 · "같은 형태다"라는 유추로 범위가 정해졌다(그 유추를 검증한 사람은 없다).
