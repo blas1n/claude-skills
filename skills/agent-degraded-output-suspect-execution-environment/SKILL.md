@@ -82,3 +82,54 @@ shows the agent *trying* the strong command, getting errors, then
   prompt once.
 - A verification / gate passes via a check that doesn't actually
   exercise the deliverable (compile-only, import-only, `--help`).
+
+---
+
+## 사촌 증상 — "게으른 에이전트"가 사실은 **안 돈 하류 단계**일 때
+
+앞의 내용은 *한 런 안에서* strong→weak 로 떨어지는 경우다. 다단계 파이프라인
+(design→impl, plan→build, extract→transform)에는 **같은 오진의 다른 모양**이 있다:
+
+- **증상**: 코드를 요청했는데 **명세 문서 하나**가 나오고 런은 `verified` / 완료로 끝난다.
+  "에이전트가 일을 회피했다 / 지시를 안 따랐다" 로 읽힌다.
+- **실제**: 상류 단계(design)는 **제 일을 정확히 했다.** 명세를 쓰는 게 그 단계의 산출물이다.
+  깨진 것은 **하류 단계(impl)가 아예 스폰되지 않은 것**이다.
+
+### 왜 오진하기 쉬운가
+
+파이프라인이 살아 있을 때와 죽었을 때의 **상류 산출물이 완전히 동일**하다.
+차이는 "그 다음에 무엇이 생겼나" 뿐인데, 사람은 눈앞의 산출물만 본다.
+게다가 상류 런은 정상 종료라 **에러도 로그도 없다.**
+
+### 먼저 확인할 것 (에이전트를 의심하기 전에)
+
+```sql
+-- 1) 이 런은 다단계로 분류됐나?
+select payload->'frame'->>'pipeline', payload->>'stage' from execution_runs where id = '<run>';
+
+-- 2) 하류 런이 실제로 생겼나?
+select count(*) from execution_runs where payload->>'design_run_id' = '<run>';
+
+-- 3) 같은 축으로 시계열 — 언제부터 안 생겼나?
+select created_at::date, count(*) from execution_runs
+where payload ? 'design_run_id' group by 1 order by 1;
+```
+
+3번이 결정적이다. **어제까지 되던 게 오늘 0이면 에이전트 문제가 아니다.**
+
+### 실제 사례 (BSVibe, 2026-08-18)
+
+`worker_runtime.py` 리팩터링을 요청했고 (*"순수 리팩터링, 동작 변경 금지, 기존 테스트
+전부 통과가 수락 조건"*) `spec_..._split.md` 하나가 나왔다. 처음엔 **에이전트의 회피**로
+진단하고 "산문 산출물" 검사를 조이는 수정에 착수했다 — **틀렸다.**
+
+시계열을 세니 체이닝된 impl 런이 **전날 1건 → 당일 0건**. 전날 삭제된 라우팅 룰이
+체이닝 게이트의 암묵적 피처 플래그였다.
+→ `deleting-inert-config-row-disables-hidden-feature`
+
+**착수했던 "회피 방지" 수정은 폐기했다.** 그 수정을 넣었으면 정상적인 design 단계
+산출물까지 전부 사람을 호출하는 **과잉 파킹**이 됐을 것이다(역대 파킹 8건 중 4건이
+바로 그 정당한 design 단계였다).
+
+> **교훈: 에이전트를 고치는 수정에 착수하기 전에, 그 산출물이 "어느 단계의 정상 산출물"
+> 인지부터 확인하라.** 단계를 모른 채 산출물만 보면 정상을 결함으로 읽는다.
