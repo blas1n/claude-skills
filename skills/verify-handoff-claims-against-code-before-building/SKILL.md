@@ -46,3 +46,39 @@ docker exec <prod> sh -c 'find <vault>/garden -name "*.md" | wc -l'  # "12K note
 - The linked memory is days/weeks old, or its write-date is suspiciously close to a relevant PR merge.
 - The framing is "build the missing X" but you haven't yet grepped for X.
 - You're about to delete/overwrite something you didn't create, based on someone else's description of it.
+
+## Case: inherited numbers become fabricated evidence (2026-08-24)
+
+The same staleness bites in a second, quieter way — not by mis-scoping the work, but by **entering
+the permanent record as evidence**.
+
+A long session was compacted; the summary carried a metric: *"the failing run produced 0
+deliverables vs 2/3/10/14 historically."* That number was never re-measured. It was then quoted
+into **two merged PR descriptions and a design document** as the severity argument.
+
+Measured afterwards: the product had 48 runs; the two most recent successful ones produced **1
+deliverable each**, not 2/3/10/14. The defect was entirely real (0 deliverables, 0 tool calls,
+cause confirmed in code and logs) — but its **baseline had been inflated**, and the inflation now
+lived in the durable artifacts.
+
+**Why this variant is easy to miss:** a compaction summary or prior-session handoff does not *feel*
+like a claim to verify. It feels like your own memory. Scope claims ("X is unbuilt") trigger
+suspicion; a bare number slipped into a sentence does not.
+
+**Rule:** the moment an inherited number is about to leave the conversation — into a PR body, a
+design doc, a commit message, a report to the user — it stops being context and becomes **evidence**,
+and evidence must be measured. Cheap discriminator:
+
+```bash
+# quoting "historically N per run"? count it, don't recall it
+<query the actual rows, grouped by run>
+```
+
+If it is already published, correct it explicitly in the artifact rather than quietly. Related:
+`activity-recording-drift-invalidates-historical-counts` (why historical counts drift even when
+honestly gathered).
+
+### Red flag (addition)
+
+- You are about to write a comparison figure into a PR/doc that you did not measure **in this
+  session**, including one that arrived via context compaction.
