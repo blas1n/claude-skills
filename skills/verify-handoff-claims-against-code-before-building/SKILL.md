@@ -82,3 +82,51 @@ honestly gathered).
 
 - You are about to write a comparison figure into a PR/doc that you did not measure **in this
   session**, including one that arrived via context compaction.
+
+---
+
+## Variant 3 — the handoff's *diagnosis* is wrong, not just its numbers (BSVibe 2026-08-25)
+
+Both variants above are about **facts** (scope, figures). This one is about **causal claims** — the
+handoff says *why* something is the way it is, and that explanation is what your whole design
+inherits. It survives review because it reads as analysis, not as a claim.
+
+Two of them, in one document, both wrong:
+
+| Handoff said | Measured |
+|---|---|
+| *"`pipeline` produces values because of the founder's routing rules"* (§1.1) | The rules exist — in a workspace with **54 idle runs**. The workspace where the founder actually works (**169 runs, both products**) had **zero** rules. All 21 recorded routing decisions: `workspace_default`. |
+| *"`classified_intent` is 0 rows — decide between discoverability / circularity / wrong axis"* (§3.Q2) | **None of the three.** The axis was fine (the NL compiler produced a perfect Korean intent proposal). Its enabling config table had **no writer anywhere in the product** — `upsert` had exactly one caller: a unit test. |
+
+Had either been taken on faith, the session would have designed around a rule set that routes
+nothing, and "fixed" an axis whose shape was never the problem.
+
+**Why causal claims are the dangerous kind:** a wrong number is falsified by one query. A wrong
+*explanation* is only falsified by asking "what would have to be true for this?" and then measuring
+**that** — which is a step you skip precisely when the explanation sounds reasonable.
+
+### Two cheap discriminators that caught both
+
+```bash
+# 1. Multi-tenant config: NEVER count(*) — count per tenant, then ask which tenant
+#    actually does the work (runs/events), not which one has the most config.
+select workspace_id, count(*) from run_routing_rules group by 1;
+select workspace_id, count(*) from execution_runs group by 1;
+
+# 2. "Feature X is unused": before theorising about WHY, check whether anything
+#    can even write its enabling state.
+grep -rn "\.upsert\|def set_\|INSERT INTO <table>" --include="*.py" backend/ | grep -v test
+#    → callers == {a unit test} means the feature was never reachable, and every
+#      behavioural explanation for its absence is post-hoc.
+```
+
+**Bonus finding from the same measurement:** the rules' `created_at` (2026-06-28) was compared
+against where the founder was working *at that time* — 19 runs, all in the OTHER workspace, whose
+first run came 8 days later. So the user believed they were configuring the workspace they worked
+in, and the config silently landed elsewhere. **Comparing a config row's `created_at` against
+contemporaneous activity** is how you tell "unused setting" from "setting saved to the wrong place".
+
+### Red flag (addition)
+
+- The handoff explains *why* something is broken/unused, and your plan starts from that explanation.
+  Write down what must be true for it to hold, then measure that — before designing anything.
