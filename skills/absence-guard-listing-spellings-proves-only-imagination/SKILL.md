@@ -147,6 +147,46 @@ case ast.Subscript(value=ast.Name(id=name), slice=ast.Constant(value=str() as ke
 - **대조군이 나를 잡았다.** 부재 가드만 있었으면 스캐너가 과잉 수집하는 채로 green 이었다
   — 이번엔 우연히 오탐이 없었을 뿐이다. [[a-control-that-counts-is-blind-to-what-it-guards]]
 
+### 삭제 PR 은 **자기가 만든 유령**을 잡는 가드가 필요하다 (2026-08-29)
+
+가장 놓치기 쉬운 인스턴스는 트리에 원래 있던 것이 아니라 **이 PR 이 방금
+만든 것**이다. 심볼을 지우면 그것을 가리키던 **상호참조가 그 순간 죽는다.**
+
+`VerifierWorker` + `SafeModeQueue.expire` 삭제 PR 에서 실제로 그랬다. 가드는
+발견해 둔 유령 이름 하나(`expire_all_due`)를 텍스트로 박아뒀고 **green 이었다**.
+그런데 방금 지운 `SafeModeQueue.expire` 를 `:meth:` 로 가리키는 docstring 이
+**다섯 군데** 살아 있었다. 그중 하나는 단순 언급이 아니었다:
+
+    Per-workspace callers should keep using :meth:`expire`
+    (single-statement update, no audit emission)
+
+**없는 메서드를 쓰라고 지시한다.** 원래 있던 유령보다 나쁘다 — 이건 내가 만들었고,
+독자에게 "이걸 쓰라"고 말한다.
+
+⇒ **삭제하는 이름마다 "이걸 가리키던 것이 무엇이었나"를 세라.** 지운 심볼은
+가드의 needle 목록에 **자동으로 들어가야 한다.** 발견 시점에 알고 있던 이름만
+넣으면, 가드는 자기 PR 이 만든 유령에 대해 구조적으로 눈이 먼다.
+
+**그리고 무엇을 금지할지 정확히 정하라 — 언급이 아니라 가리킴이다.**
+
+지운 이름을 *왜 지웠는지 서술하는 산문*은 정당하다(가드 파일 자신이 그렇다).
+정당하지 않은 것은 **독자를 없는 곳으로 보내는 포인터**다. 그래서 needle 을
+이름이 아니라 **역할 + 이름**으로 잡는다:
+
+```python
+_DEAD = ("SafeModeQueue.expire", "mark_expired_bulk", "expire_all_due")
+
+# ✅ 가리킴만 막는다
+if f":meth:`{dead}`" in text or f":meth:`~{dead}`" in text:
+    survivors.append(...)
+
+# ❌ 이름을 통째로 막으면 "왜 지웠는지" 를 못 쓴다 — 가드가 자기 PR 의
+#    커밋 메시지·체크리스트·자기 docstring 을 물어서 영원히 빨갛다
+```
+
+음성 대조군을 **양방향**으로 돌려라: `:meth:` 부활은 물어야 하고, `:meth:` 없는
+단순 언급은 **통과해야** 한다. 후자를 확인하지 않으면 과잉 차단인 줄 모른다.
+
 ## 감별 — 언제 목록이 맞고 언제 집합이 맞나
 
 | 목표 | 도구 |
