@@ -112,6 +112,41 @@ cp /tmp/bak target.py
 일부러 **가드가 모르는 receiver 이름**(`ws`)으로 심어라. 목록형 가드였다면 이 대조군이
 통과해버린다 — 그게 곧 진단이다.
 
+### AST 로 옮겨도 끝이 아니다 — **어떤 AST 모양**을 세는지가 명제다 (2026-08-29)
+
+grep 을 AST 로 바꾸면 산문·주석·docstring 이 후보에서 빠진다. 거기서 멈추기 쉽다.
+그런데 **무엇을 세느냐가 곧 무슨 명제를 증명하느냐**다.
+
+`source_ref` 삭제 PR 에서 가드 하나와 양성 대조군 하나에 **같은 스캐너**를 썼다:
+
+```python
+def _dict_string_keys(tree):        # dict 리터럴 키 · 첨자 · .get() 전부
+    ...
+```
+
+부재 가드에는 맞았다("이 키를 쓰는 코드가 없다"). 그런데 양성 대조군
+*"`write_seed` 가 `data` 에서 읽는 키는 title/tags/content 뿐"* 에 같은 걸 쓰자
+함수가 **내보내는 이벤트 페이로드**의 `"path"` 가 잡혀 실패했다.
+
+    AssertionError: write_seed 가 읽는 키가 바뀌었다: ['content', 'path', 'tags', 'title']
+
+`"path"` 는 `data` 에서 읽은 게 아니라 `emit_event(..., {"path": ...})` 로 **쓴** 것이다.
+스캐너가 "이 함수에 등장하는 dict 키"를 셌고, 내가 증명하려던 건 "이 함수가
+`data` **에서 읽어 가는** 키"였다. **두 명제는 다르다.**
+
+고침은 대상 변수에 묶는 것이었다 — `data[k]` · `k in data` · `data.get(k)` 세 형태만:
+
+```python
+case ast.Subscript(value=ast.Name(id=name), slice=ast.Constant(value=str() as key)) if name == variable:
+```
+
+**교훈 둘:**
+- **하나의 스캐너를 부재 가드와 대조군에 돌려 쓰지 마라.** 부재 가드는 넓게 잡아도
+  되고(과잉 수집은 false positive 로 시끄럽게 실패한다), 소비자 계약을 재는 대조군은
+  **정확히** 그 방향만 잡아야 한다. 넓은 쪽을 그대로 쓰면 조용히 다른 질문에 답한다.
+- **대조군이 나를 잡았다.** 부재 가드만 있었으면 스캐너가 과잉 수집하는 채로 green 이었다
+  — 이번엔 우연히 오탐이 없었을 뿐이다. [[a-control-that-counts-is-blind-to-what-it-guards]]
+
 ## 감별 — 언제 목록이 맞고 언제 집합이 맞나
 
 | 목표 | 도구 |

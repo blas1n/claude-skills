@@ -55,6 +55,38 @@ echo "EXIT=$?"              # 최소한 찍어서 눈으로 확인
   요약은 로그를 남긴 뒤 grep으로 만들어라.
 - zsh/bash 기본은 pipefail이 **꺼져** 있다. CI 스크립트에 `set -eo pipefail`이 관용구인 이유.
 
+## 변종 — 파이프를 안 써도 하네스 알림이 같은 거짓말을 한다 (2026-08-29)
+
+파이프를 하나도 안 걸고, 단계마다 종료코드를 로그에 찍는 **정석대로** 게이트를 짰다:
+
+```bash
+uv run pytest ... >>/tmp/gate.log 2>&1;            echo "PYTEST_EXIT=$?"  >>/tmp/gate.log
+uv run ruff format --check ... >>/tmp/gate.log 2>&1; echo "FMT_EXIT=$?"  >>/tmp/gate.log
+uv run mypy backend/ >>/tmp/gate.log 2>&1;         echo "MYPY_EXIT=$?"   >>/tmp/gate.log
+echo "GATE_COMPLETE" >>/tmp/gate.log               # ← 체인의 마지막 명령
+```
+
+이걸 백그라운드로 띄우자 완료 알림이 왔다:
+
+    Background command "Run full verification gate" completed (exit code 0)
+
+**실제로는 `FMT_EXIT=1` 이었다.** 알림이 보고한 exit code 는 체인 **마지막** 명령
+(`echo`)의 것이다. 그리고 게이트 체인의 마지막은 거의 항상 완료 마커라 —
+**이 알림은 구조적으로 늘 0 을 보고한다.**
+
+⇒ 위험한 건 이 신호가 **가장 믿음직해 보인다**는 점이다. 묻지도 않았는데 도착하고,
+하네스가 말하며, 숫자가 붙어 있다. 로그를 열지 않고 "게이트 통과"로 넘어가기 쉽다.
+
+**규칙: 하네스가 보고하는 종료코드는 게이트 판정이 아니다.** 판정은 자기가 찍은
+`*_EXIT=` 줄을 **직접 읽어서** 한다.
+
+```bash
+grep -E "_EXIT=[^0]" /tmp/gate.log && echo "GATE FAILED"   # 0 이 아닌 것만 뽑는다
+grep -c GATE_COMPLETE /tmp/gate.log                        # 끝까지 돌았는지도 따로
+```
+
+[[cwd-resets-across-a-background-task-boundary]] 가 같은 게이트에서 나온 짝 함정이다.
+
 ## Red Flags
 
 - 로컬 게이트는 green인데 CI만 빨갛다 (특히 lint/format처럼 결정론적인 단계).
