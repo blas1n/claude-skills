@@ -760,5 +760,17 @@
     "category": "think",
     "task_types": [],
     "executor": "claude_code"
+  },
+  {
+    "name": "the-precedent-you-found-may-be-an-exception-entry",
+    "path": "skills/the-precedent-you-found-may-be-an-exception-entry",
+    "description": "기존 코드가 X 를 한다고 X 가 허용된 패턴인 건 아니다 — 그 줄이 ignore_imports / noqa / allowlist 에 등록된 위반일 수 있다. 호출 지점에서 선례와 예외는 똑같이 생겼다. 설계를 세우기 전에 예외 목록을 grep 하라.",
+    "version": "1.0.0",
+    "category": "trap",
+    "task_types": [
+      "design",
+      "implementation",
+      "investigation"
+    ]
   }
 ]
