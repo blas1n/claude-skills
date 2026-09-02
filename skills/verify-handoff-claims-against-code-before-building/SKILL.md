@@ -130,3 +130,89 @@ contemporaneous activity** is how you tell "unused setting" from "setting saved 
 
 - The handoff explains *why* something is broken/unused, and your plan starts from that explanation.
   Write down what must be true for it to hold, then measure that — before designing anything.
+
+---
+
+## Variant 4 — the handoff's *question* presupposes a concept the system doesn't have (BSVibe 2026-09-02)
+
+Variants 1–3 are wrong **facts**, wrong **numbers**, wrong **explanations**. This one is a wrong
+**framing**: the handoff prescribes a question, and the question quietly assumes a structure that
+does not exist. You cannot answer it, but you can *implement* an answer to it — and that
+implementation adds a field to a concept nobody has, with green tests, fixing nothing.
+
+The backlog item read:
+
+> *"The run only ran 3 of the 5 gates I specified, and nothing signals the shortfall. See whether
+> the deliverable can say **which of the requested gates didn't run**. The materials are there —
+> `derived_gate.commands` already distinguishes `unavailable`."*
+
+Both halves felt actionable. The first is unanswerable:
+
+| Presupposed | Measured (`gate_derivation.py`, `verification_service.py`) |
+|---|---|
+| the run was *given* a gate list and executed a subset | the gate is **LLM-derived from the repo's own manifests + CI declarations**. There is no "requested gates" structure anywhere |
+| "5 that I specified" is a thing the record knows | the founder's prose gate list reaches the deriver only as free-text `intent`; the prompt turns intent into commands **only for stated CONSTRAINTS**, never "run these" |
+
+Implementing "which requested gate didn't run" would have meant inventing the requested-gate concept
+first — a whole new axis, to answer a question no one can ask.
+
+**But the second half was exactly right, and it was pointing at the real defect.** At that same file,
+that same field, the true proposition was one step sideways:
+
+```python
+passed = not any(r["status"] == "failed" for r in results)   # `unavailable` never fails the gate
+...
+passed = [c for c in commands if c.get("passed")]            # ...and the summary counts only passes
+```
+
+⇒ a five-command gate with two `unavailable` rendered **byte-identical** to a three-command gate
+that ran end to end. Not "it claims checks it didn't run" (variant of the *previous* session's
+already-collapsed diagnosis) — **it silently omits the ones that couldn't run.**
+
+### Why this variant is the hardest to catch
+
+The handoff **had already corrected itself once**. Its §Ⅱ.0 opened with *"two of my diagnoses
+collapsed under measurement"* and then carefully wrote down what it believed survived. That
+surviving residue is what was wrong. A claim that has visibly been through a correction pass *feels*
+audited — the correction is doing the vouching, not the evidence.
+
+### The transferable move
+
+The handoff's **location** was right (correct file, correct field, correct family of defect) while
+its **proposition** was wrong. So the fix is not "distrust the handoff" — it is:
+
+1. **Go to the location the handoff names.** It is usually right; that part came from reading code.
+2. **Re-derive the proposition there from scratch**, as if the handoff had named only the file.
+   Ask *"what is actually true here that shouldn't be?"* — not *"is the handoff's claim true?"*,
+   which anchors you to its framing.
+3. **Before designing, name the structure the prescribed question requires** and grep for it. If
+   the noun in the question ("requested gates", "declared budget", "user's chosen plan") has no
+   table, field, or type, the question is not a spec — it is a hypothesis that has already failed.
+
+```bash
+# The 60-second discriminator: does the noun in the backlog question exist?
+grep -rn "requested_gate\|declared_command\|gate_request" backend/ --include="*.py" | grep -v test
+#   → 0 hits. The question's subject has no representation. Stop and re-derive.
+
+# And where DOES the thing come from?
+grep -rn "derived_gate\b" backend/ --include="*.py" | grep -v test | head
+#   → it is authored by an LLM from manifests. Nobody "requests" it.
+```
+
+### Key insight
+
+A three-state field collapsed into a boolean is the shape that produces this class of defect, and
+the shape a handoff will consistently mis-describe: everyone can see the summary is *wrong somehow*,
+so each session invents a different story for **why**. Two sessions produced two different wrong
+diagnoses ("it fabricates checks", "it ran 3 of my 5") for one simple mechanical fact — the mapping
+`status == "passed"` threw `unavailable` away. Go to the mapping, not the story.
+
+### Red flags (addition)
+
+- The backlog item is phrased as *"see whether we can make X say Y"* — that phrasing means **nobody
+  has measured it yet**. It is a hypothesis wearing a spec's clothes.
+- The handoff already retracted one or more diagnoses about the same surface, and you are acting on
+  what it says survived. Re-measure the residue; the retraction did not audit it.
+- Successive sessions produce *different* explanations for the same symptom. Stop explaining and go
+  read the one place the value is transformed.
+- The question's key noun does not appear in the schema, the types, or any non-test caller.
