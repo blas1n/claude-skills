@@ -200,3 +200,89 @@ them was hours. A 10-second smoke test would have failed at PR time.
 The unit-test-vs-deploy-DB engine mismatch is the real root cause; this skill
 is the cheapest way to close the gap without giving up SQLite's speed for the
 rest of the suite.
+
+---
+
+## ⚠️ Two gaps this smoke test does NOT close (measured 2026-09-03)
+
+The smoke test above proves **DDL** applies to a fresh PG. Two things sit
+outside it, and both look exactly like coverage.
+
+### 1. Read the gate's `skipped` count, not just `passed`
+
+A PG-gated suite **skips silently** when no Postgres is reachable. A full run
+came back:
+
+```
+6618 passed, 43 skipped   ← the whole PG tier, including a schema migration
+```
+
+Green. And the migration in that PR had **never run against Postgres at all**.
+Turn PG on and the same run reads `6662 passed, 1 skipped`.
+
+⇒ For any PR touching schema/migrations, **read the skip count before the
+pass count**, and open that gate. A disposable container is enough:
+
+```bash
+docker run -d --name pg-probe -e POSTGRES_USER=app -e POSTGRES_PASSWORD=app \
+  -e POSTGRES_DB=app -p 15452:5432 pgvector/pgvector:pg16
+```
+
+Pick a port nothing else holds, and confirm the target is **empty** before a
+suite that starts with `DROP SCHEMA`:
+
+```sql
+SELECT count(*) FROM information_schema.tables WHERE table_schema = 'public';
+```
+
+If the project runs a **two-role** setup (owner for DDL, least-privilege for
+runtime), the runtime DSN must point at the least-privilege role or the RLS
+tests fail *correctly* and look like your bug. Let the migration create that
+role, then switch the DSN.
+
+### 2. A migration's DATA branch is a no-op on an empty database
+
+This is the sharp one. `upgrade head` on a fresh DB runs your backfill /
+exemption / rename UPDATE **against zero rows**. The round trip proves the
+statement *parses*. It proves nothing about what it does.
+
+```python
+# Runs on an empty DB → 0 rows → passes no matter what it says
+op.execute(sa.text("""
+    UPDATE workspaces SET max_concurrent_runs = NULL
+    WHERE id IN (SELECT m.workspace_id FROM memberships m
+                 JOIN users u ON u.id = m.user_id
+                 WHERE u.email = :operator_email)
+"""))
+```
+
+That statement existed to keep the operator's own workspace from being locked
+out on deploy. A green fresh-PG round trip said nothing about it.
+
+**Force the branch open**: stop one revision short, seed the rows a real
+deployment would meet, then upgrade to head and assert the data.
+
+```python
+_alembic(["upgrade", "<revision BEFORE yours>"], env_extra=env_extra)
+asyncio.run(_seed_the_rows_a_real_deploy_would_meet())
+_alembic(["upgrade", "head"], env_extra=env_extra)
+caps = asyncio.run(_read_them_back())
+assert caps[ordinary_ws] == 3          # backfilled
+assert caps[operator_ws] is None       # exempted
+```
+
+Then **delete the UPDATE and confirm that test — and only that test — goes
+red**. Ours failed with `assert 3 is None`, which is the proof the assertion
+was load-bearing.
+
+⇒ Rule of thumb: **DDL is covered by the round trip; DML is not.** Every
+`op.execute(... UPDATE/INSERT/DELETE ...)` needs its own seeded test, because
+the environment the smoke test builds is precisely the one where that
+statement does nothing.
+
+### Related
+
+* `the-branch-behind-a-human-gate-was-never-run` — same shape, different gate:
+  code behind a credential/approval has an execution count of zero.
+* `counting-only-passes-hides-what-never-ran` — a summary that counts only
+  passes erases the third state.
