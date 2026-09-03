@@ -206,6 +206,56 @@ await btn.click();  // Confirm? → executes
 3. Structural — `page.locator('.divide-y > div').nth(0).locator('button')`
 4. `.first()` — last resort
 
+### Label text bakes a LANGUAGE assumption into the harness
+
+If the app picks its locale at runtime (next-intl from `Accept-Language`, a
+cookie, a user setting), a label-text selector silently makes the helper
+single-language.
+
+```ts
+// login helper — worked for months, English only
+await page.getByLabel(/email/i).fill(email);
+await page.getByRole("button", { name: /continue$/i }).click();
+```
+
+Add one test with `test.use({ locale: "ko-KR" })` and it dies **inside the
+helper** with a 30s timeout — which reads as *"Korean onboarding is broken"*
+when the product is fine and the harness is not. (BSVibe 2026-09-03.)
+
+Use the form's own ids / structural attributes, which no translation touches:
+
+```ts
+await page.locator("#email").fill(email);
+await page.locator('form button[type="submit"]').click();
+```
+
+Still types into the real form and presses the real button — the no-bypass
+property is unchanged. Reserve label/role-name selectors for tests whose
+proposition IS the copy.
+
+### An assertion that races a redirect is green by luck
+
+```ts
+await link.click();
+await expect(page).toHaveURL(/\/settings$/);   // passed once, failed next run
+```
+
+`/settings` server-redirects to `/settings/general`. The assertion caught the
+pre-redirect URL on one run and the post-redirect URL on the next. Same code,
+same build — the only difference was timing.
+
+Two lessons, and the second is the valuable one:
+
+1. **One green does not mean the assertion is right.** A URL assertion on a
+   route that redirects is inherently racy; assert the *destination*.
+2. **The flake was pointing at a real defect.** Restating the proposition as
+   the destination (`/settings/models` + the workers section visible) is what
+   revealed that the link went one tab short of the surface it promised. The
+   over-loose assertion had been *hiding* the bug, not just being flaky.
+
+Rule: when an assertion targets a URL, assert where the user ENDS UP, and pair
+it with something only that page renders.
+
 ---
 
 ## 3. API-Based E2E (Devcontainer-Friendly)
