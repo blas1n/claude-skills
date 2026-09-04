@@ -94,6 +94,57 @@ const cannotProduce = !hasProducts || hasLiveWorker === false;
 * `재서 true` → 안 뜬다
 * `unknown 인데 판정을 못 바꾸는 자리` → **뜬다**
 
+## 셸/CLI 형태 — `2>/dev/null` + `[ -z "$x" ]` (2026-09-04 실측)
+
+TypeScript 의 `.catch(() => [])` 와 **완전히 같은 결함**이 셸에선 이렇게 생겼다:
+
+```bash
+password=$(security find-generic-password -s "$SVC" -a "$ACC" -w 2>/dev/null)
+if [ -z "$password" ]; then
+  echo "SKIP: 라이브 E2E — Keychain 에 자격증명이 없다."     # ← 재지 않은 원인을 단언
+```
+
+`2>/dev/null` 이 **이유를 버리고**, `-z` 가 남은 유일한 신호다. 실측한 두 세계:
+
+| rc | 뜻 | 옳은 처신 |
+|---|---|---|
+| `44` `errSecItemNotFound` | 진짜 부재 — **사람을 기다린다** | 조용한 SKIP |
+| `36` `errSecInteractionNotAllowed` | **잠긴 keychain** — 항목이 있어도 못 읽는다 | **FAIL·알람** |
+
+⭐ **셸에서 특히 위험한 이유**: 종료코드라는 **완벽한 신호가 바로 옆에 있었는데**
+버렸다. JS 의 `catch` 는 최소한 에러 객체를 손에 쥐지만, `2>/dev/null` 은 진짜로
+없앤다. 그리고 `$?` 는 다음 명령 하나면 사라진다.
+
+### ⭐⭐ 이 결함의 진짜 비용 — 세탁된 문장이 **엔지니어링 진단**으로 자란다
+
+이 로그는 매일 밤 *"Keychain 에 자격증명이 없다"* 를 찍었다. 사람은 그 문장을 근거로
+원인을 추론했고, **세 세션이 keychain 실패를 *"에이전트가 비대화형이라서 / OS 경계"*
+로 적었다 — 전부 틀렸다.** 잠긴 `login.keychain-db` 하나였다.
+
+⇒ 세탁된 값의 소비자는 UI 만이 아니다. **로그를 읽는 사람도 소비자**이고, 그쪽 결함은
+   화면 한 줄이 아니라 **여러 세션의 방향**으로 나타난다.
+
+⇒ 그리고 이 결함은 **오늘 참일 수 있다**. 오늘의 호출은 44 를 내므로 문장은 *우연히*
+   맞다. 36 이 나오는 자리는 사람이 자격증명을 **넣는 바로 다음**이다 — 즉 이 문장이
+   틀리는 순간은 하필 **사람이 방금 한 일을 의심하게 되는 순간**이다.
+   *"지금은 맞으니 나중에"* 로 넘기지 마라. 틀릴 시점이 최악의 시점이다.
+
+### 처방 — 판정을 순수 함수로 빼라
+
+```bash
+kc_err=$(mktemp)
+password=$(security find-generic-password ... -w 2>"$kc_err"); kc_rc=$?   # ⚠ 바로 다음 줄
+[ -n "$password" ] && kc_has=1 || kc_has=0
+verdict=$(keychain_credential_verdict "$kc_rc" "$kc_has")   # ok|absent|unreadable
+```
+
+* **모르는 rc 는 전부 `unreadable`** — 미래의 새 코드가 '조용한 SKIP' 으로 떨어지면
+  안 된다. **틀리려면 알람이 과한 방향으로 틀려라.**
+* **비밀 값은 판정 함수에 넘기지 마라** — 사유는 로그로 나가고 `set -x` 는 인자를 찍는다.
+  비었는지만 `0/1` 로 접어서 넘긴다.
+* 판정을 러너 본체에 두면 **영원히 테스트되지 않는다**(docker 스택 + 70~90초 E2E 를
+  지나야 닿는 줄이었다). 순수 함수 + 라이브러리 로드 확인(`declare -F`)이 짝이다.
+
 ## Key Insights
 
 - **`[]` 는 값이 아니라 문장이다.** "비어 있음이 화면에 무슨 말을 만드는가"를 물으면
