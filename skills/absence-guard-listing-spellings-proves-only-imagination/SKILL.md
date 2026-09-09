@@ -231,11 +231,65 @@ assert _code_only(script).count("verify_firewall") >= 2   # 정의 + 호출
 스크립트도 옳았다. 틀린 것은 *"이 테스트가 그 사실을 증명하는가"* 뿐이었고,
 그건 **고의로 코드를 망가뜨려 봐야만** 드러난다.
 
+### 집합 핀도 **자기가 고른 축**에서만 문다 (2026-09-09)
+
+여기까지는 "패턴 목록 대신 집합 핀" 이었다. 그런데 **집합 핀 자체가 축을 하나만
+고른다.** 지운 것에 이름이 여럿이면 나머지 축은 구조적으로 빨개질 수 없다.
+
+`audit_events` 테이블 삭제 PR 에서 가드를 이렇게 짰다 — 스킬대로 파일 집합을
+핀으로 박고, 면제가 썩는 것까지 막고, `hasattr` 심볼 검사도 붙였다:
+
+```python
+needles = (f'"{_DEAD_TABLE}"', f"'{_DEAD_TABLE}'", f"ix_{_DEAD_TABLE}_")   # 테이블 리터럴 축
+_DEAD_NAMES = (("plugin.audit.models", "AuditEvent"), ("plugin.audit", "AuditEvent"))  # 심볼, 단 2개 모듈
+```
+
+**전부 초록이었다.** 그리고 `AuditEvent` 를 **심볼로 import 하던 파일 넷**이
+그대로 살아 있었다:
+
+    plugin/audit/tests/test_models.py          from plugin.audit.models import AuditEvent
+    tests/test_bundle1_imports.py              assert audit_mod.AuditEvent is not None
+    tests/extensions/test_lift_r2a_....py      "AuditEvent",   ← 재export 기대 목록
+    tests/extensions/test_import_surface.py    "AuditEvent",   ← 같음
+
+잡은 건 가드가 아니라 **스위트의 수집 에러**였다. 가드는 0점이다.
+
+| 축 | 내 가드 | 결과 |
+|---|---|---|
+| 테이블 리터럴 `"audit_events"` | 집합 핀 ✅ | 물었다 |
+| ORM 심볼 `AuditEvent` | `hasattr` — **내가 나열한 2개 모듈만** | 넷을 놓쳤다 |
+| 인덱스 접두사 `ix_audit_events_` | 집합 핀 ✅ | 물었다 |
+
+`hasattr` 은 스킬의 감별표가 *"정확하고 철자 문제가 없다"* 고 한 도구다. 맞다 —
+**다만 내가 이름 댄 모듈에 대해서만** 정확하다. 심볼을 **다른 곳에서 import 하는
+파일**에 대해서는 아무 말도 안 한다. 두 도구 사이의 틈으로 축 하나가 통째로 빠졌다.
+
+**고침 — 지운 이름의 축을 나열하고 각각에 스캔을 건다:**
+
+```python
+#: 지운 ORM 심볼. AuditEventBase / AuditEventSubscriber 는 **현역**이라
+#: 접두사 매칭으로는 못 센다 — 뒤에 식별자 문자가 오지 않는 것만 잡는다.
+_DEAD_SYMBOL = re.compile(r"\bAuditEvent(?![A-Za-z0-9_])")
+
+def test_no_source_still_names_the_orm_symbol() -> None:
+    offenders = _scan(lambda line: _DEAD_SYMBOL.search(line) is not None)
+    assert not offenders, f"지운 ORM 심볼을 아직 가리킨다: {offenders}"
+```
+
+⚠️ **살아 있는 형제가 접두사를 공유하는 것이 바로 이 축을 건너뛰게 만드는 이유다.**
+`AuditEvent` 를 그냥 찾으면 현역 `AuditEventBase`·`AuditEventSubscriber` 가 수십 건
+잡혀서 "이 축은 스캔이 안 되겠다" 고 포기하게 된다. **negative lookahead 한 줄이면
+된다** — 포기하지 마라.
+
+⇒ **가드를 쓰기 전에 "이것의 이름이 몇 개냐" 를 먼저 적어라.** 테이블이면 보통
+셋이다(리터럴 · ORM 심볼 · 인덱스/제약 접두사). 클래스면 둘이다(심볼 · import 경로).
+축 목록을 안 적으면 **가장 조용한 축이 남는다.**
+
 ## 감별 — 언제 목록이 맞고 언제 집합이 맞나
 
 | 목표 | 도구 |
 |---|---|
-| 특정 **심볼**이 사라졌나 | `assert not hasattr(mod, "name")` — 정확하고 철자 문제가 없다 |
+| 특정 **심볼**이 사라졌나 | `assert not hasattr(mod, "name")` — 정확하고 철자 문제가 없다. ⚠️**단 내가 이름 댄 모듈에 대해서만** — 그 심볼을 import 하는 다른 파일에는 눈이 멀다(위 §축) |
 | 특정 **import 경로**가 안 쓰이나 | `grep "from backend.foo"` — 동명이인을 안 문다 (→ [[deletion-pr-needs-an-absence-guard-and-a-control]] #5) |
 | **어떤 형태로든** 이 개념을 만지는 곳이 승인 목록뿐인가 | **집합 핀** (이 스킬) |
 
