@@ -295,6 +295,42 @@ def test_no_source_still_names_the_orm_symbol() -> None:
 
 앞의 둘은 목록이어도 된다. **세 번째만 목록이 원리적으로 실패한다** — 형태가 열려 있기 때문이다.
 
+## 사례 — 리터럴에 건 핀은 **리팩터 한 번에 눈이 먼다** (2026-09-11, PR #926)
+
+가드의 대상이 "금지된 철자"가 아니라 **"이 호출은 반드시 검사하는 헬퍼를 거쳐야 한다"** 일 때도
+같은 함정이 있다. 첫 판본은 AST 로 `.post(` 를 찾되 **첫 인자의 문자열 리터럴**로 매칭했다:
+
+```python
+if isinstance(node.args[0], ast.Constant) and node.args[0].value == "/api/v1/workers/result":
+    sites.add(where)          # ← 리터럴이 사라지는 순간 0 개
+```
+
+그리고 같은 PR 이 경로를 상수로 뽑았다(`_RESULT_PATH = "/api/v1/workers/result"`).
+그 순간 가드는 **아무것도 매칭하지 않은 채 green** 이 됐다 — `sites == set()` 이고
+기대값도 비어 있으면 단언은 참이다. **가드가 지키던 대상이 사라진 게 아니라, 가드가 눈이 먼 것이다.**
+
+고친 판본은 **모듈 안의 모든 `.post(` 호출 집합**을 `(둘러싼 함수, 첫 인자 소스)` 쌍으로 박는다:
+
+```python
+_EXPECTED_POST_SITES = {
+    ("register", "'/api/v1/workers/register'"),
+    ("run_once", "'/api/v1/workers/heartbeat'"),
+    ("run_once", "'/api/v1/workers/poll'"),
+    ("_post_result", "_RESULT_PATH"),          # 결과를 보고하는 유일한 자리
+}
+assert visitor.sites == _EXPECTED_POST_SITES
+assert worker_main._RESULT_PATH == "/api/v1/workers/result"   # 핀이 공허해지는 것도 막는다
+```
+
+이제 네 번째 홉이 **어떤 철자로든** 생기면 집합이 달라져서 실패한다.
+
+⚠️ **교훈 둘.**
+1. 대상을 좁히는 필터(`== "리터럴"`)를 가드에 넣으면 **그 필터가 곧 상상력의 경계**다.
+   좁히지 말고 **전수 집합을 떠서 통째로 비교**하라.
+2. **빈 집합과 비교해서 통과하는 단언은 통과가 아니다.** 집합 핀에는 "집합이 비어 있지 않다"
+   또는 상수 값 자체를 못박는 **동반 단언**을 항상 같이 넣어라.
+   (→ [[a-check-that-cannot-flip-is-not-measuring-anything]])
+
 ## Verification
 
 - [ ] 가드가 receiver/변수 이름을 열거하지 **않는다**
@@ -302,6 +338,7 @@ def test_no_source_still_names_the_orm_symbol() -> None:
 - [ ] 무관한 파일에 가드가 모르는 철자로 심어 **FAIL 을 봤다**
 - [ ] 허용 목록의 stale 항목도 실패시킨다
 - [ ] 가드가 산문(docstring/주석)을 매칭하지 않는다 — 안 그러면 "이미 다 했다"고 보고한다
+- [ ] **집합이 비어 있으면 실패**한다 (리터럴 필터가 눈이 먼 채 green 되는 것 방지)
 
 ## Related
 
