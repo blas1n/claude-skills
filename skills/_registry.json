@@ -1,5 +1,122 @@
 [
   {
+    "name": "a-background-only-hang-may-be-an-os-consent-prompt",
+    "path": "skills/a-background-only-hang-may-be-an-os-consent-prompt",
+    "description": "데몬·launchd·systemd·CI 러너에서만 나는 행(hang)을 셸에서 replay 하면 영원히 성공한다 — argv 도 env 도 cwd 도 같은데. 그때 남은 변수는 '누가 띄웠는가' 하나뿐이고, macOS 라면 TCC 동의 프롬프트가 답할 세션 없이 영구 pending 된 것일 수 있다. 프로세스는 살아 있고, 소켓은 0개고, openat 에서 100% 블록한다. 트리거 - '백그라운드에서만 재현된다', 셸 replay 가 계속 성공, 출력이 단 한 줄도 없는 타임아웃, 서명 없는 런처(uv/homebrew/nvm)로 띄운 launchd 잡.",
+    "version": "1.0.0",
+    "category": "trap",
+    "task_types": [
+      "debugging",
+      "ops"
+    ],
+    "executor": "claude_code"
+  },
+  {
+    "name": "a-check-that-cannot-flip-is-not-measuring-anything",
+    "path": "skills/a-check-that-cannot-flip-is-not-measuring-anything",
+    "description": "테스트가 아닌 검사 — 부재 가드 · 완료 감지기 · 문서 전체를 훑는 단언 — 은 RED 를 먼저 보는 습관이 없어서, **구조상 한쪽 판정만 낼 수 있는 채로** 배포된다. 초록이면 \"결함 없음\"이 아니라 \"빨개질 수 없음\"이고, 타임아웃이면 \"전파 안 됨\"이 아니라 \"성공을 감지할 수 없음\"이다. 검사마다 **반대 판정을 한 번 강제로 보라.** 트리거 - `until`/폴링 대기 루프, 삭제 PR 의 부재 가드, dict/응답을 문자열로 합쳐 매칭하는 단언, `$(cmd || echo 0)`, \"왜 계속 타임아웃이지\", 고치기 전인데 통과하는 테스트.",
+    "version": "1.0.0",
+    "category": "trap",
+    "task_types": [
+      "testing",
+      "devops",
+      "review"
+    ],
+    "executor": "claude_code"
+  },
+  {
+    "name": "a-cut-that-does-not-compile-is-not-a-wire-cut",
+    "path": "skills/a-cut-that-does-not-compile-is-not-a-wire-cut",
+    "description": "가드를 실증하려고 코드를 되돌렸는데 그 치환이 문법 오류를 만들면, 빨강은 나오지만 아무것도 증명되지 않는다 — 그리고 빨강이 나왔으므로 성공처럼 읽힌다. 이걸 잡는 신호는 초록/빨강이 아니라 **돌아간 테스트 개수**다. 트리거 - 전선 절단/mutation 실증, sed·python 로 소스 되돌리기, \"가드가 진짜 잡는지 확인\", 절단 후 실패 수가 예상과 다를 때.",
+    "version": "0.0.0",
+    "category": "uncategorized",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "a-dead-entity-can-be-the-subject-of-a-live-claim",
+    "path": "skills/a-dead-entity-can-be-the-subject-of-a-live-claim",
+    "description": "producer 없는 테이블·0행 컬럼·안 불리는 설정을 발견하면 \"청소 항목\"으로 분류되지만, 그 이름은 대개 **어딘가에서 사용자에게 무언가를 주장하는 문장의 주어**로 살아 있다 — 공시·보존 정책·대시보드·프롬프트·문서. 죽은 것은 무해하지 않고 **거짓 주장을 생산한다.** 지우기 전에 \"무엇이 이것에 대해 말하는가\"를 따로 세라. 트리거 - \"0행이니 죽은 듯\", 감사/인수인계의 미확인 잔재 목록, DROP 마이그레이션 착수, \"안 쓰이니 지우자\", 컴플라이언스·공시·정책 문구를 만질 때.",
+    "version": "1.0.0",
+    "category": "methodology",
+    "task_types": [
+      "review",
+      "refactor",
+      "audit"
+    ],
+    "executor": "claude_code"
+  },
+  {
+    "name": "a-failed-read-degraded-to-empty-becomes-a-measurement",
+    "path": "skills/a-failed-read-degraded-to-empty-becomes-a-measurement",
+    "description": "읽기 실패를 `[]`/`false`/`0` 으로 degrade 하면, 그 비어 있음 자체로 UI·규칙이 주장을 만드는 순간 blip 한 번이 \"안 잰 것\"을 단언한다. 트리거 - `.catch(() => [])`, `?? false`, `except: return None`, \"never blanks the surface\" 주석, \"blip 때 조용히 잘못된 안내가 뜬다\", 인수인계가 넘긴 미확인 결함 후보.",
+    "version": "0.0.0",
+    "category": "uncategorized",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "a-living-doc-repeats-a-fact-and-updates-only-one-copy",
+    "path": "skills/a-living-doc-repeats-a-fact-and-updates-only-one-copy",
+    "description": "Living 문서(STATUS·ROADMAP·인수인계)는 같은 사실을 산문·취소선·표에 여러 번 적는데, 갱신은 **산문만** 된다 — 표의 행이 가장 늦게 썩고, 그 행이 백로그를 이슈로 옮길 때 근거가 된다. 그리고 문서 이주·의존성 제거 과제에서는 **옮기기 전에 그 참조가 아직 살아 있는지부터 재라** — 실측하니 코드의 문서 인용 13개 중 8개가 이미 죽은 링크였다. 그리고 **이주는 다른 세션에 전파되지 않는다** — 옛 경로에 쓰는 것은 실패하지 않고 아무도 안 읽는 곳에 성공한다. 옛 자리에 경고를 남기고 며칠 지켜봐라. 트리거 - 문서 백로그를 이슈화, 문서를 다른 레포로 이주, \"열려 있음\"이라 적힌 항목 착수, 외부 의존성 제거, 옛 경로에 파일이 새로 생겼을 때.",
+    "version": "1.0.0",
+    "category": "trap",
+    "task_types": [
+      "analysis",
+      "review",
+      "workflow"
+    ],
+    "executor": "claude_code"
+  },
+  {
+    "name": "a-never-walked-checklist-item-may-be-unbuildable",
+    "path": "skills/a-never-walked-checklist-item-may-be-unbuildable",
+    "description": "한 번도 안 걸어본 E2E 체크리스트의 `- [ ]` 는 \"아직 확인 안 함\"이 아니라 \"제품이 만들 수 없는 상태를 적어둔 문장\"일 수 있다 — 그리고 유닛 스위트가 자식 컴포넌트를 직접 렌더하며 부모가 절대 안 주는 조합을 넣고 있으면, 코드도 문서도 초록인 채로 그 거짓이 산다. 트리거 - 미체크 항목이 오래 남은 체크리스트, \"유닛은 다 통과인데 라이브는 안 걸어봄\", 자식 컴포넌트를 직접 렌더하는 테스트, 문서가 약속한 UI 상태를 못 찾을 때, 감사/인수인계가 넘긴 미검증 목록.",
+    "version": "0.0.0",
+    "category": "uncategorized",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "a-question-back-instead-of-a-choice-means-the-menu-is-wrong",
+    "path": "skills/a-question-back-instead-of-a-choice-means-the-menu-is-wrong",
+    "description": "선택지를 냈는데 사용자가 고르지 않고 **되물으면**, 그건 혼란이 아니라 **프레이밍이 틀렸다는 증거**다. 되물음은 거의 항상 내가 건너뛴 층을 정확히 가리킨다 — 답을 주고 같은 메뉴를 다시 내지 말고, **그 질문이 드러낸 층을 먼저 측정해서 지도를 그려라.** 메뉴를 두 번 되돌려받으면 결정 자체가 아직 이르다는 뜻이다. 트리거 - AskUserQuestion 응답이 물음표로 끝날 때, \"그러면 X 는 어떻게 되는 거야?\", \"그건 Y 가 안 된다는 거 아냐?\", 사용자가 옵션 대신 전제를 건드릴 때.",
+    "version": "1.0.0",
+    "category": "process",
+    "task_types": [
+      "planning",
+      "communication",
+      "investigation"
+    ],
+    "executor": "claude_code"
+  },
+  {
+    "name": "a-timeout-names-the-waiter-not-the-cause-read-the-other-end",
+    "path": "skills/a-timeout-names-the-waiter-not-the-cause-read-the-other-end",
+    "description": "타임아웃은 기다린 쪽의 경험이지 사건의 원인이 아니다. 보고 홉(worker→backend, client→API, job→queue)이 보내는 쪽에서 응답을 안 보고 받는 쪽에서 거절을 200 으로 돌려주면, 실패한 쓰기가 성공 로그로 세탁된다 — 그리고 한쪽 끝만 읽어 만든 진단표에는 진실이 들어갈 칸이 아예 없다. 두 끝을 같은 타임스탬프로 나란히 읽어라: 모순 자체가 진단이다. 트리거 - '왜 자꾸 타임아웃이지', 재현 안 되는 간헐 행(hang), 같은 증상을 두 번 이상 오진한 이력, 종결되지 않고 쌓이는 in-flight 행.",
+    "version": "1.0.0",
+    "category": "trap",
+    "task_types": [
+      "debugging",
+      "review",
+      "ops"
+    ],
+    "executor": "claude_code"
+  },
+  {
+    "name": "absence-guard-listing-spellings-proves-only-imagination",
+    "path": "skills/absence-guard-listing-spellings-proves-only-imagination",
+    "description": "부재 가드를 \"내가 본 적 있는 철자 목록\"으로 쓰면 상상 밖의 철자로 살아남은 인스턴스를 통과시킨다 — 가드는 green, 결함은 생존. 패턴 목록 대신 **결과 집합(파일/호출자/심볼)을 핀으로 박아라**: 어떤 이름으로든 새 인스턴스가 생기면 목록에 없어서 실패한다. 핀이 썩는 것도 같이 막아라. 트리거 - 부재/금지를 grep 으로 주장하는 테스트, 삭제 PR 의 가드, \"이제 아무도 X 를 안 읽는다\" 주장, 감사 후속 정리.",
+    "version": "1.0.0",
+    "category": "trap",
+    "task_types": [
+      "testing",
+      "refactor",
+      "review"
+    ],
+    "executor": "claude_code"
+  },
+  {
     "name": "absence-measurement-validity-check",
     "path": "skills/absence-measurement-validity-check",
     "description": "Before concluding \"X doesn't happen\" in an integrated system, verify the pipeline that would produce X is actually running. Measuring zero is trivially easy when the producer is off.",
@@ -9,6 +126,20 @@
       "debugging",
       "design",
       "evaluation"
+    ],
+    "executor": "claude_code"
+  },
+  {
+    "name": "acceptance-gate-must-measure-delta-not-state",
+    "path": "skills/acceptance-gate-must-measure-delta-not-state",
+    "description": "When designing or reviewing an acceptance gate (M0 quality gate, CI pass/fail, deploy guard, eval harness), make the gate compare *change attributable to the work* against a baseline — not just the post-state. If a no-op execution can pass the gate using only pre-existing fixtures, the gate measures correlation, not causation, and the cheapest path to \"pass\" will be the no-op.",
+    "version": "1.0.0",
+    "category": "uncategorized",
+    "task_types": [
+      "eval",
+      "quality",
+      "ci",
+      "gate-design"
     ],
     "executor": "claude_code"
   },
@@ -25,11 +156,47 @@
     "executor": "claude_code"
   },
   {
+    "name": "agent-degraded-output-suspect-execution-environment",
+    "path": "skills/agent-degraded-output-suspect-execution-environment",
+    "description": "When a capable agent first declares a STRONG plan/contract/approach then a retry or continuation produces a WEAKER one, suspect the execution environment couldn't run the strong version — not model laziness or a prompting gap.",
+    "version": "0.0.0",
+    "category": "uncategorized",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "agent-executor-host-cwd-leak",
+    "path": "skills/agent-executor-host-cwd-leak",
+    "description": "워커/오케스트레이터가 코딩 에이전트(opencode/codex/claude-code 같은 HTTP 또는 subprocess 어댑터)를 호출할 때 per-task workspace 를 명시 안 하면, 에이전트는 부모 프로세스의 cwd 를 상속해 호스트 source repo 에 silent edit 을 누적함. 워커가 별도 temp clone 에서 `git status` 를 돌려도 변경 0 으로 보고됨. 진짜 변경은 호스트 working tree 에 있음.",
+    "version": "0.0.0",
+    "category": "uncategorized",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "agentic-cli-as-llm-transport",
+    "path": "skills/agentic-cli-as-llm-transport",
+    "description": "코딩 CLI(claude/codex/opencode)를 \"LLM 호출 transport\"로 감싸 쓸 때, chat 턴까지 agentic 모드로 띄우면 에이전트가 자기 빈 샌드박스를 뒤져서 그걸 답변한다. 주입한 grounding은 자기 툴이 \"본\" 것에 밀린다. 툴을 끄는 게 유일한 해결. 트리거: ExecutorAdapter/LLM proxy/chat() 추상화, \"왜 답변이 빈 디렉터리 얘기를 하지\", chat 호출 타임아웃.",
+    "version": "0.0.0",
+    "category": "uncategorized",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
     "name": "ai-slop-cleaner",
     "path": "skills/ai-slop-cleaner",
     "description": "AI-generated code cleanup — deletion-first approach, regression-safe. Removes unnecessary abstractions, verbose comments, and over-engineering.",
     "version": "1.0.0",
     "category": "review",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "alembic-enum-create-type-trap",
+    "path": "skills/alembic-enum-create-type-trap",
+    "description": "Alembic migration adding a Postgres ENUM column emits CREATE TYPE twice (DuplicateObjectError) even with sa.Enum(create_type=False) — must use postgresql.ENUM(create_type=False) for the column-side reference.",
+    "version": "0.0.0",
+    "category": "uncategorized",
     "task_types": [],
     "executor": "claude_code"
   },
@@ -64,6 +231,15 @@
     "executor": "claude_code"
   },
   {
+    "name": "alembic-revision-id-32-chars-and-pinned-head",
+    "path": "skills/alembic-revision-id-32-chars-and-pinned-head",
+    "description": "Adding an Alembic revision — the id is capped at 32 chars by `alembic_version.version_num` (a longer one fails at the UPDATE, not at your DDL), and repos commonly pin the head revision as a literal string in MORE THAN ONE test file, so fixing the one you found still fails CI.",
+    "version": "0.0.0",
+    "category": "trap",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
     "name": "analysis-cost-report",
     "path": "skills/analysis-cost-report",
     "description": "BSGateway cost analysis skill for generating usage and cost reports",
@@ -73,6 +249,15 @@
       "analysis",
       "reporting"
     ],
+    "executor": "claude_code"
+  },
+  {
+    "name": "ascii-fixture-cannot-catch-byte-vs-char-confusion",
+    "path": "skills/ascii-fixture-cannot-catch-byte-vs-char-confusion",
+    "description": "두 단위가 우연히 같아지는 픽스처(\"x\"*N, 정수 1.0, UTC 자정)로 만든 테스트는 단위 혼동을 영원히 못 잡는다 — 계약이 단위를 말하면 픽스처는 그 단위가 갈라지는 값을 써야 한다.",
+    "version": "0.0.0",
+    "category": "trap",
+    "task_types": [],
     "executor": "claude_code"
   },
   {
@@ -105,7 +290,7 @@
   {
     "name": "autoplan",
     "path": "skills/autoplan",
-    "description": "Auto-review pipeline — reads the full CEO, design, and eng review skills from disk\nand runs them sequentially with auto-decisions using 6 decision principles. Surfaces\ntaste decisions (close approaches, borderline scope, codex disagreements) at a final\napproval gate. One command, fully reviewed plan out.\nUse when asked to \"auto review\", \"autoplan\", \"run all reviews\", \"review this plan\nautomatically\", or \"make the decisions for me\".\nProactively suggest when the user has a plan file and wants to run the full review\ngauntlet without answering 15-30 intermediate questions. (gstack)\n",
+    "description": "|",
     "version": "1.0.0",
     "category": "think",
     "task_types": [],
@@ -114,9 +299,45 @@
   {
     "name": "benchmark",
     "path": "skills/benchmark",
-    "description": "Performance regression detection using the browse daemon. Establishes\nbaselines for page load times, Core Web Vitals, and resource sizes.\nCompares before/after on every PR. Tracks performance trends over time.\nUse when: \"performance\", \"benchmark\", \"page speed\", \"lighthouse\", \"web vitals\",\n\"bundle size\", \"load time\". (gstack)\n",
+    "description": "|",
     "version": "1.0.0",
     "category": "test",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "blocking-defect-masks-the-ones-behind-it",
+    "path": "skills/blocking-defect-masks-the-ones-behind-it",
+    "description": "When a defect stops execution entirely, every defect downstream of it is invisible — so a fix is not a checkmark but a probe. Re-prove in production after EACH fix instead of planning the whole repair up front; expect the next layer to appear only once the blocker is gone.",
+    "version": "1.0.0",
+    "category": "uncategorized",
+    "task_types": [
+      "debug",
+      "verification",
+      "refactor"
+    ],
+    "executor": "claude_code"
+  },
+  {
+    "name": "boundary-test-must-not-supply-the-answer",
+    "path": "skills/boundary-test-must-not-supply-the-answer",
+    "description": "A boundary test that passes the value it expects back (acquire(id, '/founder/path') → assert mount == '/founder/path') is passed forever by an implementation that just echoes its argument — the real caller passes something else. Pair trap: a fail-closed 'absence' rung then swallows the resulting infra failure and reports it as an honest, unalarming verdict.",
+    "version": "1.0.0",
+    "category": "trap",
+    "task_types": [
+      "testing",
+      "debugging",
+      "design",
+      "review"
+    ],
+    "executor": "claude_code"
+  },
+  {
+    "name": "bsage-runtime-config-vs-settings",
+    "path": "skills/bsage-runtime-config-vs-settings",
+    "description": "When adding a configurable knob to BSage, decide between Settings (env-loaded, immutable per-process) vs RuntimeConfig (mutable, persisted, user-editable via SettingsView). Choosing wrong means env vars only — users can't tune it without redeploy.",
+    "version": "0.0.0",
+    "category": "uncategorized",
     "task_types": [],
     "executor": "claude_code"
   },
@@ -130,6 +351,36 @@
     "executor": "claude_code"
   },
   {
+    "name": "bsvibe-llm-wrapper-not-raw-litellm",
+    "path": "skills/bsvibe-llm-wrapper-not-raw-litellm",
+    "description": "When a BSVibe product needs LLM access — BSGateway-routed or direct opt-out — wrap `bsvibe_llm.LlmClient`, never import litellm directly. And when you have two dispatch paths (or anticipate a third), define one Protocol so callers depend on the interface, not a Union of concretes.",
+    "version": "0.0.0",
+    "category": "pattern",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "bsvibe-per-run-sandbox-isolation",
+    "path": "skills/bsvibe-per-run-sandbox-isolation",
+    "description": "BSVibe verification runs in a fresh /work clone of main for EVERY turn — files from failed prior turns are gone. Commit within the CURRENT turn or they vanish.",
+    "version": "1.0.0",
+    "category": "uncategorized",
+    "task_types": [
+      "devops",
+      "debugging"
+    ],
+    "executor": "claude_code"
+  },
+  {
+    "name": "build-the-missing-link-not-the-missing-system",
+    "path": "skills/build-the-missing-link-not-the-missing-system",
+    "description": "백로그가 \"X 가 없다\"고 말할 때, 대개 X 의 부품은 대부분 이미 있고 **연결 하나**만 없다. 사슬(생산자→전송→저장→읽기→화면)을 링크별로 측정하면 서브시스템 하나가 200줄짜리 배선으로 줄어든다. 트리거 - \"가시성이 없다\"·\"자기 자신을 모른다\" 같은 부재형 증상, \"새 메커니즘이 필요하다\"는 결론, 코드에 있는데 프로덕션 출력을 본 적 없는 기능, 큰 신규 트랙 착수 직전.",
+    "version": "0.0.0",
+    "category": "uncategorized",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
     "name": "bulk-batch-partial-write-discard",
     "path": "skills/bulk-batch-partial-write-discard",
     "description": "Batch processing functions that wrap the WHOLE chunks loop in try/except discard their on-disk partial work in the returned result when any single chunk fails. Symptom — caller logs \"0 written\" while filesystem actually has N notes. Detection requires real-data e2e + intentional mid-batch failure; single-chunk unit tests miss it.",
@@ -139,18 +390,45 @@
     "executor": "claude_code"
   },
   {
+    "name": "bulk-code-transform-costs-more-than-it-saves",
+    "path": "skills/bulk-code-transform-costs-more-than-it-saves",
+    "description": "리팩터에서 N곳을 자동 변환(ast.unparse · 넓은 정규식 · sed)하면 대상 밖까지 바꾸거나 값을 틀리게 계산한다 — 그리고 테스트는 통과하므로 diff 를 한 줄씩 읽어야만 드러난다. 손익분기점은 생각보다 훨씬 높다(N≈20+). 트리거 - \"N곳을 한 번에 고치자\", ast.unparse/NodeTransformer 로 파일 재작성, `re.sub` 로 리터럴 변환, sed -i 일괄 치환, 대량 테스트 픽스처 갱신.",
+    "version": "0.0.0",
+    "category": "uncategorized",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
     "name": "canary",
     "path": "skills/canary",
-    "description": "Post-deploy canary monitoring. Watches the live app for console errors,\nperformance regressions, and page failures using the browse daemon. Takes\nperiodic screenshots, compares against pre-deploy baselines, and alerts\non anomalies. Use when: \"monitor deploy\", \"canary\", \"post-deploy check\",\n\"watch production\", \"verify deploy\". (gstack)\n",
+    "description": "|",
     "version": "1.0.0",
     "category": "ship",
     "task_types": [],
     "executor": "claude_code"
   },
   {
+    "name": "cannot-do-x-must-be-narrowed-by-a-control-you-own",
+    "path": "skills/cannot-do-x-must-be-narrowed-by-a-control-you-own",
+    "description": "\\\"에이전트라서 못 한다 / OS 경계다 / 권한이 없다\\\" 는 능력을 통째로 부정하는 진단이고, 거의 항상 너무 넓다. 반증은 싸다 — 같은 종류의 자원을 **내가 만들고 내가 통제하는 인스턴스**로 하나 세워 똑같은 연산을 해봐라. 성공하면 진단은 즉시 '그 객체가, 그 상태에서' 로 좁아진다. 트리거 - \\\"권한이 없어서 못 합니다\\\", \\\"비대화형이라 안 됩니다\\\", \\\"OS/샌드박스 제약입니다\\\", 인수인계가 여러 세션 이월한 '사람 손이 필요한 것', 사람이 직접 해도 같은 에러가 났을 때.",
+    "version": "0.0.0",
+    "category": "uncategorized",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "capability-guard-must-assert-presence",
+    "path": "skills/capability-guard-must-assert-presence",
+    "description": "에이전트/샌드박스의 능력을 제한하는 가드는 \"금지된 것이 없음\"만 검사하면 정작 자기가 존재하는 이유인 실패(능력이 0개)를 못 잡는다. 툴이 없는 에이전트는 실패하지 않고 '지어낸다'. 트리거: 툴/권한 allowlist·denylist 가드, \"leaked tools\" 검사, 샌드박스 격리 검증, 에이전트가 그럴듯한 거짓 결과를 success로 리턴.",
+    "version": "0.0.0",
+    "category": "uncategorized",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
     "name": "careful",
     "path": "skills/careful",
-    "description": "Safety guardrails for destructive commands. Warns before rm -rf, DROP TABLE,\nforce-push, git reset --hard, kubectl delete, and similar destructive operations.\nUser can override each warning. Use when touching prod, debugging live systems,\nor working in a shared environment. Use when asked to \"be careful\", \"safety mode\",\n\"prod mode\", or \"careful mode\". (gstack)\n",
+    "description": "|",
     "version": "0.1.0",
     "category": "ops",
     "task_types": [],
@@ -159,7 +437,7 @@
   {
     "name": "checkpoint",
     "path": "skills/checkpoint",
-    "description": "Save and resume working state checkpoints. Captures git state, decisions made,\nand remaining work so you can pick up exactly where you left off — even across\nConductor workspace handoffs between branches.\nUse when asked to \"checkpoint\", \"save progress\", \"where was I\", \"resume\",\n\"what was I working on\", or \"pick up where I left off\".\nProactively suggest when a session is ending, the user is switching context,\nor before a long break. (gstack)\n",
+    "description": "|",
     "version": "1.0.0",
     "category": "reflect",
     "task_types": [],
@@ -179,6 +457,50 @@
     "executor": "claude_code"
   },
   {
+    "name": "completion-detector-fires-on-an-earlier-success-string",
+    "path": "skills/completion-detector-fires-on-an-earlier-success-string",
+    "description": "긴 작업을 기다리는 폴링 루프의 패턴이 **종료 이벤트에만** 나타나는 문자열이 아니면, 앞선 단계의 성공 메시지에 걸려 일찍 끝난다 — \"끝났다\"는 알림이 오는데 결과는 아직 없다. 체인된 게이트(`ruff && mypy && pytest`)에서 특히 잘 터진다. 종료 신호는 **형태로 유일**해야 하고, 안 되면 마커를 직접 심어라. 트리거 - `until grep -q ...` 대기, `tail -f | grep` 완료 감지, CI/배포 폴링, 여러 도구를 && 로 묶은 게이트.",
+    "version": "1.0.0",
+    "category": "trap",
+    "task_types": [
+      "devops",
+      "testing",
+      "workflow"
+    ],
+    "executor": "claude_code"
+  },
+  {
+    "name": "compose-down-leaks-network-silently",
+    "path": "skills/compose-down-leaks-network-silently",
+    "description": "compose 스택 네트워크에 `docker run --network <project>_default` 로 외부 컨테이너를 붙였다면, 그걸 먼저 지우지 않는 한 `docker compose down -v` 가 네트워크를 못 지운다 — 그런데 **exit 0** 을 낸다(\"Resource is still in use\" 는 stdout 뿐). 실행마다 네트워크가 하나씩 새면서 정리는 성공으로 보고된다. 트리거: compose 스택에 프로브/테스트 컨테이너 붙이기, ephemeral 스택 teardown, `docker network ls` 에 프로젝트 네트워크가 쌓임, \"네트워크 이름이 이미 사용 중\".",
+    "version": "0.0.0",
+    "category": "uncategorized",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "config-menu-offers-options-nothing-implements",
+    "path": "skills/config-menu-offers-options-nothing-implements",
+    "description": "사용자가 고르는 선택지 목록(enum·레지스트리·카탈로그·allowlist)을 폼/검증기/LLM 프롬프트가 \"고를 수 있는 메뉴\"로 읽을 때, 그 목록의 항목이 **실제로 구현돼 있는지는 아무도 검사하지 않는다.** 사용자가 유령 항목을 고르면 에러도 없이 그냥 아무 일도 안 일어난다 — 설정은 저장되고, 화면에도 보이고, 영원히 발화하지 않는다. 트리거 - 설정 드롭다운/룰 작성/라우팅 대상/웹훅 이벤트/기능 플래그 목록, \"설정했는데 왜 동작 안 하지\", 스펙만 있고 호출자가 없는 상수, 카탈로그를 LLM 프롬프트에 메뉴로 주입.",
+    "version": "0.0.0",
+    "category": "uncategorized",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "confirm-the-premise-before-offering-the-choice",
+    "path": "skills/confirm-the-premise-before-offering-the-choice",
+    "description": "사용자에게 선택지를 제시하기 전에, 그 선택지가 실제로 무엇을 하는지 코드로 확인하라. 인수인계·설계문서·백로그 문장을 근거로 질문을 만들면 사용자가 틀린 전제 위에서 결정하게 되고, 그 결정은 되돌릴 수 없다(사람은 이미 골랐다). 코드 작성 전 검증보다 **질문 전 검증**이 먼저다. 트리거 - AskUserQuestion 으로 옵션 제시, \"A 하면 B 가 됩니다\" 형태의 설명, 문서를 인용해 결정을 요청, 되돌릴 수 없는 작업의 승인 요청.",
+    "version": "1.0.0",
+    "category": "trap",
+    "task_types": [
+      "workflow",
+      "design",
+      "review"
+    ],
+    "executor": "claude_code"
+  },
+  {
     "name": "content-blog-post",
     "path": "skills/content-blog-post",
     "description": "Blog post writing skill for bsvibe.dev/blog style technical content",
@@ -193,9 +515,18 @@
   {
     "name": "cso",
     "path": "skills/cso",
-    "description": "Chief Security Officer mode. Infrastructure-first security audit: secrets archaeology,\ndependency supply chain, CI/CD pipeline security, LLM/AI security, skill supply chain\nscanning, plus OWASP Top 10, STRIDE threat modeling, and active verification.\nTwo modes: daily (zero-noise, 8/10 confidence gate) and comprehensive (monthly deep\nscan, 2/10 bar). Trend tracking across audit runs.\nUse when: \"security audit\", \"threat model\", \"pentest review\", \"OWASP\", \"CSO review\". (gstack)\n",
+    "description": "|",
     "version": "2.0.0",
     "category": "review",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "cwd-resets-across-a-background-task-boundary",
+    "path": "skills/cwd-resets-across-a-background-task-boundary",
+    "description": "워크트리에서 작업하다 백그라운드 작업을 띄우고 그 완료 알림으로 돌아오면, `cd` 를 한 번도 안 쳤는데 셸의 cwd 가 기본 작업 디렉터리로 돌아가 있다. 상대경로 편집이 조용히 **엉뚱한 git 트리**에 떨어진다. \"절대경로로 cd 해라\"는 규율은 이걸 못 막는다 — 내가 cd 를 안 했기 때문이다. 트리거 - 워크트리 + 백그라운드 테스트/빌드, 알림 복귀 직후 첫 명령, \"방금 되던 `.venv/bin/...` 가 no such file\", 두 트리에 편집이 흩어짐.",
+    "version": "0.0.0",
+    "category": "uncategorized",
     "task_types": [],
     "executor": "claude_code"
   },
@@ -209,9 +540,31 @@
     "executor": "claude_code"
   },
   {
+    "name": "deleting-inert-config-row-disables-hidden-feature",
+    "path": "skills/deleting-inert-config-row-disables-hidden-feature",
+    "description": "설정 행(룰·바인딩·커넥터·플래그 테이블)을 \"한 번도 발화한 적 없으니 중복/불필요\"라며 지우기 전에 — 그 행의 *존재*를 `has_any`/`exists`/`count>0` 로 읽는 코드가 있는지 세라. 한 용도에서의 비활성이 다른 용도에서의 무해함을 뜻하지 않는다. 증상: 무관해 보이는 기능이 삭제 직후 조용히 꺼지고, 아무 에러도 안 난다.",
+    "version": "0.0.0",
+    "category": "uncategorized",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "deletion-pr-needs-an-absence-guard-and-a-control",
+    "path": "skills/deletion-pr-needs-an-absence-guard-and-a-control",
+    "description": "죽은 코드/테이블을 지울 때 삭제만 하고 스위트가 green 이면 \"지웠다\"가 거짓일 수 있다 — 빈 디렉터리가 namespace package 로 살아남고, downgrade 는 안 돌려봐서 죽어 있고, 알리바이 테스트가 죽은 표면을 명세로 박아둔다. 부재를 주장하는 가드(RED→GREEN)와 살아남아야 할 것의 양성 대조군을 먼저 써라. 트리거 - 서브시스템/패키지/테이블 삭제, 구조 감사 후속, \"호출자 0이니 지우자\", 드롭 마이그레이션, 죽은 코드 정리 PR.",
+    "version": "1.0.0",
+    "category": "methodology",
+    "task_types": [
+      "refactor",
+      "testing",
+      "review"
+    ],
+    "executor": "claude_code"
+  },
+  {
     "name": "design-review",
     "path": "skills/design-review",
-    "description": "Designer's eye QA: finds visual inconsistency, spacing issues, hierarchy problems,\nAI slop patterns, and slow interactions — then fixes them. Iteratively fixes issues\nin source code, committing each fix atomically and re-verifying with before/after\nscreenshots. For plan-mode design review (before implementation), use /plan-design-review.\nUse when asked to \"audit the design\", \"visual QA\", \"check if it looks good\", or \"design polish\".\nProactively suggest when the user mentions visual inconsistencies or\nwants to polish the look of a live site. (gstack)\n",
+    "description": "|",
     "version": "2.0.0",
     "category": "review",
     "task_types": [],
@@ -227,6 +580,24 @@
     "executor": "claude_code"
   },
   {
+    "name": "diff-viewer-hunk-requires-full-headers",
+    "path": "skills/diff-viewer-hunk-requires-full-headers",
+    "description": "React/JS diff-render libraries (@git-diff-view/react, react-diff-view, diff2html) that take a `hunks`/diff-string input silently render NOTHING when fed a bare `@@ … @@` hunk — they need the full `diff --git` / `--- ` / `+++ ` file headers. A bare hunk parses as zero changes. Mocking the library in component tests hides this; validate the hunk format with a real (unmocked) parse test.",
+    "version": "0.0.0",
+    "category": "uncategorized",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "dind-sandbox-bind-mount-and-volume-traps",
+    "path": "skills/dind-sandbox-bind-mount-and-volume-traps",
+    "description": "Putting agent/CI execution inside a Docker-in-Docker sandbox — the bind-mount, named-volume namespace, volume ownership, and persisted-path traps that pass unit tests but break on a real DinD or a prod cutover.",
+    "version": "0.0.0",
+    "category": "uncategorized",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
     "name": "dispatching-parallel-agents",
     "path": "skills/dispatching-parallel-agents",
     "description": "Use when facing 2+ independent tasks that can be worked on without shared state or sequential dependencies",
@@ -235,6 +606,15 @@
     "task_types": [
       "workflow"
     ],
+    "executor": "claude_code"
+  },
+  {
+    "name": "docker-context-drift-breaks-sibling-scripts",
+    "path": "skills/docker-context-drift-breaks-sibling-scripts",
+    "description": "The docker CLI's current context is GLOBAL mutable user state. A `colima start <other-profile>` anywhere repoints every unpinned `docker` call on the host at a VM with none of your containers — so monitors page \"container down\" while production is healthy, and backups abort with \"postgres is not running\". Pin DOCKER_CONTEXT in every script, not just the one that already broke.",
+    "version": "0.0.0",
+    "category": "trap",
+    "task_types": [],
     "executor": "claude_code"
   },
   {
@@ -259,12 +639,43 @@
     "executor": "claude_code"
   },
   {
+    "name": "env-gated-test-backend-local-red-not-ci-red",
+    "path": "skills/env-gated-test-backend-local-red-not-ci-red",
+    "description": "When a test harness picks its DB backend from an env var (`use_real_pg()` → Postgres when `BSVIBE_DATABASE_URL` is set, else in-memory SQLite), a locally-red suite is NOT evidence that main is broken — CI sets the var and runs green. Reproduce under CI's env before reporting breakage, and fix the production code that assumed one backend's semantics.",
+    "version": "0.0.0",
+    "category": "trap",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
     "name": "eventsource-sse-auth-trap",
     "path": "skills/eventsource-sse-auth-trap",
     "description": "Browser EventSource API cannot send Authorization headers. SSE endpoints protected by JWT auth silently 401 in production — passes in tests because mock-mode e2e skips the real endpoint entirely, and dev-mode often runs without auth. Fix: accept ?token= query param as fallback.",
     "version": "1.0.0",
     "category": "trap",
     "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "external-cli-wrapper-contract-drift",
+    "path": "skills/external-cli-wrapper-contract-drift",
+    "description": "외부 CLI/API(claude code, codex, opencode 등)를 subprocess/HTTP로 감싼 wrapper는 그 CLI가 버전업하면 인자·요청바디·출력파싱이 silent하게 drift한다. 경계를 mock한 테스트는 아무 형식이나 받아주므로 wrapper가 죽어도 green. 실제 CLI의 --help / OpenAPI /doc / published SDK 타입으로 계약을 검증하라.",
+    "version": "0.0.0",
+    "category": "uncategorized",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "failure-duration-names-the-timeout-that-caused-it",
+    "path": "skills/failure-duration-names-the-timeout-that-caused-it",
+    "description": "실패까지 걸린 시간을 코드베이스의 타임아웃 상수들과 대조하라. 합이 맞으면 로직 버그가 아니라 두 층이 서로를 기다리다 죽은 것이고, 범인은 응답하지 않은 쪽이다.",
+    "version": "1.0.0",
+    "category": "technique",
+    "task_types": [
+      "debugging",
+      "testing",
+      "evaluation"
+    ],
     "executor": "claude_code"
   },
   {
@@ -298,11 +709,109 @@
     "executor": "claude_code"
   },
   {
+    "name": "force-push-does-not-erase-what-pull-refs-hold",
+    "path": "skills/force-push-does-not-erase-what-pull-refs-hold",
+    "description": "private 레포를 public 으로 바꾸기 전 비밀을 지우려고 `filter-repo` + force push 를 해도 **GitHub 은 PR 마다 만든 `refs/pull/N/head` 로 옛 커밋을 붙잡고 있다** — 그 ref 는 사용자가 지울 수 없고(PR 삭제 불가), 공개되는 순간 `git fetch origin 'refs/pull/*/head:…'` 한 줄로 전부 회수된다. 실측: 세탁본 26커밋을 force push 했는데 원격 미러는 **70커밋**이었고 계좌번호·삭제한 문서가 그대로 꺼내졌다. **로컬이 깨끗한 것과 원격이 깨끗한 것은 다른 주장이다 — 신선한 `--mirror` 클론으로 재라.** 트리거 - private→public 전환, 이력에서 비밀 제거, filter-repo/BFG 사용 후 검증, \"force push 했으니 지워졌다\".",
+    "version": "1.0.0",
+    "category": "trap",
+    "task_types": [
+      "devops",
+      "review",
+      "workflow"
+    ],
+    "executor": "claude_code"
+  },
+  {
     "name": "freeze",
     "path": "skills/freeze",
-    "description": "Restrict file edits to a specific directory for the session. Blocks Edit and\nWrite outside the allowed path. Use when debugging to prevent accidentally\n\"fixing\" unrelated code, or when you want to scope changes to one module.\nUse when asked to \"freeze\", \"restrict edits\", \"only edit this folder\",\nor \"lock down edits\". (gstack)\n",
+    "description": "|",
     "version": "0.1.0",
     "category": "ops",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "git-add-exclude-pathspec-refuses-ignored-paths",
+    "path": "skills/git-add-exclude-pathspec-refuses-ignored-paths",
+    "description": "`git add -A -- . ':(exclude).venv'` 로 찌꺼기를 빼려 하면, 그 경로가 **존재하고 또 .gitignore 에 있을 때** git 이 스테이징 전체를 exit 1 로 거부한다(\"The following paths are ignored by one of your .gitignore files\"). 두 조건이 다 필요해서 테스트 픽스처에 .gitignore 가 없으면 영원히 통과한다. 처방은 `git add -A` 후 `git reset -- <찌꺼기>`. 트리거: 자동 커밋 파이프라인, `:(exclude)` pathspec, \"커밋이 조용히 안 됨\", staged 인데 commit 안 된 트리.",
+    "version": "0.0.0",
+    "category": "uncategorized",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "git-deploy-poller-fetch-merge-refstore-split",
+    "path": "skills/git-deploy-poller-fetch-merge-refstore-split",
+    "description": "A git-based deploy poller that `git fetch`es in one directory but `git merge`s in another silently no-ops — and rebuilds stale code forever — when the two directories don't share a ref store. Happens when one project's working dir is a standalone clone instead of a worktree of the shared bare repo the poller fetches into.",
+    "version": "0.0.0",
+    "category": "uncategorized",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "github-merge-502-already-merged",
+    "path": "skills/github-merge-502-already-merged",
+    "description": "`gh pr merge` 가 502/504 를 내도 머지는 이미 됐을 수 있다 — GitHub 는 머지를 수행한 뒤 PR 레코드 갱신에서 죽는다. 그러면 스쿼시 커밋은 main 에 있는데 PR 은 `state=open, merged=false` 로 남고, 브랜치도 안 지워진다. 재시도하기 전에 `git log origin/main` 을 먼저 봐라. 트리거: gh pr merge 502/Bad Gateway, \"머지 실패\"인데 CI 는 green, mergeStateStatus 가 갑자기 BEHIND, PR 이 열려 있는데 커밋이 main 에 있음.",
+    "version": "0.0.0",
+    "category": "uncategorized",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "guard-must-borrow-the-systems-own-lease",
+    "path": "skills/guard-must-borrow-the-systems-own-lease",
+    "description": "\"죽었나 살았나\"를 스스로 고른 신선도 창(3분 등)으로 판정하는 가드·워치독·리퍼·헬스체크는, 보호 대상 시스템이 자기 계약서에 적어둔 lease(예: 한 턴 최대 1시간)와 어긋나면 **가장 값진 작업 구간에서 정확히 오판**한다. 트리거 - `updated_at > now() - interval 'N minutes'`, \"in flight 면 배포 연기\", stale-claim 리퍼, liveness/readiness probe, 배포 직전 드레인 가드, \"재시작했더니 작업이 날아갔다\".",
+    "version": "0.0.0",
+    "category": "uncategorized",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "half-wired-subsystem-audit",
+    "path": "skills/half-wired-subsystem-audit",
+    "description": "서브시스템의 \"보이는 절반\"(설정 UI·스키마·워커·읽기 엔드포인트)만 만들어지고 \"안 보이는 절반\"(프로덕션 producer/consumer, authoring 입력구, 서버 승격)이 빠지는 반복 결함. 유닛테스트 100% green으로 통과하며, 자율성은 전부 그 안 보이는 절반에 산다. 신규 서브시스템 설계·리뷰 시, 그리고 \"설정은 있는데 왜 동작 안 하지\" 증상에서 사용.",
+    "version": "1.0.0",
+    "category": "uncategorized",
+    "task_types": [
+      "review",
+      "debug",
+      "architecture"
+    ],
+    "executor": "claude_code"
+  },
+  {
+    "name": "harness-cycling-judge-false-failure",
+    "path": "skills/harness-cycling-judge-false-failure",
+    "description": "검증 하네스 판사가 매 라운드 다른 \"related notes\" 기준을 추가해 반복 실패시킬 때 — cycling 기준은 무시하고 실제 산출물 완료에만 집중하는 전략",
+    "version": "1.3.0",
+    "category": "debugging",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "head-1-diff-shows-only-the-last-commit",
+    "path": "skills/head-1-diff-shows-only-the-last-commit",
+    "description": "\"무엇이 바뀌었나\"를 `git diff HEAD~1 HEAD` 로 만들어 LLM 판사·리뷰봇·알림·딜리버러블에 넣으면, 에이전트가 커밋을 두 번 이상 한 순간 **첫 커밋들이 통째로 사라진다.** 파일 목록은 맞는데 내용이 0바이트라 \"파일이 없다/검증할 수 없다\"는 오판이 나온다. 트리거 - `git diff HEAD~1`, `HEAD^..HEAD`, 판사/리뷰어에게 보낼 컨텍스트 조립, \"코드를 볼 수 없습니다\" 반복 거절, 커밋 여러 개 만드는 에이전트 루프.",
+    "version": "0.0.0",
+    "category": "uncategorized",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "hook-prefix-matcher-skips-compound-command",
+    "path": "skills/hook-prefix-matcher-skips-compound-command",
+    "description": "A PreToolUse Bash hook that gates on a command PREFIX (`[[ \"$COMMAND\" != git\\ commit* ]] && exit 0`) silently no-ops when you write a compound command like `git add -A && git commit …`. The action succeeds, the hook never ran, and you report \"verification passed\" when nothing was verified.",
+    "version": "0.0.0",
+    "category": "trap",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "import-linter-sees-function-level-imports",
+    "path": "skills/import-linter-sees-function-level-imports",
+    "description": "import-linter(및 대부분의 정적 아키텍처 게이트)는 AST 를 읽으므로 **함수 안 지연 import 도 계약 위반으로 잡는다**. 순환 import 를 피하려고 import 를 함수 안으로 옮기는 흔한 처방이 아키텍처 계약에는 통하지 않는다. 처방은 계약이 허용하는 레이어에 헬퍼를 두는 것(때로는 의도적 중복). 트리거: `lint-imports` 실패인데 파일 상단엔 그 import 가 없음, \"circular import\" 를 lazy import 로 고친 직후 계약 깨짐, layered/forbidden contract.",
+    "version": "0.0.0",
+    "category": "uncategorized",
     "task_types": [],
     "executor": "claude_code"
   },
@@ -321,7 +830,7 @@
   {
     "name": "investigate",
     "path": "skills/investigate",
-    "description": "Systematic debugging with root cause investigation. Four phases: investigate,\nanalyze, hypothesize, implement. Iron Law: no fixes without root cause.\nUse when asked to \"debug this\", \"fix this bug\", \"why is this broken\",\n\"investigate this error\", or \"root cause analysis\".\nProactively invoke this skill (do NOT debug directly) when the user reports\nerrors, 500 errors, stack traces, unexpected behavior, \"it was working\nyesterday\", or is troubleshooting why something stopped working. (gstack)\n",
+    "description": "|",
     "version": "1.0.0",
     "category": "debug",
     "task_types": [],
@@ -333,6 +842,15 @@
     "description": "Use when reviewing and hardening a branch before merge. Runs a fix→verify→sub-agent-review loop until zero issues remain. Effective for large branches (10+ files) where single-pass review misses integration bugs.",
     "version": "1.0.0",
     "category": "review",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "json-cache-uuid-key-type-drift",
+    "path": "skills/json-cache-uuid-key-type-drift",
+    "description": "When list_X comes from a JSON cache (UUID→str) but related rows come fresh from the DB (still UUID), dict[record[\"id\"]] lookups silently miss. Symptom — first request after deploy works, all later requests behave as if related rows are empty.",
+    "version": "1.0.0",
+    "category": "trap",
     "task_types": [],
     "executor": "claude_code"
   },
@@ -351,7 +869,7 @@
   {
     "name": "land-and-deploy",
     "path": "skills/land-and-deploy",
-    "description": "Land and deploy workflow. Merges the PR, waits for CI and deploy,\nverifies production health via canary checks. Takes over after /ship\ncreates the PR. Use when: \"merge\", \"land\", \"deploy\", \"merge and verify\",\n\"land it\", \"ship it to production\". (gstack)\n",
+    "description": "|",
     "version": "1.0.0",
     "category": "ship",
     "task_types": [],
@@ -367,11 +885,29 @@
     "executor": "claude_code"
   },
   {
+    "name": "launchd-daemon-cli-keychain-auth-fallback",
+    "path": "skills/launchd-daemon-cli-keychain-auth-fallback",
+    "description": "A CLI tool (claude/gh/aws/codex…) invoked by a launchd/systemd daemon fails auth with 401 while the identical command works in your interactive shell — because the daemon's security session can't read the OS keychain and silently falls back to a stale on-disk credential. Diagnose from the daemon context, not your shell.",
+    "version": "0.0.0",
+    "category": "uncategorized",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
     "name": "learn",
     "path": "skills/learn",
-    "description": "Manage project learnings. Review, search, prune, and export what gstack\nhas learned across sessions. Use when asked to \"what have we learned\",\n\"show learnings\", \"prune stale learnings\", or \"export learnings\".\nProactively suggest when the user asks about past patterns or wonders\n\"didn't we fix this before?\"\n",
+    "description": "|",
     "version": "1.0.0",
     "category": "reflect",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "lexical-gate-for-semantic-intent",
+    "path": "skills/lexical-gate-for-semantic-intent",
+    "description": "에이전트 시스템에서 \"질문인가 작업인가\" 같은 의미(semantic) 판단을 키워드/의문사/동사 목록으로 대신하면, 문법만 읽고 의도를 놓쳐 오분류된다. 그리고 오분류의 대가가 크다 — 만들 게 없는 코딩 에이전트는 no-op 하지 않고 아무 코드나 고쳐서 ship 한다. 트리거: intent 라우팅, 질문/작업 분기, path_classification, is_question(), 빌드동사 목록, 다국어 입력.",
+    "version": "0.0.0",
+    "category": "uncategorized",
     "task_types": [],
     "executor": "claude_code"
   },
@@ -397,9 +933,40 @@
     "executor": "claude_code"
   },
   {
+    "name": "llm-grounding-additions-can-evict-existing-grounding",
+    "path": "skills/llm-grounding-additions-can-evict-existing-grounding",
+    "description": "프롬프트에 \"당연히 관련 있는\" 근거 파일을 더하면 능력이 늘 것 같지만, 이미 잘 되던 것을 밀어내 능력이 줄 수 있다. 근거 추가는 기능 추가가 아니라 예산 재배분이다 — 더하기 전에 재라.",
+    "version": "0.0.0",
+    "category": "trap",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "local-green-is-not-evidence-when-the-backend-is-gated",
+    "path": "skills/local-green-is-not-evidence-when-the-backend-is-gated",
+    "description": "스위트가 환경변수/도달성으로 백엔드를 고르면(BSVIBE_DATABASE_URL 있으면 PG 아니면 SQLite, Ollama 안 뜨면 skip), **로컬 전체 통과는 근거가 못 된다.** 가장 값진 테스트가 조용히 skip 되고, 그 skip 은 통과처럼 집계된다. CI 와 로컬이 같은 눈먼 지점을 공유하면 결함은 양쪽 모두를 통과한다. 트리거 - `use_real_pg()`, `pytest.skip(\"... not reachable\")`, \"로컬은 되는데 CI 만 실패\", \"CI 는 green 인데 main 이 깨져 있다\", 머지 전 검증 보고.",
+    "version": "0.0.0",
+    "category": "uncategorized",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "local-llm-agent-loop-temperature-zero-trap",
+    "path": "skills/local-llm-agent-loop-temperature-zero-trap",
+    "description": "Setting `temperature=0` for a tool-calling agent loop on a smaller local LLM (qwen3-coder:30b, Llama-3 30B-class, glm-4.7-flash 29.9B etc.) tightens variance BUT cuts mean accuracy hard — sometimes 5–10×. Greedy decoding locks the model into a wrong first-token path that subsequent rounds can't escape. The same sampling that creates run-to-run noise is also what gives the loop room to self-correct.",
+    "version": "1.0.0",
+    "category": "uncategorized",
+    "task_types": [
+      "eval",
+      "llm-tooling",
+      "agent-design"
+    ],
+    "executor": "claude_code"
+  },
+  {
     "name": "local-llm-agent-safety-nets",
     "path": "skills/local-llm-agent-safety-nets",
-    "description": "When building multi-turn agent systems on local/smaller LLMs (Qwen3, gpt-oss, Llama family), never rely on prompt compliance for safety-critical operations. Add backend safety nets for bootstrap/invariants. Triggers — agent system uses local Ollama model, scenario stalls on turn 1, \"MAY do X\" prompt directives fire only sometimes.",
+    "description": "When building multi-turn agent / tool-calling systems on local/smaller LLMs (Qwen3, gpt-oss, Llama family), never rely on prompt compliance for safety-critical operations. Add backend safety nets — auto-bootstrap missing state, recover misnamed tool calls from arg shape, derive verification from workspace state. Triggers — local Ollama agent stalls on turn 1, hits round-cap with no deliverable, \"MAY do X\" directives fire only sometimes, model emits one tool name for everything.",
     "version": "0.0.0",
     "category": "trap",
     "task_types": [],
@@ -415,11 +982,59 @@
     "executor": "claude_code"
   },
   {
+    "name": "local-llm-runtime-nudge-ceiling",
+    "path": "skills/local-llm-runtime-nudge-ceiling",
+    "description": "Runtime LLM watchdogs that re-prompt the model to fix a missing/wrong output field have a hard ceiling — beyond a certain model capability threshold, polite re-nudging cannot coerce the LLM, no matter how strong the nudge. The reliable safety net is server-side synthesis (backend fills the missing field from observed run state), not more backend re-nudging.",
+    "version": "1.0.0",
+    "category": "trap",
+    "task_types": [
+      "coding",
+      "debugging"
+    ],
+    "executor": "claude_code"
+  },
+  {
+    "name": "lru-cached-settings-pin-env-across-test-modules",
+    "path": "skills/lru-cached-settings-pin-env-across-test-modules",
+    "description": "An `@lru_cache` settings factory is a process-wide singleton, so the FIRST test module to touch it pins its monkeypatched env for the whole run. A second module setting a different secret/URL gets the first module's value — symptom is \"passes alone, fails when run together\" with a signature/connection error that points at the wrong thing.",
+    "version": "0.0.0",
+    "category": "trap",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "manual-deploy-races-the-autodeploy-poller",
+    "path": "skills/manual-deploy-races-the-autodeploy-poller",
+    "description": "배포 폴러(launchd/cron, N초 주기)가 이미 같은 compose 명령을 돌리고 있는데 손으로 `docker compose up`을 치면 두 프로세스가 같은 컨테이너를 동시에 recreate 하다가 \"container name is already in use\" 충돌 → 컨테이너가 Exited 로 남고 **프로덕션이 죽는다**. 트리거: 머지 후 수동 배포, \"이 프로젝트는 자동배포 안 되는 것 같다\"는 판단, 컨테이너 이름 충돌.",
+    "version": "0.0.0",
+    "category": "uncategorized",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
     "name": "mcp-python-sdk-testing",
     "path": "skills/mcp-python-sdk-testing",
     "description": "Test mcp Python SDK servers without spawning subprocesses — extract registered handlers from server.request_handlers and invoke ListToolsRequest/CallToolRequest objects directly. Result is wrapped in ServerResult.root.",
     "version": "1.0.0",
     "category": "test",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "mcp-remote-tools-attach-race",
+    "path": "skills/mcp-remote-tools-attach-race",
+    "description": "코딩 CLI(claude code 등)에 원격 HTTP MCP 서버로 툴을 주입할 때, CLI가 MCP 연결을 기다리지 않고 턴을 시작해 에이전트가 \"툴 0개\"로 돌아간다. env var를 unset 하는 건 고치는 게 아니다(기본값이 이미 non-blocking). 트리거: system/init의 mcp_servers status=pending, tools=[], 에이전트가 툴을 ToolSearch로 찾음, 툴 없이 답을 지어냄.",
+    "version": "0.0.0",
+    "category": "uncategorized",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "merge-conflict-cross-file-feature-span",
+    "path": "skills/merge-conflict-cross-file-feature-span",
+    "description": "브랜치 충돌 해결 시 상대 브랜치가 추가한 기능이 여러 파일에 걸쳐 있을 때, 충돌 마커가 있는 파일만 수정하면 다른 파일의 변경이 누락되어 런타임 오류가 발생하는 패턴.",
+    "version": "0.0.0",
+    "category": "uncategorized",
     "task_types": [],
     "executor": "claude_code"
   },
@@ -465,6 +1080,28 @@
     "executor": "claude_code"
   },
   {
+    "name": "narrowing-an-overbroad-assertion-must-restate-its-proposition",
+    "path": "skills/narrowing-an-overbroad-assertion-must-restate-its-proposition",
+    "description": "공유 테스트 헬퍼가 명제보다 **넓은 범위**를 세면(디렉터리 전체 rglob, 테이블 전체 count), `len == 1` 이 사실은 \"이 범위에 물건이 딱 하나 존재한다\"는 훨씬 센 주장이 된다. 같은 범위에 쓰는 기능이 하나 생기면 무관한 테스트가 우수수 빨개지고, **가드가 깨진 것처럼 보이지만 가드는 멀쩡하다**. 함정은 고치는 쪽에 있다 — 헬퍼를 좁히면 그 명제가 제외된 표면에서 조용히 사라진다. 좁히면 **반드시 그 명제를 새 표면에 다시 걸어라**. 트리거 - 새 기능이 기존 저장소/디렉터리/테이블에 쓰기 시작할 때, 무관한 테스트 다수가 동시에 빨개질 때, `rglob`/`glob`/`count(*)` 로 세는 공유 헬퍼, `assert len(x) == 1` / `assert x == []`.",
+    "version": "1.0.0",
+    "category": "trap",
+    "task_types": [
+      "testing",
+      "refactor",
+      "review"
+    ],
+    "executor": "claude_code"
+  },
+  {
+    "name": "next-intl-angle-bracket-swallows-message",
+    "path": "skills/next-intl-angle-bracket-swallows-message",
+    "description": "next-intl / ICU treats `<name>` in a message as a rich-text tag, so prose that mentions a CLI placeholder (`claude mcp add bsvibe <url>`) fails to parse with INVALID_MESSAGE UNCLOSED_TAG and the UI renders nothing where the sentence should be. Nothing crashes, no test fails — the copy is just silently missing.",
+    "version": "0.0.0",
+    "category": "trap",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
     "name": "nextjs-middleware-origin-trap",
     "path": "skills/nextjs-middleware-origin-trap",
     "description": "Next.js middleware request.nextUrl.origin returns internal server address (localhost:3000), not the external URL the browser uses — breaks OAuth redirect_uri when behind proxy or port mapping",
@@ -474,12 +1111,45 @@
     "executor": "claude_code"
   },
   {
+    "name": "notion-mcp-large-page-content-truncates-the-call",
+    "path": "skills/notion-mcp-large-page-content-truncates-the-call",
+    "description": "Notion MCP `create-pages` 에 큰 `content`(대략 10KB+, 한글이면 `\\uXXXX` 이스케이프로 3배 부풀어 더 빨리)를 넘기면 툴 호출 JSON 자체가 중간에서 잘려 `InputValidationError: could not be parsed as JSON` 이 난다 — 내용 문제가 아니라 크기 문제다. **create(앞부분) → update-page `insert_content` `{\"type\":\"end\"}`(뒷부분)** 으로 나눠라. 문서 아카이빙처럼 긴 마크다운을 옮길 때 반드시 걸린다. 트리거 - Notion 에 긴 문서 이관, create-pages 가 JSON 파싱 에러, 한글 문서를 Notion 페이지로.",
+    "version": "1.0.0",
+    "category": "trap",
+    "task_types": [
+      "workflow",
+      "content_writing"
+    ],
+    "executor": "claude_code"
+  },
+  {
+    "name": "oauth-refresh-token-single-use-debug-burns-cred",
+    "path": "skills/oauth-refresh-token-single-use-debug-burns-cred",
+    "description": "OAuth refresh tokens (GitHub, Notion, Slack, …) are SINGLE-USE — calling `provider.refresh(refresh_token)` from a debug REPL or one-shot script without persisting the returned new tokens to DB silently invalidates the credential. The new tokens vanish at process exit, the OLD refresh in DB is now rejected by the provider, every subsequent dispatch fails with `bad_refresh_token` / 401. Only a fresh OAuth flow recovers. Treat refresh as a database-side transaction, not a function call.",
+    "version": "0.0.0",
+    "category": "uncategorized",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
     "name": "office-hours",
     "path": "skills/office-hours",
-    "description": "YC Office Hours — two modes. Startup mode: six forcing questions that expose\ndemand reality, status quo, desperate specificity, narrowest wedge, observation,\nand future-fit. Builder mode: design thinking brainstorming for side projects,\nhackathons, learning, and open source. Saves a design doc.\nUse when asked to \"brainstorm this\", \"I have an idea\", \"help me think through\nthis\", \"office hours\", or \"is this worth building\".\nProactively invoke this skill (do NOT answer directly) when the user describes\na new product idea, asks whether something is worth building, wants to think\nthrough design decisions for something that doesn't exist yet, or is exploring\na concept before any code is written.\nUse before /plan-ceo-review or /plan-eng-review. (gstack)\n",
+    "description": "|",
     "version": "2.0.0",
     "category": "think",
     "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "ollama-litellm-streaming-tool-call-traps",
+    "path": "skills/ollama-litellm-streaming-tool-call-traps",
+    "description": "Two reproducible traps when running Ollama via LiteLLM in streaming mode with multi-turn tool calls — concatenated arguments under the same streaming index, and OOM mid-stream masquerading as \"generator didn't stop after athrow()\" cleanup error.",
+    "version": "1.0.0",
+    "category": "trap",
+    "task_types": [
+      "coding",
+      "debugging"
+    ],
     "executor": "claude_code"
   },
   {
@@ -501,9 +1171,45 @@
     "executor": "claude_code"
   },
   {
+    "name": "orchestrate-worktree-preflight-trap",
+    "path": "skills/orchestrate-worktree-preflight-trap",
+    "description": "/orchestrate-worktree로 ralph-loop 시작 전 (1) worktree base가 stale local main이 아닌지, (2) 본 PR 표면을 점유한 최근 머지 PR이 origin에 없는지 검증하지 않으면 8000+ lines 작업 후 add/add collision으로 폐기 위험.",
+    "version": "0.0.0",
+    "category": "uncategorized",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "outbound-connect-fail-local-vs-remote-diagnosis",
+    "path": "skills/outbound-connect-fail-local-vs-remote-diagnosis",
+    "description": "When a host can't reach one service (e.g. github.com) but reaches others, do NOT assume a remote block / firewall / IP ban. The error TYPE discriminates: an immediate \"Can't assign requested address\" (EADDRNOTAVAIL) is a LOCAL socket failure (the packet never left), almost always ephemeral-port / TIME_WAIT exhaustion — not a remote block (which times out or RSTs). Check TIME_WAIT count vs the ephemeral port range first.",
+    "version": "0.0.0",
+    "category": "uncategorized",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "pgvector-asyncpg-raw-sql-list-bind",
+    "path": "skills/pgvector-asyncpg-raw-sql-list-bind",
+    "description": "pgvector 임베딩을 SQLAlchemy raw text() SQL로 바인드할 때 Python list를 그대로 넘기면 asyncpg가 \"expected str, got list\"로 거부한다. 텍스트형 \"[...]\" + CAST(:p AS vector) 필요. SQLite 단위테스트로는 못 잡고 실제 PG+실제 임베딩 e2e에서만 표면화.",
+    "version": "0.0.0",
+    "category": "uncategorized",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "piped-gate-masks-exit-code",
+    "path": "skills/piped-gate-masks-exit-code",
+    "description": "로컬에서 CI 게이트를 돌릴 때 `ruff check ... | tail -1` 처럼 파이프를 걸면 파이프라인 종료코드는 마지막 명령(tail)의 것이라 실패가 통째로 숨는다. `&&` 체인은 그대로 통과하고 \"전부 green\"이라고 보고하게 된다. 트리거: 로컬은 green인데 CI에서 lint/test 실패, `cmd | tail`, `cmd | head`, `set -e` + 파이프.",
+    "version": "0.0.0",
+    "category": "uncategorized",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
     "name": "plan-design-review",
     "path": "skills/plan-design-review",
-    "description": "Designer's eye plan review — interactive, like CEO and Eng review.\nRates each design dimension 0-10, explains what would make it a 10,\nthen fixes the plan to get there. Works in plan mode. For live site\nvisual audits, use /design-review. Use when asked to \"review the design plan\"\nor \"design critique\".\nProactively suggest when the user has a plan with UI/UX components that\nshould be reviewed before implementation. (gstack)\n",
+    "description": "|",
     "version": "2.0.0",
     "category": "think",
     "task_types": [],
@@ -512,7 +1218,7 @@
   {
     "name": "plan-eng-review",
     "path": "skills/plan-eng-review",
-    "description": "Eng manager-mode plan review. Lock in the execution plan — architecture,\ndata flow, diagrams, edge cases, test coverage, performance. Walks through\nissues interactively with opinionated recommendations. Use when asked to\n\"review the architecture\", \"engineering review\", or \"lock in the plan\".\nProactively suggest when the user has a plan or design doc and is about to\nstart coding — to catch architecture issues before implementation. (gstack)\n",
+    "description": "|",
     "version": "1.0.0",
     "category": "think",
     "task_types": [],
@@ -537,6 +1243,28 @@
     "executor": "claude_code"
   },
   {
+    "name": "pnpm-store-project-mirror-breaks-vitest-glob",
+    "path": "skills/pnpm-store-project-mirror-breaks-vitest-glob",
+    "description": "After `pnpm install` in a git worktree, vitest/jest can discover a test file from a SECOND path — pnpm hardlinks the whole project (test/ included) into `~/Library/pnpm/store/v<n>/projects/<hash>/`, and the glob picks up that out-of-root mirror where the `@/` alias / vite root doesn't apply → bogus \"Cannot find package '@/...'\" resolution errors. Clearing the stale store-project mirror fixes it.",
+    "version": "0.0.0",
+    "category": "uncategorized",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "prompt-instruction-loses-to-the-later-specific-sentence",
+    "path": "skills/prompt-instruction-loses-to-the-later-specific-sentence",
+    "description": "Adding a rule to an LLM system prompt silently loses to a LATER, more specific sentence that covers the same case — including the \"escape hatch\" that lets the model opt out. Fix the sentence that actually fires, never stack emphasis in front of it. Unit tests that assert the new wording is PRESENT pass while the prompt never fires.",
+    "version": "1.0.0",
+    "category": "trap",
+    "task_types": [
+      "coding",
+      "debugging",
+      "design"
+    ],
+    "executor": "claude_code"
+  },
+  {
     "name": "pytest-asyncmock-unawaited-coroutine",
     "path": "skills/pytest-asyncmock-unawaited-coroutine",
     "description": "Patching async stdlib functions (asyncio.sleep, asyncio.create_subprocess_exec) with AsyncMock causes RuntimeWarning about unawaited coroutines during test teardown",
@@ -549,6 +1277,15 @@
     "name": "pytest-coverage-gotchas",
     "path": "skills/pytest-coverage-gotchas",
     "description": "pytest-cov Coverage Gotchas — diagnosing false coverage failures and async 0% coverage",
+    "version": "1.0.0",
+    "category": "test",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "pytest-singleton-async-resource-cross-loop-leak",
+    "path": "skills/pytest-singleton-async-resource-cross-loop-leak",
+    "description": "process-wide singletons that bind async resources at app/worker startup leak Futures across per-test event loops under pytest-asyncio — guard the wire-up with PYTEST_CURRENT_TEST, conftest reset alone is NOT enough",
     "version": "1.0.0",
     "category": "test",
     "task_types": [],
@@ -575,7 +1312,7 @@
   {
     "name": "qa",
     "path": "skills/qa",
-    "description": "Systematically QA test a web application and fix bugs found. Runs QA testing,\nthen iteratively fixes bugs in source code, committing each fix atomically and\nre-verifying. Use when asked to \"qa\", \"QA\", \"test this site\", \"find bugs\",\n\"test and fix\", or \"fix what's broken\".\nProactively suggest when the user says a feature is ready for testing\nor asks \"does this work?\". Three tiers: Quick (critical/high only),\nStandard (+ medium), Exhaustive (+ cosmetic). Produces before/after health scores,\nfix evidence, and a ship-readiness summary. For report-only mode, use /qa-only. (gstack)\n",
+    "description": "|",
     "version": "2.0.0",
     "category": "test",
     "task_types": [],
@@ -612,9 +1349,18 @@
     "executor": "claude_code"
   },
   {
+    "name": "reaper-inherits-the-tools-refusal",
+    "path": "skills/reaper-inherits-the-tools-refusal",
+    "description": "자동 정리기(리퍼·GC·워크스페이스 회수)를 만들 때, \"지워도 안전한가\"를 직접 판정하지 말고 도구가 이미 하는 거부를 물려받아라. `git worktree remove`·`rmdir`·`docker rm`(force 없이)은 지우면 안 되는 상태에서 스스로 거부한다. `--force` 한 글자가 그 안전장치를 데이터 손실로 바꾼다. 그리고 정리 명령의 exit 0 은 반드시 관측이어야 한다. 트리거: 워크트리/워크스페이스/컨테이너/temp 회수, 고아 정리, 디스크 누수, \"언제 지워도 되나\" 판단 로직 작성.",
+    "version": "0.0.0",
+    "category": "uncategorized",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
     "name": "retro",
     "path": "skills/retro",
-    "description": "Weekly engineering retrospective. Analyzes commit history, work patterns,\nand code quality metrics with persistent history and trend tracking.\nTeam-aware: breaks down per-person contributions with praise and growth areas.\nUse when asked to \"weekly retro\", \"what did we ship\", or \"engineering retrospective\".\nProactively suggest at the end of a work week or sprint. (gstack)\n",
+    "description": "|",
     "version": "2.0.0",
     "category": "reflect",
     "task_types": [],
@@ -635,9 +1381,18 @@
   {
     "name": "review",
     "path": "skills/review",
-    "description": "Pre-landing PR review. Analyzes diff against the base branch for SQL safety, LLM trust\nboundary violations, conditional side effects, and other structural issues. Use when\nasked to \"review this PR\", \"code review\", \"pre-landing review\", or \"check my diff\".\nProactively suggest when the user is about to merge or land code changes. (gstack)\n",
+    "description": "|",
     "version": "1.0.0",
     "category": "review",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "router-level-dependency-preempts-route-auth",
+    "path": "skills/router-level-dependency-preempts-route-auth",
+    "description": "A FastAPI router mounted with a blanket `APIRouter(dependencies=[Depends(get_current_user)])` runs that check BEFORE any route-level dependency. Adding a broader auth resolver to one route under that router silently never executes — the request 401s from the router gate, and even a print() inside your resolver produces no output.",
+    "version": "0.0.0",
+    "category": "trap",
     "task_types": [],
     "executor": "claude_code"
   },
@@ -663,11 +1418,47 @@
     "executor": "claude_code"
   },
   {
+    "name": "seam-must-assert-what-the-consumer-sees",
+    "path": "skills/seam-must-assert-what-the-consumer-sees",
+    "description": "시임(seam)의 생산자 쪽만 보고 \"정리하는 게 맞다\"고 추론해 상태를 지우면, 그 상태가 소비자에게는 인계 그 자체일 수 있다. 테스트를 그 추론대로 쓰면 green 이 추론을 검증해준 것처럼 보인다. 트리거 - 핸드오프/재투입/재시도 경계 설계, cleanup·abort·reset·clear 를 추가할 때, \"리소스를 돌려줘야 하니까 정리한다\", 다음 단계가 \"할 일이 없다\"고 보고하며 아무것도 안 함.",
+    "version": "0.0.0",
+    "category": "uncategorized",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "shared-directory-namespace-collision",
+    "path": "skills/shared-directory-namespace-collision",
+    "description": "When a new feature introduces strict-naming sub-trees under an existing top-level directory that legacy code already writes to, recursive scans crash on legacy files unless the scan filters to canonical patterns first. Local unit tests pass on empty fixtures; CI fails the moment a real seeded vault/repo exists.",
+    "version": "0.0.0",
+    "category": "uncategorized",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
     "name": "ship",
     "path": "skills/ship",
-    "description": "Ship workflow: detect + merge base branch, run tests, review diff, bump VERSION,\nupdate CHANGELOG, commit, push, create PR. Use when asked to \"ship\", \"deploy\",\n\"push to main\", \"create a PR\", \"merge and push\", or \"get it deployed\".\nProactively invoke this skill (do NOT push/PR directly) when the user says code\nis ready, asks about deploying, wants to push code up, or asks to create a PR. (gstack)\n",
+    "description": "|",
     "version": "1.0.0",
     "category": "ship",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "single-active-resolver-degrades-on-new-account-class",
+    "path": "skills/single-active-resolver-degrades-on-new-account-class",
+    "description": "Introducing a second CLASS of a resource (e.g. provider=executor ModelAccounts) silently breaks every resolver that assumed \"exactly one active X\" — they fall back to a degraded path instead of erroring, so the system still \"works\" but a whole feature quietly stops triggering. Audit count-based resolvers before adding a new kind.",
+    "version": "0.0.0",
+    "category": "uncategorized",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "slim-base-image-missing-shellout-tools",
+    "path": "skills/slim-base-image-missing-shellout-tools",
+    "description": "Minimal base images (python:slim, debian:slim, alpine, distroless) omit common CLI tools like git, ssh, rsync. Python code that subprocess-calls them passes all unit tests on dev hosts and fails only at runtime in the prod container.",
+    "version": "0.0.0",
+    "category": "uncategorized",
     "task_types": [],
     "executor": "claude_code"
   },
@@ -690,9 +1481,45 @@
     "executor": "claude_code"
   },
   {
+    "name": "sqlite-naive-datetime-system-tz-silent-shift",
+    "path": "skills/sqlite-naive-datetime-system-tz-silent-shift",
+    "description": "SQLite + SQLAlchemy `DateTime(timezone=True)` round-trip silently strips tzinfo. Downstream `.astimezone()` on the naive datetime then uses the SYSTEM tz, not UTC — silently shifts time-of-day classification by the local UTC offset (e.g. ~13h on a KST host, ~9h on JST, ~5h on EST). Symptom: bucket/window/cutoff classifiers (session hours, after-hours/overnight splits, daily aggregates) misclassify in production. Tests pass on the dev machine that happens to match the writer's intended tz; bug surfaces on any other host.",
+    "version": "0.0.0",
+    "category": "trap",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "stale-migration-pr-splits-alembic-head",
+    "path": "skills/stale-migration-pr-splits-alembic-head",
+    "description": "마이그레이션이 든 PR 은 열려 있는 동안 다른 마이그레이션이 머지되면 배포를 깨뜨리는 지뢰가 된다 — `down_revision` 이 더 이상 head 가 아닌 리비전을 가리켜 머지 순간 head 가 둘로 갈라지고 컨테이너가 재시작 루프에 빠진다. 그런데 **git 도 브랜치 CI 도 이걸 못 본다**(새 파일이라 충돌 없음 + 브랜치 자체 체인은 단일 head). 트리거 - 며칠 묵은 PR 머지, 마이그레이션 포함 PR, \"CI green 인데 배포가 죽었다\", `Multiple head revisions are present`, 순차 머지 큐에 마이그레이션 PR 이 둘 이상.",
+    "version": "0.0.0",
+    "category": "uncategorized",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
     "name": "static-ontology-knowledge-graph-trap",
     "path": "skills/static-ontology-knowledge-graph-trap",
     "description": "Hard-coded note_type / category enums in a knowledge system create filing cabinets, not knowledge graphs. The trap: classification looks like success (notes neatly distributed across folders) while the actual graph value (emergent connections, surprising links) stays at zero. Static ontology + LLM classifier = sophisticated tagger, not graph thinking.",
+    "version": "1.0.0",
+    "category": "trap",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "staticpool-sqlite-shared-connection-concurrent-flake",
+    "path": "skills/staticpool-sqlite-shared-connection-concurrent-flake",
+    "description": "A StaticPool :memory: SQLite test engine forces ALL sessions onto ONE shared connection. Tests that drive two sessions concurrently (e.g. an orchestrator + a simulated worker) then contend on that single connection, serializing unpredictably under CI load — a system_error/timeout flake that never reproduces locally. Use a file-backed SQLite + WAL so each session gets its own connection, like prod.",
+    "version": "0.0.0",
+    "category": "uncategorized",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "status-code-is-not-a-reason-code",
+    "path": "skills/status-code-is-not-a-reason-code",
+    "description": "An endpoint that refused for exactly one reason gets a client that keys its message off the HTTP status. Add a second refusal reason and that mapping shows the WRONG actionable hint — plausible, silent, and reported by nobody. Before adding a refusal, open the existing client mapping; ship the reason as a code in the body, and take any number in the copy from the response.",
     "version": "1.0.0",
     "category": "trap",
     "task_types": [],
@@ -726,6 +1553,15 @@
     "executor": "claude_code"
   },
   {
+    "name": "survey-existing-abstractions-before-design-spec",
+    "path": "skills/survey-existing-abstractions-before-design-spec",
+    "description": "When designing new layer/feature spec for an established codebase, survey existing ABCs/Protocols/dual-impl patterns BEFORE locking spec invariants. Skip the survey and you'll invent parallel abstractions that need rework.",
+    "version": "0.0.0",
+    "category": "uncategorized",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
     "name": "test-against-source-contracts",
     "path": "skills/test-against-source-contracts",
     "description": "Test Against Source Contracts — verify tests match actual API/interface contracts",
@@ -735,9 +1571,97 @@
     "executor": "claude_code"
   },
   {
+    "name": "test-fixture-clearing-global-cache-poisons-the-suite",
+    "path": "skills/test-fixture-clearing-global-cache-poisons-the-suite",
+    "description": "테스트 픽스처가 env 를 바꾸고 lru_cache 의 cache_clear() 를 호출하면, 그 모듈이 아니라 **다른 모듈의 테스트가 실행마다 다르게 깨진다**(격리하면 통과). 캐시는 전역이라 비우는 순간 이후 모든 독자가 지금 환경으로 다시 만든다. 게다가 monkeypatch 를 요청한 픽스처는 monkeypatch 보다 **먼저** 정리되어, 되돌리기 전에 내 값이 다시 캐시된다. 처방은 env 를 안 건드리고 값을 만드는 함수를 패치하는 것. 트리거: 전체 스위트에서만 실패, 실패 목록이 매번 바뀜, get_settings.cache_clear(), monkeypatch.setenv + 캐시 무효화.",
+    "version": "0.0.0",
+    "category": "uncategorized",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "the-branch-behind-a-human-gate-was-never-run",
+    "path": "skills/the-branch-behind-a-human-gate-was-never-run",
+    "description": "사람이 비밀·승인·설정을 넣어야만 실행되는 분기는, 그 사람이 오기 전까지 단 한 번도 실행된 적이 없다 — 그래서 그 안의 결함(빠진 의존성·오타·죽은 경로)은 사람이 값을 넣는 바로 그 순간 처음 터진다. \"값이 없으면 SKIP 된다\"를 실증한 것은 SKIP 을 실증한 것이지 그 뒤를 실증한 게 아니다. 트리거 - Keychain/env/시크릿이 있어야 켜지는 기능, \"설정 전까지는 조용히 스킵\", 야간·크론 잡의 인증 절반, 승인 후에만 도는 경로, 사람 손이 필요한 온보딩 단계, 기능 플래그 뒤의 코드.",
+    "version": "0.0.0",
+    "category": "uncategorized",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "the-precedent-you-found-may-be-an-exception-entry",
+    "path": "skills/the-precedent-you-found-may-be-an-exception-entry",
+    "description": "기존 코드가 X 를 하고 있다고 해서 X 가 허용된 패턴인 건 아니다 — 그 줄이 **예외 목록에 등록된 위반**일 수 있다. 호출 지점에서는 선례와 예외가 **똑같이 생겼다**: 둘 다 그냥 도는 코드다. 차이는 아키텍처 게이트의 설정 파일에만 있다. 설계를 선례 위에 세우기 전에, 그 선례가 `ignore_imports` · `noqa` · allowlist · `# type: ignore` 에 이름이 올라가 있는지 **먼저 확인하라.** 트리거 - \"이미 이렇게 하는 데가 있으니 따라 하면 된다\", 레이어 경계를 넘는 임포트, 새 모듈이 다른 컨텍스트를 참조, 계약 게이트(import-linter·ruff·mypy)가 있는 저장소.",
+    "version": "1.0.0",
+    "category": "trap",
+    "task_types": [
+      "design",
+      "implementation",
+      "investigation"
+    ],
+    "executor": "claude_code"
+  },
+  {
+    "name": "truncated-diagnostic-shows-only-the-passing-half",
+    "path": "skills/truncated-diagnostic-shows-only-the-passing-half",
+    "description": "자동 소비자(에이전트·봇·CI)에게 실패 원인을 돌려줄 때 결과 객체 전체를 직렬화하고 앞에서 N자를 자르면, 통과 블록이 먼저 직렬화될 경우 \"실패했다\"면서 통과 목록만 보여준다. 소비자는 우회하지 않고 같은 실패를 무한 반복한다. 트리거 - 실패 피드백/에러 리포트/재시도 프롬프트를 만들 때, `json.dumps(result)[:N]` 같은 blind prefix, 동일 실패가 3회 이상 반복, 라인 번호가 안 움직이는 반복 실패, \"어려운 작업인가 결함인가\" 판단이 안 될 때.",
+    "version": "0.0.0",
+    "category": "uncategorized",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "upstream-repo-rename-silent-hardcoded-fallback",
+    "path": "skills/upstream-repo-rename-silent-hardcoded-fallback",
+    "description": "When you depend on a 3rd-party GitHub-hosted data artifact (CSV/JSON/schema/config) via `try: fetch new; except: use HARDCODED_DEFAULT_URL`, the \"safety fallback\" masks upstream file renames. Symptom — after upstream restructures naming, the auto-discovery quietly returns nothing (regex mismatch = empty result), the code falls through to the frozen default URL, that URL 404s, and the caller catches the exception and degrades to `whitelist=set()` / empty result / None — silently. No hard error, but every downstream measurement built on that data reshapes. bloasis PR59 caught this after 4 weeks of `whitelist=0` had already re-run the mention extractor with distorted sample sizes across per-bucket tables.",
+    "version": "0.0.0",
+    "category": "trap",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "url-userinfo-string-construction-stacks-on-reauth",
+    "path": "skills/url-userinfo-string-construction-stacks-on-reauth",
+    "description": "Embedding an OAuth/PAT token into an `https://user:pass@host/...` URL via f-string concatenation (`f\"https://x-access-token:{token}@{rest}\"`) breaks under TWO recurring conditions — (1) the token contains URL-reserved chars (`:` `/` `@` `?` `#` `%`) which the URL parser misreads, and (2) a re-auth on the same checkout (clone-time set-url + a later push-time set-url) STACKS userinfo segments into `user:pass@user:pass@host`. A naive `split(\"@\", 1)` only collapses ONE stack; production needs `rsplit(\"@\", 1)` (or `urllib.parse.urlsplit` + explicit netloc rewrite). Same fix shape across git push, docker registry login, MQTT URIs.",
+    "version": "0.0.0",
+    "category": "uncategorized",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "urlparse-netloc-reconstruction-traps",
+    "path": "skills/urlparse-netloc-reconstruction-traps",
+    "description": "urllib.parse.urlparse로 URL 파싱 후 netloc 재조합 시 발생하는 두 침묵 버그 — userinfo 대소문자 소실과 cross-scheme 기본 포트 오삭제.",
+    "version": "1.0.0",
+    "category": "uncategorized",
+    "task_types": [
+      "coding",
+      "bugfix"
+    ],
+    "executor": "claude_code"
+  },
+  {
     "name": "uv-git-dependency-cache-trap",
     "path": "skills/uv-git-dependency-cache-trap",
     "description": "uv aggressively caches git dependencies — uv sync/pip install won't fetch latest commits without explicit cache clean + lock upgrade",
+    "version": "1.0.0",
+    "category": "trap",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "uvloop-subprocess-relative-cwd-trap",
+    "path": "skills/uvloop-subprocess-relative-cwd-trap",
+    "description": "uvloop's subprocess transport raises FileNotFoundError when cwd is a relative path that stock asyncio accepts. tmp_path-based unit tests hide it because pytest fixtures are always absolute.",
+    "version": "0.0.0",
+    "category": "uncategorized",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "vercel-monorepo-pr-preview-rate-limit",
+    "path": "skills/vercel-monorepo-pr-preview-rate-limit",
+    "description": "Vercel Hobby plan caps deploys at 100/day. Multi-project monorepos (prod + demo + … per app) burn through it in a few PR rounds. Disable PR previews via vercel.json ignoreCommand — ignored builds don't count.",
     "version": "1.0.0",
     "category": "trap",
     "task_types": [],
@@ -753,6 +1677,59 @@
     "executor": "claude_code"
   },
   {
+    "name": "verification-query-moves-the-metric",
+    "path": "skills/verification-query-moves-the-metric",
+    "description": "배선이 도달했는지 재려고 잡은 지표를, 확인하는 쿼리 자체가 움직이는 경우 — `pg_stat_user_tables.seq_scan` 을 지표로 쓰면 `count(*)` 확인이 카운터를 올려 거짓 양성이 된다. 기준선을 문서로 넘겨받으면 다음 세션이 자기 확인 쿼리를 성공으로 오독한다. 트리거 - \"카운터가 늘었으면 배선된 것\", 스캔/히트 카운터를 증거로 삼기, 기준선을 인수인계에 적기, 관측 지표 설계.",
+    "version": "1.0.0",
+    "category": "trap",
+    "task_types": [
+      "debugging",
+      "evaluation",
+      "design"
+    ],
+    "executor": "claude_code"
+  },
+  {
+    "name": "verify-handoff-claims-against-code-before-building",
+    "path": "skills/verify-handoff-claims-against-code-before-building",
+    "description": "A delegation brief or handoff memory that says \"X is missing / unsolved, go build it\" is a point-in-time snapshot that may be stale. Verify the claimed-undone work actually is undone against current code/state BEFORE building — especially before destructive or large work. Skipping this risks redundant rework or destroying already-shipped value.",
+    "version": "0.0.0",
+    "category": "uncategorized",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "vitest-restoreallmocks-wipes-factory-mock",
+    "path": "skills/vitest-restoreallmocks-wipes-factory-mock",
+    "description": "In Vitest, `vi.restoreAllMocks()` in afterEach strips the implementation from mocks created inside a `vi.mock(...)` factory (`vi.fn().mockResolvedValue([])`). The first test passes, then every later test gets `undefined` from that module — and the crash surfaces in a component section you were not even testing.",
+    "version": "0.0.0",
+    "category": "trap",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "waiting-on-a-human-is-not-an-outage",
+    "path": "skills/waiting-on-a-human-is-not-an-outage",
+    "description": "사람의 결정을 기다리는 작업을 \"실행 중\" 상태로 파킹해두면, 시간 기반 stall/wedge 모니터가 그걸 장애로 읽어 답을 기다리는 그 사람에게 장애 알람을 보낸다. 트리거 - 승인 대기·질문 대기 상태 설계, \"N시간+ running 이면 wedge\" 류의 모니터, 사용자가 \"자꾸 이상 감지 알림이 온다\"고 할 때, 대기 큐가 있는 시스템의 알림 튜닝.",
+    "version": "0.0.0",
+    "category": "uncategorized",
+    "task_types": [],
+    "executor": "claude_code"
+  },
+  {
+    "name": "walk-forward-protocol-fingerprint-mismatch",
+    "path": "skills/walk-forward-protocol-fingerprint-mismatch",
+    "description": "When a reproduced backtest / benchmark differs from a stored result, the first hypothesis should be \"did I match the execution protocol?\" not \"did the code regress?\". Walk-forward params (train/test/step, start/end) are typically CLI args — not part of config_hash. Fingerprint via stored fold count / sample count before suspecting code or data drift.",
+    "version": "1.0.0",
+    "category": "trap",
+    "task_types": [
+      "measurement",
+      "debugging",
+      "reproduction"
+    ],
+    "executor": "claude_code"
+  },
+  {
     "name": "writing-plans",
     "path": "skills/writing-plans",
     "description": "Use when you have a spec or requirements for a multi-step task, before touching code",
@@ -762,15 +1739,16 @@
     "executor": "claude_code"
   },
   {
-    "name": "the-precedent-you-found-may-be-an-exception-entry",
-    "path": "skills/the-precedent-you-found-may-be-an-exception-entry",
-    "description": "기존 코드가 X 를 한다고 X 가 허용된 패턴인 건 아니다 — 그 줄이 ignore_imports / noqa / allowlist 에 등록된 위반일 수 있다. 호출 지점에서 선례와 예외는 똑같이 생겼다. 설계를 세우기 전에 예외 목록을 grep 하라.",
+    "name": "zsh-word-splitting-fails-the-edit-and-the-grep-that-checks-it",
+    "path": "skills/zsh-word-splitting-fails-the-edit-and-the-grep-that-checks-it",
+    "description": "zsh 는 `$var` 를 단어 분할하지 않는다 — `FILES=$(find ...)` 뒤 `sed ... $FILES` 는 목록 전체를 **파일명 하나**로 넘겨 15개 치환이 전부 실패한다. 진짜 위험은 실패 자체가 아니라, 바로 뒤 검증 `grep ... $FILES` 가 **같은 관용구를 공유해 함께 죽는 것**이다: 편집도 안 되고 검증도 \"잔여 없음\"처럼 보인다. 배열 `FILES=(...)` + `\"${FILES[@]}\"` 를 쓰고, 검증은 편집과 **다른 방식으로 대상을 지정**하라. 트리거 - zsh 에서 여러 파일 일괄 치환, `$(find)`/`$(grep -l)` 결과를 명령에 전달, 치환 후 grep 으로 확인, \"No such file or directory\" 에 목록 전체가 찍힐 때.",
     "version": "1.0.0",
     "category": "trap",
     "task_types": [
-      "design",
-      "implementation",
-      "investigation"
-    ]
+      "refactor",
+      "devops",
+      "debugging"
+    ],
+    "executor": "claude_code"
   }
 ]
