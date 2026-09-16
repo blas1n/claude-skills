@@ -1,17 +1,5 @@
 [
   {
-    "name": "a-background-only-hang-may-be-an-os-consent-prompt",
-    "path": "skills/a-background-only-hang-may-be-an-os-consent-prompt",
-    "description": "데몬·launchd·systemd·CI 러너에서만 나는 행(hang)을 셸에서 replay 하면 영원히 성공한다 — argv 도 env 도 cwd 도 같은데. 그때 남은 변수는 '누가 띄웠는가' 하나뿐이고, macOS 라면 TCC 동의 프롬프트가 답할 세션 없이 영구 pending 된 것일 수 있다. 프로세스는 살아 있고, 소켓은 0개고, openat 에서 100% 블록한다. 트리거 - '백그라운드에서만 재현된다', 셸 replay 가 계속 성공, 출력이 단 한 줄도 없는 타임아웃, 서명 없는 런처(uv/homebrew/nvm)로 띄운 launchd 잡.",
-    "version": "1.0.0",
-    "category": "trap",
-    "task_types": [
-      "debugging",
-      "ops"
-    ],
-    "executor": "claude_code"
-  },
-  {
     "name": "a-check-that-cannot-flip-is-not-measuring-anything",
     "path": "skills/a-check-that-cannot-flip-is-not-measuring-anything",
     "description": "테스트가 아닌 검사 — 부재 가드 · 완료 감지기 · 문서 전체를 훑는 단언 — 은 RED 를 먼저 보는 습관이 없어서, **구조상 한쪽 판정만 낼 수 있는 채로** 배포된다. 초록이면 \"결함 없음\"이 아니라 \"빨개질 수 없음\"이고, 타임아웃이면 \"전파 안 됨\"이 아니라 \"성공을 감지할 수 없음\"이다. 검사마다 **반대 판정을 한 번 강제로 보라.** 트리거 - `until`/폴링 대기 루프, 삭제 PR 의 부재 가드, dict/응답을 문자열로 합쳐 매칭하는 단언, `$(cmd || echo 0)`, \"왜 계속 타임아웃이지\", 고치기 전인데 통과하는 테스트.",
@@ -1405,6 +1393,19 @@
     "task_types": [
       "devops",
       "design"
+    ],
+    "executor": "claude_code"
+  },
+  {
+    "name": "same-second-correlation-is-not-cause-remove-the-condition",
+    "path": "skills/same-second-correlation-is-not-cause-remove-the-condition",
+    "description": "행·크래시·타임아웃을 추적하다 시스템 로그에서 '같은 초에' 일어난 사건을 찾으면 그게 원인처럼 읽힌다 — 두 번 반복되면 확신이 된다. 하지만 확정은 '그 조건을 없애면 증상이 사라지는가'로만 온다. 그 제거 실험이 대개 코드 0줄·10분인데도, 하기 전에 '원인 확정'이라고 쓰게 된다. 트리거 - 시스템 로그에서 타임스탬프가 일치하는 이벤트 발견, '이게 원인이다' 라고 쓰기 직전, 설정 하나로 조건을 없앨 수 있는데 안 해봤을 때, 같은 이슈에서 가설이 연달아 틀렸을 때.",
+    "version": "1.0.0",
+    "category": "trap",
+    "task_types": [
+      "debugging",
+      "ops",
+      "review"
     ],
     "executor": "claude_code"
   },
