@@ -210,6 +210,25 @@ assert executed == [task_id], f"두 번 실행됨: {executed}"
 `ensure_future` · `TaskGroup` 을 쓰는 테스트는 **반대 판정을 한 번 강제로 보기
 전까지 믿지 마라.**
 
+## 경계는 시간이 아니라 사건으로 잘라라 — `tail -N` 으로 "이후"를 세지 마라
+
+배포 후 *"새 로그에 ANSI 이스케이프가 없다"* 를 확인하려고 `tail -300 | grep -c` 를
+돌렸더니 **190** 이 나왔다. 전부 **재기동 이전** 줄이었다 — 새 형식은 아직 11줄뿐이라
+`tail -300` 이 옛 형식 289줄을 같이 퍼 온 것이다. 하마터면 성공한 배포를 실패로
+읽을 뻔했다.
+
+⇒ *"변경 이후"* 를 재는 검사는 **줄 수·시간이 아니라 사건**으로 잘라야 한다:
+
+```python
+lines = open(log).read().split("\n")
+idx = max(i for i, l in enumerate(lines) if "worker_starting" in l)  # 경계 마커
+post = lines[idx:]                                                   # 이후만
+```
+
+같은 모양: `--since 10m` 이 재시작 시각과 안 맞을 때, `head -N` 으로 "처음"을 셀 때,
+로그 로테이션 직후, 그리고 **옛 데이터가 새 데이터보다 훨씬 많을 때**(거의 항상).
+**신호**: 기대값이 0인데 큰 수가 나오고, 그 수가 *대략 N* 이다.
+
 ## Related
 
 - [[absence-guard-listing-spellings-proves-only-imagination]] — 부재 가드가 축을 놓치는 쪽
@@ -218,3 +237,4 @@ assert executed == [task_id], f"두 번 실행됨: {executed}"
 - [[a-cut-that-does-not-compile-is-not-a-wire-cut]] — 반대 판정을 강제할 때 그 절단 자체가 유효해야 한다
 - [[piped-gate-masks-exit-code]] — 파이프 뒤 `$?` 가 다른 명령 것인 사촌 함정
 - [[a-guard-on-the-shared-function-proves-nothing-about-its-call-sites]] — 빨개질 수는 있는데 **엉뚱한 홉**에 놓인 쪽
+- [[a-rejection-records-a-verdict-but-the-reason-is-what-expires]] — 검사가 아니라 **결론**이 조용히 거짓이 되는 쪽
