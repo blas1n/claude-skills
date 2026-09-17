@@ -280,6 +280,29 @@ was load-bearing.
 the environment the smoke test builds is precisely the one where that
 statement does nothing.
 
+## 이름을 틀려도 SQLite 는 전부 초록이다 — 마이그레이션의 테이블 이름
+
+가장 싸고 가장 안 잡히는 실패는 DDL 문법이 아니라 **대상 이름**이다.
+
+```python
+op.add_column("workers", sa.Column("protocol_version", sa.Integer(), ...))
+#             ^^^^^^^^^ 실제 테이블은 executor_workers
+```
+
+유닛 스위트는 **한 건도 안 빨개진다.** `Base.metadata.create_all` 은 ORM 의
+`__tablename__` 을 보고 만들고, **마이그레이션 파일은 읽지도 않는다.** 그래서
+모델 쪽 컬럼은 정상 동작하고, 틀린 건 오직 진짜 PG 에 DDL 을 칠 때 드러난다.
+
+덫이 깊어지는 조건: **그 "당연해 보이는" 이름의 테이블이 과거에 실제로 있었다가
+삭제된 경우.** 실측 사례에서 `workers` 는 0행인 채 `drop_dead_worker_tables`
+(2026-08-21)로 지워졌고 진짜 SoT 는 `executor_workers` 였다. git 로그·옛 코드·
+내 기억 전부가 틀린 이름을 지지한다.
+
+⇒ **컬럼을 추가하기 전에 `grep -n '__tablename__' <models.py>` 를 한 번 쳐라.**
+모델이 유일한 진실이고, 그걸 확인하는 데 3초 걸린다. 그리고 fresh-PG 스모크가
+이 부류를 **전량** 잡는 유일한 게이트다 — 이 실수는 PR 리뷰에서도 잘 안 보인다
+(틀린 이름이 그럴듯하기 때문에).
+
 ### Related
 
 * `the-branch-behind-a-human-gate-was-never-run` — same shape, different gate:

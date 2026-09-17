@@ -184,6 +184,32 @@ policy)는 전부 이 모양이다.** "통과"는 **"내가 가진 규칙을 어
 - dict/JSON 을 `" ".join(...)` · `str(...)` · `json.dumps(...)` 로 합쳐 `in` 으로 단언
 - 픽스처 값이 그 자료구조의 **다른 곳에도** 나타나는 흔한 수(30, 1, 0, "test")
 
+## asyncio — 단언이 일이 일어나기 *전에* 돈다
+
+`asyncio.create_task()` 로 띄운 일에 대해 단언하는 테스트는, 루프에 제어를 한 번도
+안 넘기면 **그 일이 일어날 기회 자체가 없다.** 그래서 "중복 실행이 없다" 같은
+단언은 구현이 무엇을 하든 통과한다.
+
+```python
+in_flight = await run_once(...)        # 내부에서 create_task 만 하고 리턴
+assert executed == [task_id]           # ← 아직 아무것도 안 돌았다. 항상 통과
+```
+
+고치는 법은 단언 전에 **명시적으로 양보**하는 것:
+
+```python
+await asyncio.sleep(0)                 # 래퍼 Task 스케줄
+await asyncio.sleep(0)                 # 그 안의 첫 await 까지
+assert executed == [task_id], f"두 번 실행됨: {executed}"
+```
+
+실측에서 이 한 줄을 넣자마자 같은 테스트가 **`executed twice`** 로 빨개졌다 —
+즉 그 전까지는 실재하는 결함 위에서 초록이었다.
+
+⇒ **신호**: 동시성 테스트가 *고치기 전부터* 통과한다. `create_task` ·
+`ensure_future` · `TaskGroup` 을 쓰는 테스트는 **반대 판정을 한 번 강제로 보기
+전까지 믿지 마라.**
+
 ## Related
 
 - [[absence-guard-listing-spellings-proves-only-imagination]] — 부재 가드가 축을 놓치는 쪽
@@ -191,3 +217,4 @@ policy)는 전부 이 모양이다.** "통과"는 **"내가 가진 규칙을 어
 - [[a-failed-read-degraded-to-empty-becomes-a-measurement]] — 실패를 기본값으로 접는 것의 원형
 - [[a-cut-that-does-not-compile-is-not-a-wire-cut]] — 반대 판정을 강제할 때 그 절단 자체가 유효해야 한다
 - [[piped-gate-masks-exit-code]] — 파이프 뒤 `$?` 가 다른 명령 것인 사촌 함정
+- [[a-guard-on-the-shared-function-proves-nothing-about-its-call-sites]] — 빨개질 수는 있는데 **엉뚱한 홉**에 놓인 쪽
