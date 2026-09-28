@@ -87,6 +87,10 @@ grep -c GATE_COMPLETE /tmp/gate.log                        # 끝까지 돌았는
 
 [[cwd-resets-across-a-background-task-boundary]] 가 같은 게이트에서 나온 짝 함정이다.
 
+## Case: "Failed to spawn" 도 삼킨다 (2026-09-28, hpgg)
+
+`uv run mypy collector/ | tail -1 && uv run pytest … | tail -2 && cd web && …` — mypy·pytest 둘 다 **실행조차 못 했는데**(`Failed to spawn`, 원인은 [[renamed-project-dir-breaks-venv-shebangs]]) 체인은 web 게이트까지 흘러가 "초록"처럼 보였다. 실패한 줄을 눈으로 읽어서 잡았다. 도구가 "안 돌았다"는 것도 실패다 — 파이프 없이 `; echo "exit=$?"` 를 붙여라.
+
 ## Red Flags
 
 - 로컬 게이트는 green인데 CI만 빨갛다 (특히 lint/format처럼 결정론적인 단계).
