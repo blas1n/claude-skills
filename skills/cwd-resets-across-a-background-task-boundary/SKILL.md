@@ -75,3 +75,8 @@ git -C .../main         status --short     # 여기가 비어 있어야 정상
 - [[piped-gate-masks-exit-code]] — 같은 백그라운드 게이트에서 나온 짝 함정.
   완료 알림의 "exit code 0" 은 체인 **마지막** 명령의 것이다.
 - [[orchestrate-worktree]] · [[agent-executor-host-cwd-leak]] — cwd 가 새는 다른 층.
+
+## Case (2026-09-28, hotsmeta): `until [ -f dist/index.html ]` waited forever
+
+- A background Bash started with `cd web && until [ -f dist/hero.html ]; do sleep 2; done; npx vite preview …`. The `cd` did not survive the background boundary, the relative path never resolved, the loop spun until the timeout, and the port stayed dark while a stale 404 server answered on it.
+- Sensor: a "wait for file" loop that outlives the build it waits for. Fix: absolute paths in every background command, or `until [ -f /abs/path ]`, and `lsof -ti :PORT | xargs kill` before starting a preview so a stale process cannot answer for the new one.
