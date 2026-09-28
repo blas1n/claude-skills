@@ -34,6 +34,12 @@ UI 전면 개편 + 프레임워크 이전을 한 PR 에서 하면 모든 페이�
 5. `distDir` 을 주면 `output: "export"` 결과가 그 폴더로 간다 (기존 CI 의 `web/dist` 경로 유지 가능). 데이터 폴더는 빌드 전 스크립트로 `public/` 에 복사(gitignore)하고 점 파일(로그)은 필터.
 6. e2e 는 `next start` 가 아니라 **Pages 의미론 정적 서버**(디렉터리→index.html, 없으면 404.html + 404)로 돌려야 404·trailing slash 가 실제와 같다.
 
+7. **`distDir` 을 export 폴더로 바꾸면 `next dev` 도 그 폴더를 쓴다.** 개발 서버가 떠 있는 동안 `next build` 를 돌리면 서로의 청크를 덮어써서, 나중에 폰에서 `Cannot find module './249.js'` (webpack-runtime / _document) 런타임 에러가 뜬다. 설정을 함수로 만들어 dev 는 `.next` 로 분리하고, 이미 꼬였으면 `rm -rf .next` 후 재시작.
+   ```ts
+   export default (phase: string) => ({ distDir: phase === PHASE_DEVELOPMENT_SERVER ? ".next" : (process.env.NEXT_DIST_DIR ?? "dist"), ... });
+   ```
+8. **e2e 가 `public/` 을 픽스처로 덮어쓰면** 떠 있는 개발 서버가 테스트 데이터를 서빙한다. e2e 스크립트 끝에서 실데이터를 되돌려라 (`playwright test; s=$?; node scripts/sync-data.mjs; exit $s`).
+
 ## Key Insights
 
 - 셋 다 에러가 없다. 신호는 **스크린샷**(새 컴포넌트에 없는 테두리)과 **`ls dist`**(모르는 폴더) 뿐이다 — 이전 직후 둘 다 눈으로 봐라.
