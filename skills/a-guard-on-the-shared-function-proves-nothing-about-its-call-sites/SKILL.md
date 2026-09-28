@@ -59,3 +59,21 @@ assert spy.calls[0]["timeout_s"] == 120.0   # 원래 예산이 아니라 남은 
   추가했다면 *그 파라미터의 의미*를 지키는 테스트와, *호출자가 그걸 옳게 채우는지*
   지키는 테스트가 **각각** 필요하다.
 - 같은 모양: mock 이 배선을 가리는 것, 미러된 표면이 덜 테스트되는 쪽으로 갈라지는 것.
+
+## Case: a guard written for one consumer of the data (hpgg, 2026-09-29)
+
+Same shape, one level up — not one function with N callers, but **one data file with N consumers**, and the
+guard lived inside one consumer.
+
+- `sameCohort` refused previous-patch bracket files of another definition — but only for **▲▼ deltas**. The
+  **display** path trusted the file name: after the patch rotation moved the old `[1,2]` file into `previous/`,
+  the tier table's fallback showed it under 브론즈 – 플래티넘 `[1-4]`.
+- The thin-sample fallback to the previous patch was a **tier-page feature**. 홈 / 영웅 / 영웅 상세 read the
+  current file directly — invisible for weeks, then on patch day 홈 rendered empty.
+- Neither showed up in any test: the fixture was never thin and its bracket files had `league_tier: null`.
+
+**How to apply:** when a rule is about the *data* (which patch is shown, which cohort a file is), put it where
+the data is read (`pickShown` / `readShown`), not in the page that noticed first — then every consumer gets it by
+construction. And make the fixture able to express the dangerous state (thin meta, old-definition file), or the
+suite is green exactly on the day it matters. Sensor: build against a copy of the real broken data and count
+(role cards, tier badges) — then wire-cut the guard at each call site and see the bug come back.
