@@ -81,3 +81,15 @@ cache = root / "risk_factors" / ITEM_1A_PARSER_VERSION / f"{cik}_{accession}.txt
 - 캐시 디렉터리의 mtime 이 대부분 **몇 달 전 한 시점**에 몰려 있다.
 - 백테스트와 라이브가 같은 파생 캐시를 공유한다(수정이 한쪽에만 도달할 수 있다).
 - "테스트는 통과하는데 실제로 바뀌었는지 확인할 방법이 없네"라고 생각한 순간.
+
+## Case: a TTL cache hides the fix for one TTL — and a "fresh" hit looks like a broken deploy (hpgg, 2026-10-01)
+
+The cache had a 6 h TTL, so "it heals itself" felt safe. But right after deploying a new row field (`award`), the
+live check showed no badges: the API served the list normalised at 07:26 by the old code as a *fresh* hit. Tests,
+CI and deploy were green; only a live read of the row (`'award' in matches[0]` → False, `fetched_at` before the
+deploy) showed it. A TTL bounds how long a parser fix is invisible, it doesn't remove it — and the first person to
+look after a deploy reads it as a broken release.
+
+**Fix used**: stamp the cached body with a format version (`ROWS_VERSION`); a different version is not fresh (refetch),
+but may still be served as *stale* when the upstream can't be asked. Bump it whenever a row gains or changes a field.
+Sensor after deploy: read one live row for the new field, and compare its `fetched_at` with the deploy time.
