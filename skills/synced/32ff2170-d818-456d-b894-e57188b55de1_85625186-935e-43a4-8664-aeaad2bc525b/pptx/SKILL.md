@@ -95,6 +95,15 @@ When filling in a template:
 - Let bullets inherit from the layout; only add `<a:buChar>`, `<a:buAutoNum>` (numbered), or `<a:buNone>` to override — never a literal `•` in the text.
 - Text with leading or trailing spaces needs `xml:space="preserve"` on its `<a:t>`.
 
+## Deck content and flow
+
+- **One message per slide.** A deck goes theme by theme, message by message.
+- **A common structure is the pyramid:** the main message up front, an executive summary that previews the sections, the sections themselves, then a conclusion, usually with next steps that act on the findings.
+- **Match the structure to the size of the deck.** A short deck might not need an introduction and a conclusion; a long deck might need dividers between topics.
+- **Build toward what the deck is for:** a decision, consensus, a celebration, resolving a disagreement, or opening a discussion.
+- **Build for how it will be used.** A live deck gets narration and possibly discussion; a pre-read has to carry the whole narrative itself. An executive audience in a live meeting needs few words and highly visual slides. Detailed, word-heavy slides are sometimes right for subject-matter experts or for a deck read offline. Analytical reports lean on charts and tables.
+- **Size a live deck to the talk:** about 1.5 to 2 minutes per slide, with time left for questions if there will be any.
+
 ## Design Ideas
 
 **Don't create boring slides.** Plain bullets on a white background won't impress anyone. Consider ideas from this list for each slide.
@@ -168,6 +177,9 @@ Choose colors that match your topic — don't default to generic blue. Use these
 ### Avoid (Common Mistakes)
 
 - **Don't repeat the same layout** — vary columns, cards, and callouts across slides
+- **Don't end a slide title with a period**
+- **Don't let titles drift between slides of the same type** — content slides with the title at the top put it at the same position, font, size, and alignment on every slide; a different slide type (a section divider with the title mid-slide) can place it differently
+- **Don't change how chart labels look from chart to chart** — axis and data labels use the same color, font, and size on every chart in the deck; vary one only where a chart needs it (a second axis, a highlighted series, a label sitting on a dark bar)
 - **Don't center body text** — left-align paragraphs and lists; center only titles
 - **Don't skimp on size contrast** — titles need 36pt+ to stand out from 14-16pt body
 - **Don't default to blue** — pick colors that reflect the specific topic
@@ -179,13 +191,13 @@ Choose colors that match your topic — don't default to generic blue. Use these
 - **NEVER use accent lines under titles** — these are a hallmark of AI-generated slides; use whitespace or background color instead
 - **NEVER add decorative color bars or accent stripes** — this includes: header/footer bars spanning the slide width, vertical sidebar stripes down one edge of the slide, thin accent stripes along one edge of a card or content block, and "single-side borders" on rectangles. These read as AI-generated filler. If you want to set a card apart, use a subtle background tint, a drop shadow, or an icon — not an edge stripe.
 - **Don't default to cream/beige backgrounds** — when no background is specified, use white (`FFFFFF`) or the user's brand palette; avoid warm-neutral defaults like `F5F5DC`, `FAF0E6`, `FAEBD7`, `FFF8E1`
-- **Don't ship text that overflows its shape** — if text doesn't fit, reduce font size, split across slides, or enlarge the container; never leave content cut off or spilling past bounds
+- **Don't ship text that overflows its shape** — if text doesn't fit, reduce font size, split across slides, or enlarge the container; never leave content cut off or spilling past bounds. **Don't shrink below the sizes in the Typography table** (body text 14pt, captions 10pt) in a deck you create — once you reach that floor, cut words, enlarge the container, or split the slide instead; when editing an existing deck or template, match its sizes
 
 ## QA (Required)
 
 Your first render usually has a few real issues — overlaps, overflow, misalignment. Find and fix those, re-render only the slides you changed, and stop.
 
-### Content QA
+### Content QA (required)
 
 ```bash
 markitdown output.pptx
@@ -219,7 +231,7 @@ pptxgenjs emits chart XML PowerPoint refuses to open, and every other tool
 accepts: python-pptx opens those decks, LibreOffice renders them, the XSD
 passes them. Every failure names its fix. Fix it in the generator and rebuild.
 
-### Visual QA
+### Visual QA (required)
 
 Convert the slides to images (see [Converting to Images](#converting-to-images)) and inspect every one. After staring at the generating code you tend to see what you expect rather than what rendered, so look at the images fresh (a subagent works well for this if you have one). User-visible defects to look for:
 
@@ -234,6 +246,8 @@ Convert the slides to images (see [Converting to Images](#converting-to-images))
 - Template decoration mispositioned after text replacement — e.g., a title underline positioned for one line, but the replaced title wrapped to two
 - Low-contrast icons (e.g., dark icons on dark backgrounds without a contrasting circle)
 - Text boxes too narrow causing excessive wrapping
+- Titles at different heights, or chart labels that look different from chart to chart, across slides of the same type — compare slides with each other, not only each slide with itself
+- A word or number broken across two lines — a word split mid-word, or a figure separated from its unit ("26" on one line, "M" on the next)
 - Leftover placeholder content
 
 ## Converting to Images
