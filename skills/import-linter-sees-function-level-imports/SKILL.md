@@ -87,3 +87,17 @@ async def product_runs_in_place(session, product_id) -> bool:
 - 계약 위반 경로의 줄 번호가 모듈 상단이 아니다
 - `# noqa: PLC0415` 를 새로 달았다(= 지연 import 를 추가했다)
 - 레이어 경계를 넘는 이유가 "불리언 하나 알아내려고"다
+
+## 사례: 상수 하나를 import 했는데 다른 컨텍스트의 계약이 깨진다 (bsvibe #929, 2026-10-20)
+
+`run_cleanup.py` 에 `from ...run_checkpoint import CHECKPOINT_KEY` (문자열 상수 하나)를 추가했다.
+`run_cleanup` 자체의 계약은 멀쩡했지만, **`run_cleanup` 을 import 하는 `backend.mcp`** 의 forbidden
+계약이 깨졌다: `mcp -> run_cleanup -> run_checkpoint -> account_resolution -> router/api/...`.
+
+- **교훈 1**: 계약은 *import 하는 쪽*에서 깨진다. 내가 고친 모듈을 누가 import 하는지
+  (`grep -rn "import <module>" backend`) 확인하라. 무거운 정책 모듈에 정의된 상수 하나가 그 모듈의
+  전체 의존 그래프를 끌고 온다.
+- **처방**: 상수/타입을 의존 없는 리프(`domain/`)로 옮기고, 원래 모듈은 리프에서 re-import 한다.
+- **교훈 2**: 검증 체인에서 `lint-imports | tail -1` 을 `&&` 로 엮지 마라. 파이프의 종료 코드는
+  `tail` 의 것이라 실패가 묻히고, 백그라운드 실행 결과에선 마지막 pytest 줄만 보게 된다.
+  `lint-imports` 는 단독으로 돌리고 `Contracts: N kept, 0 broken` 을 직접 확인한다.
