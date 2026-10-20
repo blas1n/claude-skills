@@ -258,6 +258,14 @@ it with something only that page renders.
 
 ---
 
+## 2b. SVG `fill:none` Shape = Stroke-Only Click Target
+
+**Symptom**: `locator.click()` on an SVG `<g role=button>` times out; log says `<svg …> intercepts pointer events` although the element is "visible, enabled and stable".
+
+**Cause**: Playwright clicks the centre of the element's bounding box. A hollow shape (`fill="none"`) only receives pointer events on its stroke, and a `<g>` with a text label has a bbox whose centre is empty space — so the parent `<svg>` gets the click. This is a **real usability bug**: users also miss the hollow marker.
+
+**Fix**: give the shape a faint fill (`fill=<color>` + `fill-opacity:0.18`) or `pointer-events="all"`, and click the shape itself in the test (`g.locator('rect').click()`), not the group. Don't paper over it with `{force:true}`.
+
 ## 3. API-Based E2E (Devcontainer-Friendly)
 
 When browser tests aren't feasible, use API client pattern:
