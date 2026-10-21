@@ -1751,5 +1751,10 @@
       "debugging"
     ],
     "executor": "claude_code"
+  },
+  {
+    "name": "a-blind-evaluator-packet-erases-and-leaks-through-its-own-fields",
+    "path": "skills/a-blind-evaluator-packet-erases-and-leaks-through-its-own-fields",
+    "description": "블라인드(결과 비공개) LLM 평가 패킷은 행동 요약 필터로 증거를 지우고, 메타데이터 필드(샘플 유형·트리거 원본 필드)로 결과를 흘린다. 원자료 병기, 화이트리스트 투영·유형 마스킹, 패킷 변경 시 재평가(바이트 대조), 부분 레지스트리의 증거 없음은 unknown."
   }
 ]
