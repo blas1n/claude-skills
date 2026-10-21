@@ -228,3 +228,4 @@ Total: 177 skills.
 
 - **`/failure-duration-names-the-timeout-that-caused-it`** — 실패까지 걸린 시간을 코드베이스의 타임아웃 상수들과 대조하라. 합이 맞으면 로직 버그가 아니라 두 층이 서로를 기다리다 죽은 것이고, 범인은 응답하지 않은 쪽이다.
 - **`/a-blind-evaluator-packet-erases-and-leaks-through-its-own-fields`** — 블라인드 LLM 평가 패킷이 요약 필터로 증거를 지우고 메타데이터로 결과를 흘리는 함정과 대응.
+- **`/an-evaluation-matcher-bug-looks-like-a-model-error`** — 라벨 대조 채점기의 짝짓기 버그가 모델 오류처럼 보이는 함정.
