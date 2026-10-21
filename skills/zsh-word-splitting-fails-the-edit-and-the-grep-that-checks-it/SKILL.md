@@ -121,3 +121,12 @@ echo "=== 잔여 ===";   grep -rn  'old-pattern' --include="*.md" .
 - `a-check-that-cannot-flip-is-not-measuring-anything` — 검사가 구조상 한쪽 판정만 낼 수 있는 경우. 이 스킬은 그 원인이 **검사와 작업의 공유 관용구**인 변종이다
 - `bulk-code-transform-costs-more-than-it-saves` — 일괄 변환 자체의 손익
 - `piped-gate-masks-exit-code` — 파이프가 실패를 가리는 형제 함정
+
+## Case 2 (2026-10-21): 선택적 플래그 변수 + `>` 리디렉트 = 빈 결과 파일
+
+```zsh
+ag=""; [ cond ] && ag="--agreement labels/B"
+python3 compare.py ... $ag > results/metrics.json   # ❌ zsh: "--agreement labels/B" 가 인자 하나
+```
+
+argparse 가 `unrecognized arguments` 로 죽지만 stderr 는 루프 출력에 묻히고, `>` 가 이미 파일을 만들었으므로 **0바이트 결과 파일**이 남는다. 다음 단계(json.load)에서야 `Expecting value` 로 터진다. 선택적 플래그는 배열(`ag=(--agreement labels/B)`; `"${ag[@]}"`)이나 `${=ag}` 로 넘기고, 루프 뒤 결과 파일 크기를 확인하라.
