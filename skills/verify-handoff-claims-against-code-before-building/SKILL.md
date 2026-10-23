@@ -216,3 +216,8 @@ diagnoses ("it fabricates checks", "it ran 3 of my 5") for one simple mechanical
 - Successive sessions produce *different* explanations for the same symptom. Stop explaining and go
   read the one place the value is transformed.
 - The question's key noun does not appear in the schema, the types, or any non-test caller.
+
+사례 추가 (2026-10-23, hots PR #30): 앞 PR 보고서가 회귀 사례 gt12를 "이동 없는 선택(제자리 교전)"으로 분류해 넘겼다.
+규칙을 그 사례에 맞추기 전에 원시 명령 타임라인을 찍어 보니, 실제로는 6초 동안 약 45 거리를 서서히 옮겨 간 **점진적 이동**
+(한 번에 20 이상 바뀐 클릭이 없어 이동 탐지기도 못 잡음)이었다. 넘겨받은 사례 라벨도 주장이다 — 그 사례를 맞추는 규칙을
+쓰기 전에 원자료로 라벨의 전제를 확인하라. 안 그랬으면 "지속" 규칙을 이동 사례에 맞춰 넓혔을 것이다.
