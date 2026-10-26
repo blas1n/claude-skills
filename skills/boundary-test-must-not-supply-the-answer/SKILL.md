@@ -136,3 +136,12 @@ When writing or reviewing a boundary test:
 - `absence-measurement-validity-check` — before concluding "X = 0", check the producer runs
 - `capability-guard-must-assert-presence` — guards that check only for the forbidden miss zero-capability
 - `half-wired-subsystem-audit` — the visible half ships, the invisible half never gets wired
+
+## Case: a hand-built webhook payload passes; the real parser's shape fails (bsvibe-app #1244)
+
+Code that reads a request payload for "the issue body and trusted comments" was tested with a
+payload the test constructed — including a `comments: [...]` list the GitHub webhook never sends.
+In prod a comment-started run would have had no issue body in its ledger at all. Fix: build the
+payload with the **production parser** (`plugin.github.webhook.parse_webhook(headers, raw_body,
+secret)`) from a raw webhook body shaped like GitHub's, so the test cannot supply a field the
+real producer does not. Rule: when a test needs "what the upstream hands us", call the upstream.

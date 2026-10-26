@@ -196,3 +196,19 @@ grep -rn "X(" backend/ | grep -v tests   # ① 프로덕션 생성 지점이 0�
 
 **Detection**: 감사/리뷰가 한 줄짜리 처방을 제시했다 · 처방의 대상 심볼이 테스트에서만 생성된다 ·
 "이 인자만 넘기면 된다"인데 타입이 안 맞는다 · 소비자가 `asyncio.gather` / parallelism 설정을 갖고 있다
+
+## Case: an agent-written change, green twice, with zero production callers (bsvibe-app #1244, 2026-10-26)
+
+A coding agent (BSVibe run) built a "requirements ledger": extraction, evidence grounding, a gate
+verdict, PR-body rendering — and its own verification passed. Review counted production callers of
+each new public function: `record_requirements` (build at framing) **0**, `evaluate_requirements`
+(gate) **0**; only the PR-body renderer was called. Its tests called the functions directly, so
+they were green while prod would never build or check a ledger. Round 2 wired it — and read a
+webhook field that does not exist (a `comments` list; GitHub sends `issue.comments` as a count),
+with a test that hand-built that field (see `boundary-test-must-not-supply-the-answer`).
+
+**Sensor, before reading any logic of an agent-written diff:** for every new public function,
+`awk '/^diff --git/{f=$3} /^\+.*\bNAME\(/ && !/def NAME/{print f}' change.diff` — callers outside
+`tests/` must exist at each end of the pipeline (where it is produced, where it is enforced,
+where it is shown). Then cut each of those edges once and watch a test that goes through the
+real entry point (`drive_once`, `VerificationService.verify`) turn red.
