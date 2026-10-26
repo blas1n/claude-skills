@@ -32,3 +32,7 @@ description: 관측점 사이 위치/값을 고정 격자(step)로 샘플링해 
 
 - [[a-check-that-cannot-flip-is-not-measuring-anything]]
 - [[keep-previous-data-mixes-two-views-facts]]
+
+## Case: "no line across a gap" checked at the gap's middle cannot fail (2026-10-26, PR #38 follow-up)
+
+최근 경로(trail)가 30초 공백·불연속 이동을 가로지르지 않는지 공백 **중간** 시각에서 검사했더니, 경로를 구간과 무관하게 한 줄로 잇도록 망가뜨려도 초록이었다. 중간 시각에는 공백 **뒤** 점이 아직 "과거"가 아니라 경로에 들어올 수 없기 때문이다. 잘못된 연결은 공백 **직후**(끝+2초)에만 보인다 → 두 시각을 모두 검사하자 망가뜨린 버전에서 RED. 또 실제 데이터의 불연속 공백은 전부 1초 미만(돌진)이라 "공백 중 마커 0개"는 틀린 단언이었다: ±tol 안의 양쪽 실제 관측은 정당하다. 단언은 "마커가 있다면 그 공백 양끝 관측 id 중 하나, 추정은 없음"으로.
