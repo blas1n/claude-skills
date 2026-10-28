@@ -389,7 +389,7 @@ After creating your evaluation file, you can use the provided evaluation harness
 
    Or install manually:
    ```bash
-   pip install anthropic mcp
+   pip install anthropic "mcp>=1.8.0,<2"
    ```
 
 2. **Set API Key**
@@ -428,22 +428,20 @@ The evaluation script (`scripts/evaluation.py`) supports three transport types:
 For locally-run MCP servers (script launches the server automatically):
 
 ```bash
-python scripts/evaluation.py \
+python scripts/evaluation.py evaluation.xml \
   -t stdio \
   -c python \
-  -a my_mcp_server.py \
-  evaluation.xml
+  -a my_mcp_server.py
 ```
 
 With environment variables:
 ```bash
-python scripts/evaluation.py \
+python scripts/evaluation.py evaluation.xml \
   -t stdio \
   -c python \
   -a my_mcp_server.py \
   -e API_KEY=abc123 \
-  -e DEBUG=true \
-  evaluation.xml
+  -e DEBUG=true
 ```
 
 ### 2. Server-Sent Events (SSE)
@@ -451,12 +449,11 @@ python scripts/evaluation.py \
 For SSE-based MCP servers (you must start the server first):
 
 ```bash
-python scripts/evaluation.py \
+python scripts/evaluation.py evaluation.xml \
   -t sse \
   -u https://example.com/mcp \
   -H "Authorization: Bearer token123" \
-  -H "X-Custom-Header: value" \
-  evaluation.xml
+  -H "X-Custom-Header: value"
 ```
 
 ### 3. HTTP (Streamable HTTP)
@@ -464,11 +461,10 @@ python scripts/evaluation.py \
 For HTTP-based MCP servers (you must start the server first):
 
 ```bash
-python scripts/evaluation.py \
+python scripts/evaluation.py evaluation.xml \
   -t http \
   -u https://example.com/mcp \
-  -H "Authorization: Bearer token123" \
-  evaluation.xml
+  -H "Authorization: Bearer token123"
 ```
 
 ## Command-Line Options
@@ -480,12 +476,12 @@ usage: evaluation.py [-h] [-t {stdio,sse,http}] [-m MODEL] [-c COMMAND]
                      eval_file
 
 positional arguments:
-  eval_file             Path to evaluation XML file
+  eval_file             Path to evaluation XML file (put it first: -a, -e and -H take every value after them)
 
 optional arguments:
   -h, --help            Show help message
   -t, --transport       Transport type: stdio, sse, or http (default: stdio)
-  -m, --model           Claude model to use (default: claude-3-7-sonnet-20250219)
+  -m, --model           Claude model to use (default: claude-sonnet-5-5)
   -o, --output          Output file for report (default: print to stdout)
 
 stdio options:
@@ -519,12 +515,11 @@ The evaluation script generates a detailed report including:
 ### Save Report to File
 
 ```bash
-python scripts/evaluation.py \
+python scripts/evaluation.py evaluation.xml \
   -t stdio \
   -c python \
   -a my_server.py \
-  -o evaluation_report.md \
-  evaluation.xml
+  -o evaluation_report.md
 ```
 
 ## Complete Example Workflow
@@ -560,13 +555,12 @@ export ANTHROPIC_API_KEY=your_api_key
 3. **Run evaluation**:
 
 ```bash
-python scripts/evaluation.py \
+python scripts/evaluation.py my_evaluation.xml \
   -t stdio \
   -c python \
   -a github_mcp_server.py \
   -e GITHUB_TOKEN=ghp_xxx \
-  -o github_eval_report.md \
-  my_evaluation.xml
+  -o github_eval_report.md
 ```
 
 4. **Review the report** in `github_eval_report.md` to:
@@ -596,7 +590,7 @@ If many evaluations fail:
 ### Timeout Issues
 
 If tasks are timing out:
-- Use a more capable model (e.g., `claude-3-7-sonnet-20250219`)
+- Use a more capable model (e.g., `claude-opus-5-5`)
 - Check if tools are returning too much data
 - Verify pagination is working correctly
 - Consider simplifying complex questions

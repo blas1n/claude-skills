@@ -220,7 +220,7 @@ TASK_TEMPLATE = """
 async def run_evaluation(
     eval_path: Path,
     connection: Any,
-    model: str = "claude-3-7-sonnet-20250219",
+    model: str = "claude-sonnet-5-5",
 ) -> str:
     """Run evaluation with MCP server tools."""
     print("🚀 Starting Evaluation")
@@ -309,28 +309,28 @@ async def main():
         epilog="""
 Examples:
   # Evaluate a local stdio MCP server
-  python evaluation.py -t stdio -c python -a my_server.py eval.xml
+  python evaluation.py eval.xml -t stdio -c python -a my_server.py
 
   # Evaluate an SSE MCP server
-  python evaluation.py -t sse -u https://example.com/mcp -H "Authorization: Bearer token" eval.xml
+  python evaluation.py eval.xml -t sse -u https://example.com/mcp -H "Authorization: Bearer token"
 
   # Evaluate an HTTP MCP server with custom model
-  python evaluation.py -t http -u https://example.com/mcp -m claude-3-5-sonnet-20241022 eval.xml
+  python evaluation.py eval.xml -t http -u https://example.com/mcp -m claude-opus-5-5
         """,
     )
 
     parser.add_argument("eval_file", type=Path, help="Path to evaluation XML file")
     parser.add_argument("-t", "--transport", choices=["stdio", "sse", "http"], default="stdio", help="Transport type (default: stdio)")
-    parser.add_argument("-m", "--model", default="claude-3-7-sonnet-20250219", help="Claude model to use (default: claude-3-7-sonnet-20250219)")
+    parser.add_argument("-m", "--model", default="claude-sonnet-5-5", help="Claude model to use (default: claude-sonnet-5-5)")
 
     stdio_group = parser.add_argument_group("stdio options")
     stdio_group.add_argument("-c", "--command", help="Command to run MCP server (stdio only)")
     stdio_group.add_argument("-a", "--args", nargs="+", help="Arguments for the command (stdio only)")
-    stdio_group.add_argument("-e", "--env", nargs="+", help="Environment variables in KEY=VALUE format (stdio only)")
+    stdio_group.add_argument("-e", "--env", nargs="+", action="extend", help="Environment variables in KEY=VALUE format (stdio only)")
 
     remote_group = parser.add_argument_group("sse/http options")
     remote_group.add_argument("-u", "--url", help="MCP server URL (sse/http only)")
-    remote_group.add_argument("-H", "--header", nargs="+", dest="headers", help="HTTP headers in 'Key: Value' format (sse/http only)")
+    remote_group.add_argument("-H", "--header", nargs="+", action="extend", dest="headers", help="HTTP headers in 'Key: Value' format (sse/http only)")
 
     parser.add_argument("-o", "--output", type=Path, help="Output file for evaluation report (default: stdout)")
 
