@@ -17,6 +17,10 @@ description: GitGuardian (and similar PR secret scanners) flag random-looking fa
 2. If a high-entropy fake already landed in a PR: change it in a new commit (keeps the repo clean going forward) and ask the owner to mark the GitGuardian incident as a false positive / test credential. Only rewrite history if force-push is explicitly allowed.
 3. Existing repo fakes that never got flagged (e.g. older `SECRET-TOKEN-...`) are not proof that a new one will pass — detectors change and context words differ.
 
+## Second case (same day)
+
+`post(client, password="pw-zq!x")` — chosen to be non-hex so it could not appear inside a digest — was flagged as **Generic Password**: a mixed-symbol literal passed to a `password=` keyword looks like a real password. `"zzzz"` (non-hex, obviously fake, low entropy) passed. When a fake must avoid colliding with hashes, prefer repeated non-hex letters over symbol mixes. And when a flagged commit sits on a fresh PR branch, closing it and re-opening from a clean branch avoids rewriting history.
+
 ## Key Insights
 
 - Choose test secrets for the scanner, not for realism: realism buys nothing in a unit test.
