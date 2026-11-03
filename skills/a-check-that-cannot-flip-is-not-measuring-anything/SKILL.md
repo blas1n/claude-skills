@@ -280,3 +280,10 @@ post = lines[idx:]                                                   # 이후만
 ## Case: regression test whose input dodged the defect (2026-10-26, hots-replay-analysis PR #38)
 
 "짧은 관측 간격에서 추정점이 0개라 깜박인다"를 고치려고 창 29–33초·step 2 로 테스트를 썼더니 **수정 전부터 초록**. 격자 31초가 우연히 양쪽 관측(30, 32)에서 0.5초 이상 떨어져 결함을 피했다. 창 시작을 관측 시각(30)에 맞추자 격자 30·32 만 남아 RED → 수정 → GREEN. 규칙: 경계 결함 테스트의 입력은 **결함 조건을 정확히 만족하도록** 고르고, 먼저 RED 를 확인한다. 상세: [[a-grid-sampled-track-has-holes-at-its-anchors]].
+
+## Case: quality flag compared against the wrong enum spelling (2026-11-03, hots-replay-analysis PR #56)
+
+경기 품질 플래그 `not_pvp = game_mode not in ("QuickMatch", "StormLeague")` 를 썼는데, 실제 값은 `quick_match` / `storm_league` / `other` 였다. 플래그는 **347/347 경기에서 참** — 민감도 표 "−not_pvp" 열이 전부 빈 표본이 될 뻔했다. 잡은 신호는 테스트가 아니라 **플래그 개수 = 코퍼스 크기**라는 숫자였다. 합성 테스트는 내가 지어낸 철자(`"QuickMatch"`)로 행을 만들어 통과했다 — 테스트가 결함과 같은 가정을 공유했다.
+- 규칙: 범주 문자열로 거르는 플래그는 첫 실행에서 **값별 개수**(`Counter(game_mode)`)와 플래그 개수를 나란히 찍는다. 0 또는 전체면 철자부터 의심.
+- 더 나은 해법: 문자열 대신 **원본에서 직접 관측되는 사실**로 플래그를 정의한다(여기서는 `ai_slots > 0` — 33경기, `other` 33과 일치).
+- 합성 픽스처의 범주 값은 실제 산출물에서 복사한다. 지어낸 철자는 결함과 같은 가정을 공유한다.
