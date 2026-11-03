@@ -1,5 +1,5 @@
 {
-  "lastUpdated": 1793686550593,
+  "lastUpdated": 1793693155952,
   "skills": [
     {
       "skillId": "docs",
@@ -59,8 +59,7 @@
       "name": "pdf",
       "description": "Use this skill whenever the user wants to do anything with PDF files. This includes reading or extracting text/tables from PDFs, combining or merging multiple PDFs into one, splitting PDFs apart, rotating pages, adding watermarks, creating new PDFs, filling PDF forms, encrypting/decrypting PDFs, extracting images, and OCR on scanned PDFs to make them searchable. If the user mentions a .pdf file or asks to produce one, use this skill.",
       "source": "anthropic",
-      "updatedAt": "2026-07-10T19:23:15.432550Z",
-      "creatorType": "anthropic"
+      "updatedAt": "2026-11-03T08:00:21.562085Z"
     },
     {
       "skillId": "morning",
