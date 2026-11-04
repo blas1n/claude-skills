@@ -27,3 +27,10 @@ description: API 응답이 바이트 상한 안에서 어떤 블록을 줄이는
 - 골든 표본은 "생성 경로를 다시 실행한 결과"여야지 "손으로 고친 결과"이면 안 된다. 생성 경로에 필요한 원본(store)이 무겁다면 CoW 복제로 싸게 만든다.
 - 규칙 기반 사례 선택기는 코퍼스가 자라면 결과가 바뀐다. 재생성은 선택과 생성을 분리해 선택을 고정한다.
 - 관련: 재처리 배치가 도는 중에 캐시 지문에 포함된 소스 파일을 고치면 앞/뒤 경기의 시그니처가 섞인다 — 배치를 멈추고 코드를 확정한 뒤 다시 시작한다(완료분은 같은 시그니처면 건너뜀). [[a-cache-keyed-by-immutable-input-never-receives-the-parser-fix]]
+
+## Case: CI가 skip해서 표본 불일치가 PR에 실려 감 (PR #63, 2026-11-04)
+
+- `inputs`에 새 키를 추가한 PR이 표본을 갱신하지 않았는데 CI는 초록 — `test_hero_focus_real`/`test_tactical_real`은 리플레이가 없으면 skip. 로컬(리플레이 동기화된 워크트리)에서만 실패.
+- 응답 블록에 키를 추가하는 PR은 리뷰 시 **로컬에서 실데이터 테스트를 직접 돌려** skip이 아닌지 확인한다. 전술 표본(`make_tactical_sample.py`)은 운영 id secret이 필요 — `main/.env`의 `HOTS_MCP_ID_SECRET`만 export(값 출력 금지), sha 일치로 같은 경기 확인.
+- 축소 경계가 바뀌면 `docs/TACTICAL_MAP.md` §4의 구간 이력도 갱신.
+- 관련: [[an-unshrinkable-block-grows-at-the-shrinkable-blocks-expense]]
