@@ -309,7 +309,7 @@ class PPTXSchemaValidator(BaseSchemaValidator):
             except (lxml.etree.XMLSyntaxError, OSError):
                 root = None  
             if root is not None and (lxml.etree.QName(root).namespace or "").startswith(
-                "http://schemas.microsoft.com/"
+                "http://schemas.microsoft.com/office/"
             ):
                 return None
         return super()._get_schema_path(xml_file)
