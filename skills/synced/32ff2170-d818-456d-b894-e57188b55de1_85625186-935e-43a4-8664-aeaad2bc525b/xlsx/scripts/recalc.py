@@ -25,7 +25,6 @@ import time
 import zipfile
 from pathlib import Path
 from xml.parsers import expat
-from xml.sax.saxutils import escape, unescape
 
 from office.soffice import get_soffice_env, run_soffice
 
@@ -643,7 +642,7 @@ def _computed(copy_path, array_cells, names):
                     if strings is None:
                         shared = _xml(archive.read("xl/sharedStrings.xml"))
                         strings = [_rich_text(si) for si in shared.iter(f"{_MAIN_NS}si")]
-                    kind, text = b"str", escape(strings[int(text)]).encode()
+                    kind, text = b"str", html.escape(strings[int(text)], quote=False).encode()
                 f = _F_RE.search(content)
                 its_formula = (f and f[2]) or b""
                 if re.search(rb"[a-z]", its_formula):  
@@ -690,7 +689,10 @@ def _coordinate(row, column):
 
 
 def _text(formula):
-    return unescape(formula.decode(), {"&quot;": '"', "&apos;": "'"})
+    text = formula.decode()
+    for entity, character in (("&lt;", "<"), ("&gt;", ">"), ("&quot;", '"'), ("&apos;", "'")):
+        text = text.replace(entity, character)
+    return text.replace("&amp;", "&")  
 
 
 def _called(formula):
@@ -841,7 +843,7 @@ def _write_values(path, copy_path):
         computed, lacked = _computed(copy_path, array_cells, _sheet_names(archive))
         parts, found = {}, {"#NAME?": [], UNBALANCED: [], "not_computed": []}
         for name, part_name in sheets:
-            xml = _sheet_xml(archive, part_name)
+            xml = archive.read(part_name)  
             if name not in computed and _F_RE.search(xml):
                 raise ValueError(
                     f"LibreOffice's copy has no sheet called {name!r}: it renames or drops some "
