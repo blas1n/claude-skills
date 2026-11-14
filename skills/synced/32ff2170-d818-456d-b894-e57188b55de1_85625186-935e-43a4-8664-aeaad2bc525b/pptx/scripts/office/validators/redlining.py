@@ -219,6 +219,7 @@ class RedliningValidator:
         return new
 
     def _generate_detailed_diff(self, differences):
+        self._work_left = [self.WORK_ALLOWED]
         error_parts = [
             "FAILED - Document text doesn't match after removing the tracked changes",
             "",
@@ -260,39 +261,41 @@ class RedliningValidator:
         return "\n".join(error_parts)
 
     def _word_diff(self, original_text, modified_text):
-        old, new = original_text.split("\n"), modified_text.split("\n")
         out = []
-        for tag, i1, i2, j1, j2 in self._opcodes(old, new):
-            if tag == "replace" and i2 - i1 == j2 - j1:
-                pairs = zip(old[i1:i2], new[j1:j2])
-                out.extend(self._mark_changes(x, y) for x, y in pairs if x != y)
+        steps = self._steps(original_text.split("\n"), modified_text.split("\n"))
+        for tag, was, now in steps:
+            if tag == "replace" and len(was) == len(now):
+                out.extend(self._mark_changes(x, y) for x, y in zip(was, now) if x != y)
             elif tag != "equal":
-                was, now = "\n".join(old[i1:i2]), "\n".join(new[j1:j2])
-                out.append(self._mark_changes(was, now))
+                out.append(self._mark_changes("\n".join(was), "\n".join(now)))
         return "\n".join(out)
 
-    def _mark_changes(self, old, new, by_character=False):
+    def _mark_changes(self, old, new, by_character=False, trim=True):
 
         def mark(text, opening, closing):
             marked = re.sub(r"[^\n]+", lambda m: opening + m[0] + closing, text)
             return marked if marked.strip("\n") or opening == "{+" else ""
 
         pattern = "(?s)." if by_character else r"\S+\s*|\s+"
-        a, b = re.findall(pattern, old), re.findall(pattern, new)
         out = []
-        for tag, i1, i2, j1, j2 in self._opcodes(a, b, trim=not by_character):
-            was, now = "".join(a[i1:i2]), "".join(b[j1:j2])
+        steps = self._steps(re.findall(pattern, old), re.findall(pattern, new), trim)
+        for tag, was, now in steps:
+            lone_word = len(was) == len(now) == 1
+            was, now = "".join(was), "".join(now)
             if tag == "equal":
                 out.append(now)
             elif tag == "replace" and not by_character:
-                out.append(self._mark_changes(was, now, by_character=True))
+                long_word = lone_word and min(len(was), len(now)) > self.LONG_WORD
+                marked = self._mark_changes(was, now, by_character=True, trim=long_word)
+                out.append(marked)
             else:
                 out.append(mark(was, "[-", "-]") + mark(now, "{+", "+}"))
         return "".join(out)
 
     WORK_ALLOWED = 10_000_000
+    LONG_WORD = 200
 
-    def _opcodes(self, a, b, trim=True):
+    def _steps(self, a, b, trim=True):
 
         def shared_start(x, y):
             return next(
@@ -302,21 +305,22 @@ class RedliningValidator:
         head = shared_start(a, b) if trim else 0
         tail = shared_start(a[head:][::-1], b[head:][::-1]) if trim else 0
         a_mid, b_mid = a[head : len(a) - tail], b[head : len(b) - tail]
-        numbers = {}
-        numbered = [
-            [numbers.setdefault(x, len(numbers)) for x in s] for s in (a_mid, b_mid)
-        ]
         try:
-            steps = _Matcher(*numbered, self._work_left).get_opcodes()
+            if self._work_left[0] < len(a_mid):
+                self._work_left[0] = -1
+                raise _WorkSpent
+            numbers = {}
+            numbered = [
+                [numbers.setdefault(x, len(numbers)) for x in s] for s in (a_mid, b_mid)
+            ]
+            opcodes = _Matcher(*numbered, self._work_left).get_opcodes()
+            steps = [(tag, a_mid[i:j], b_mid[m:n]) for tag, i, j, m, n in opcodes]
         except _WorkSpent:
-            steps = [("replace", 0, len(a_mid), 0, len(b_mid))]
+            steps = [("replace", a_mid, b_mid)]
         return [
-            ("equal", 0, head, 0, head),
-            *(
-                (tag, i1 + head, i2 + head, j1 + head, j2 + head)
-                for tag, i1, i2, j1, j2 in steps
-            ),
-            ("equal", len(a) - tail, len(a), len(b) - tail, len(b)),
+            ("equal", a[:head], b[:head]),
+            *steps,
+            ("equal", a[len(a) - tail :], b[len(b) - tail :]),
         ]
 
     def _remove_tracked_changes(self, root, targets):
