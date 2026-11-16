@@ -15,6 +15,8 @@ not be completed" and converts nothing. get_soffice_env() stays public for the
 callers that build their own argv (they must pass -env:UserInstallation too).
 """
 
+from __future__ import annotations
+
 import contextlib
 import os
 import re
@@ -108,8 +110,11 @@ def _without_outside_links(arg: str, folder: Path) -> str:
         cut = {}
         for member in package.infolist():
             if member.filename.lower().endswith(".rels"):
-                too_large = member.file_size > _MAX_RELS_BYTES
-                rels = _NO_RELS if too_large else _cut_outside_links(package.read(member))
+                try:
+                    data = package.read(member) if member.file_size <= _MAX_RELS_BYTES else None
+                except Exception:  
+                    data = None
+                rels = _NO_RELS if data is None else _cut_outside_links(data)
                 if rels is not None:
                     cut[member.filename] = rels
         if not cut:
@@ -121,6 +126,7 @@ def _without_outside_links(arg: str, folder: Path) -> str:
                 entry = zipfile.ZipInfo(member.filename, member.date_time)
                 entry.compress_type = member.compress_type
                 if member.filename in cut:
+                    entry.compress_type = zipfile.ZIP_DEFLATED  
                     out.writestr(entry, cut[member.filename])
                 else:
                     with package.open(member) as source, out.open(entry, "w", force_zip64=True) as target:
